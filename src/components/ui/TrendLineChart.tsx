@@ -1,0 +1,89 @@
+interface TrendPoint {
+  label: string;
+  value: number;
+}
+
+interface TrendLineChartProps {
+  points: TrendPoint[];
+  color?: string;
+  height?: number;
+}
+
+const W = 380;
+const PAD = 18;
+
+function xPercent(i: number, count: number) {
+  const x = PAD + (i / Math.max(1, count - 1)) * (W - 2 * PAD);
+  return (x / W) * 100;
+}
+
+export function TrendLineChart({ points, color = "#10B981", height = 140 }: TrendLineChartProps) {
+  const H = height;
+  const values = points.map((p) => p.value);
+  const max = Math.max(...values, 0);
+  const min = Math.min(...values, 0);
+  const range = max - min || 1;
+
+  function norm(v: number) {
+    return H - PAD - ((v - min) / range) * (H - 2 * PAD);
+  }
+
+  function buildPath() {
+    return values
+      .map((v, i) => {
+        const x = PAD + (i / Math.max(1, values.length - 1)) * (W - 2 * PAD);
+        const y = norm(v);
+        return `${i === 0 ? "M" : "L"} ${x} ${y}`;
+      })
+      .join(" ");
+  }
+
+  function buildArea() {
+    const x0 = PAD;
+    const xN = PAD + (W - 2 * PAD);
+    return `${buildPath()} L ${xN} ${H - PAD} L ${x0} ${H - PAD} Z`;
+  }
+
+  const gradientId = `trend-grad-${color.replace("#", "")}`;
+
+  if (points.length === 0) {
+    return <p className="text-sm text-muted-foreground">Pas encore de données.</p>;
+  }
+
+  return (
+    <div>
+      <div className="relative">
+        <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="w-full block" style={{ height: `${H}px` }}>
+          <defs>
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={color} stopOpacity="0.22" />
+              <stop offset="100%" stopColor={color} stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <path d={buildArea()} fill={`url(#${gradientId})`} />
+          <path d={buildPath()} fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+          {values.map((v, i) => {
+            const x = PAD + (i / Math.max(1, values.length - 1)) * (W - 2 * PAD);
+            const y = norm(v);
+            return <circle key={i} cx={x} cy={y} r="3.5" fill="white" stroke={color} strokeWidth="2" />;
+          })}
+        </svg>
+        <div className="relative mt-1" style={{ height: "14px" }}>
+          {points.map((p, i) => (
+            <span
+              key={i}
+              className="absolute top-0 text-muted-foreground whitespace-nowrap"
+              style={{
+                left: `${xPercent(i, points.length)}%`,
+                transform: "translateX(-50%)",
+                fontSize: "10px",
+              }}
+            >
+              {p.label}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
