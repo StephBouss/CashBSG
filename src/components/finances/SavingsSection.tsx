@@ -35,7 +35,7 @@ export function SavingsSection({ type, title, color }: SavingsSectionProps) {
       {accounts.length === 0 ? (
         <p className="text-sm text-muted-foreground px-2">Aucune entrée pour l'instant.</p>
       ) : (
-        <div className="grid grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {accounts.map((account) => (
             <SavingsAccountCard key={account.id} account={account} color={color} onChanged={refetch} />
           ))}

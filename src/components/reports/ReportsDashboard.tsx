@@ -75,7 +75,7 @@ export function ReportsDashboard() {
       </div>
 
       {/* KPI Summary */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div className="p-4 rounded-lg" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
           <div className="flex items-center justify-between">
             <div>
@@ -115,7 +115,7 @@ export function ReportsDashboard() {
       </div>
 
       {/* Charts Row 1 */}
-      <div className="grid grid-cols-2 gap-5 mb-5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
         <div
           className="p-6 rounded-lg"
           style={{ background: "rgba(255,255,255,0.58)", backdropFilter: "blur(32px)", border: "1px solid rgba(255,255,255,0.75)", boxShadow: "0 8px 32px rgba(120,120,180,0.09)" }}
@@ -190,7 +190,7 @@ export function ReportsDashboard() {
       </div>
 
       {/* Charts Row 2 */}
-      <div className="grid grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         <div
           className="p-6 rounded-lg"
           style={{ background: "rgba(255,255,255,0.58)", backdropFilter: "blur(32px)", border: "1px solid rgba(255,255,255,0.75)", boxShadow: "0 8px 32px rgba(120,120,180,0.09)" }}

@@ -1,16 +1,14 @@
 import type { MonthFinancials } from "@/lib/calculations";
-import type { Tithe } from "@/types/budget";
 
 interface HealthScoreProps {
   financials: MonthFinancials;
-  tithe: Tithe | null;
 }
 
 function clamp(v: number, min = 0, max = 100) {
   return Math.max(min, Math.min(max, v));
 }
 
-function computeScore(financials: MonthFinancials, tithe: Tithe | null) {
+function computeScore(financials: MonthFinancials) {
   const { totalRevenus, solde, totalDepensesPayees, totalDepensesAVenir, totalDepensesEnRetard } =
     financials;
   const totalDepenses = totalDepensesPayees + totalDepensesAVenir + totalDepensesEnRetard;
@@ -18,24 +16,22 @@ function computeScore(financials: MonthFinancials, tithe: Tithe | null) {
   const tauxEpargne = totalRevenus > 0 ? clamp((solde / totalRevenus) * 100) : 0;
   const depensesATemps =
     totalDepenses > 0 ? clamp(100 - (totalDepensesEnRetard / totalDepenses) * 100) : 100;
-  const dimeScore = !tithe || tithe.montant === 0 ? 100 : tithe.statut === "paye" ? 100 : 40;
   const couverture = totalDepenses > 0 ? clamp((solde / totalDepenses) * 100) : 100;
 
-  const score = Math.round((tauxEpargne + depensesATemps + dimeScore + couverture) / 4);
+  const score = Math.round((tauxEpargne + depensesATemps + couverture) / 3);
 
   return {
     score: clamp(score),
     metrics: [
       { label: "Taux d'épargne", value: `${Math.round(tauxEpargne)}%`, color: "#10B981" },
       { label: "Dépenses à temps", value: `${Math.round(depensesATemps)}%`, color: "#3B82F6" },
-      { label: "Dîme", value: `${Math.round(dimeScore)}%`, color: "#F59E0B" },
       { label: "Couverture mensuelle", value: `${Math.round(couverture)}%`, color: "#6366F1" },
     ],
   };
 }
 
-export function HealthScore({ financials, tithe }: HealthScoreProps) {
-  const { score, metrics } = computeScore(financials, tithe);
+export function HealthScore({ financials }: HealthScoreProps) {
+  const { score, metrics } = computeScore(financials);
   const status = score >= 80 ? "Excellent" : score >= 60 ? "Bon" : "À améliorer";
   const statusColor = score >= 80 ? "#10B981" : score >= 60 ? "#F59E0B" : "#EF4444";
 

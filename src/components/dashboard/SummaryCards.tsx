@@ -5,7 +5,6 @@ import type { MonthFinancials } from "@/lib/calculations";
 interface SummaryCardsProps {
   financials: MonthFinancials;
   previousFinancials?: MonthFinancials;
-  dimeActive: boolean;
 }
 
 function trendPct(current: number, previous?: number): number | null {
@@ -23,7 +22,7 @@ interface CardDef {
   featured?: boolean;
 }
 
-export function SummaryCards({ financials, previousFinancials, dimeActive }: SummaryCardsProps) {
+export function SummaryCards({ financials, previousFinancials }: SummaryCardsProps) {
   const cards: CardDef[] = [
     {
       icon: "💰",
@@ -32,13 +31,13 @@ export function SummaryCards({ financials, previousFinancials, dimeActive }: Sum
       trend: trendPct(financials.totalRevenus, previousFinancials?.totalRevenus),
       accent: "#10B981",
     },
-    ...(dimeActive
+    ...(financials.dime > 0
       ? [
           {
             icon: "🙏",
-            label: `Dîme (${financials.pourcentageDime}%)`,
+            label: "Dîme",
             value: financials.dime,
-            sub: "Calculée automatiquement",
+            sub: "Comptée comme une dépense",
             accent: "#F59E0B",
           },
         ]

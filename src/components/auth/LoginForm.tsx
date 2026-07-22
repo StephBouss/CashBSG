@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useAuth } from "@/hooks/useAuth";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
+import logoFull from "@/assets/logo-full.png";
 
 const loginSchema = z.object({
   email: z.string().email("Email invalide"),
@@ -32,7 +33,7 @@ export function LoginForm() {
       setError("root", { message: error.message });
       return;
     }
-    navigate("/");
+    navigate("/app");
   };
 
   if (showForgotPassword) {
@@ -41,7 +42,8 @@ export function LoginForm() {
 
   return (
     <GlassCard className="w-full max-w-sm">
-      <h1 className="mb-6 text-2xl font-bold text-foreground">Connexion à Budget+</h1>
+      <img src={logoFull} alt="Iwadu Cash" className="h-7 mb-6" />
+      <h1 className="mb-6 text-2xl font-bold text-foreground">Bienvenue</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
         <input
           {...register("email")}
@@ -79,7 +81,7 @@ export function LoginForm() {
         Continuer avec Google
       </button>
       <p className="mt-4 text-center text-sm text-muted-foreground">
-        Pas de compte ? <a href="/signup" className="text-primary">Créer un compte</a>
+        Pas de compte ? <Link to="/signup" className="text-primary">Créer un compte</Link>
       </p>
     </GlassCard>
   );

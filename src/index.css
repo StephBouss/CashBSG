@@ -25,9 +25,60 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  [id] {
+    scroll-margin-top: 96px;
+  }
+
   body {
     @apply min-h-screen text-foreground antialiased;
     background: linear-gradient(145deg, #eef0f5 0%, #e8ebf2 40%, #ebf0ec 100%);
     background-attachment: fixed;
+  }
+}
+
+@keyframes blob-float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(24px, -32px) scale(1.08);
+  }
+}
+
+.animate-blob {
+  animation: blob-float 16s ease-in-out infinite;
+}
+
+.animate-blob-slow {
+  animation: blob-float 22s ease-in-out infinite reverse;
+}
+
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-hero-float {
+  animation: hero-float 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-blob,
+  .animate-blob-slow,
+  .animate-hero-float {
+    animation: none;
   }
 }

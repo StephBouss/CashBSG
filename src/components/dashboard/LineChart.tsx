@@ -14,6 +14,10 @@ function xPercent(i: number, count: number) {
 }
 
 export function LineChart({ points }: LineChartProps) {
+  if (points.length === 0) {
+    return <p className="text-sm text-muted-foreground">Pas encore assez de données.</p>;
+  }
+
   const values = points.map((p) => p.solde);
   const max = Math.max(...values, 0);
   const min = Math.min(...values, 0);

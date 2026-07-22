@@ -2,46 +2,33 @@ import { NavLink } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
+import logoIcon from "@/assets/logo-icon.png";
 
 const navItems = [
-  { to: "/", label: "Dashboard", icon: "layout-dashboard", end: true },
-  { to: "/revenus", label: "Revenus", icon: "trending-up" },
-  { to: "/depenses", label: "Dépenses", icon: "credit-card" },
-  { to: "/finances", label: "Finances", icon: "piggy-bank" },
-  { to: "/objectifs", label: "Objectifs", icon: "target" },
-  { to: "/rapports", label: "Rapports", icon: "bar-chart-2" },
-  { to: "/conseiller-ia", label: "IA Conseiller", icon: "bot" },
+  { to: "/app", label: "Dashboard", icon: "layout-dashboard", end: true },
+  { to: "/app/revenus", label: "Revenus", icon: "trending-up" },
+  { to: "/app/depenses", label: "Dépenses", icon: "credit-card" },
+  { to: "/app/finances", label: "Finances", icon: "piggy-bank" },
+  { to: "/app/objectifs", label: "Objectifs", icon: "target" },
+  { to: "/app/rapports", label: "Rapports", icon: "bar-chart-2" },
+  { to: "/app/conseiller-ia", label: "IA Conseiller", icon: "bot" },
+  { to: "/app/parametres", label: "Paramètres", icon: "settings" },
 ];
 
-export function Sidebar() {
-  const { data: profile } = useProfile();
-  const { user } = useAuth();
+interface SidebarContentProps {
+  displayName: string;
+  initial: string;
+  onNavigate?: () => void;
+}
 
-  const displayName = profile?.nom || user?.email || "";
-  const initial = displayName.charAt(0).toUpperCase();
-
+function SidebarContent({ displayName, initial, onNavigate }: SidebarContentProps) {
   return (
-    <aside
-      className="hidden flex-col py-8 px-5 md:flex"
-      style={{
-        width: "240px",
-        minWidth: "240px",
-        background: "rgba(255,255,255,0.62)",
-        backdropFilter: "blur(40px)",
-        WebkitBackdropFilter: "blur(40px)",
-        borderRight: "1px solid rgba(255,255,255,0.72)",
-      }}
-    >
+    <>
       {/* Logo */}
       <div className="flex items-center gap-3 mb-10 px-2">
-        <div
-          className="w-9 h-9 rounded-md flex items-center justify-center"
-          style={{ background: "linear-gradient(135deg, #10B981 0%, #3B82F6 100%)" }}
-        >
-          <span className="text-white font-headings font-semibold text-base">B+</span>
-        </div>
+        <img src={logoIcon} alt="Iwadu Cash" className="w-9 h-9" />
         <span className="font-headings font-semibold text-lg text-foreground tracking-tight">
-          Budget+
+          Iwadu Cash
         </span>
       </div>
 
@@ -52,6 +39,7 @@ export function Sidebar() {
             key={item.to}
             to={item.to}
             end={item.end}
+            onClick={onNavigate}
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium ${
                 isActive ? "text-primary" : "text-foreground opacity-60 hover:opacity-100"
@@ -95,6 +83,66 @@ export function Sidebar() {
         </div>
         <Icon i="chevron-right" size={14} />
       </div>
-    </aside>
+    </>
+  );
+}
+
+interface SidebarProps {
+  mobileOpen?: boolean;
+  onCloseMobile?: () => void;
+}
+
+export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
+  const { data: profile } = useProfile();
+  const { user } = useAuth();
+
+  const displayName = profile?.nom || user?.email || "";
+  const initial = displayName.charAt(0).toUpperCase();
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside
+        className="hidden flex-col py-8 px-5 md:flex"
+        style={{
+          width: "240px",
+          minWidth: "240px",
+          background: "rgba(255,255,255,0.62)",
+          backdropFilter: "blur(40px)",
+          WebkitBackdropFilter: "blur(40px)",
+          borderRight: "1px solid rgba(255,255,255,0.72)",
+        }}
+      >
+        <SidebarContent displayName={displayName} initial={initial} />
+      </aside>
+
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="absolute inset-0 bg-black/40" onClick={onCloseMobile} />
+          <aside
+            className="relative flex flex-col py-8 px-5 h-full"
+            style={{
+              width: "80%",
+              maxWidth: "280px",
+              background: "rgba(245,246,250,0.98)",
+              backdropFilter: "blur(40px)",
+              borderRight: "1px solid rgba(255,255,255,0.72)",
+            }}
+          >
+            <button
+              type="button"
+              aria-label="Fermer le menu"
+              onClick={onCloseMobile}
+              className="absolute top-6 right-5 w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.85)" }}
+            >
+              <Icon i="x" size={16} />
+            </button>
+            <SidebarContent displayName={displayName} initial={initial} onNavigate={onCloseMobile} />
+          </aside>
+        </div>
+      )}
+    </>
   );
 }

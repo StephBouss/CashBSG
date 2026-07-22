@@ -1,9 +1,8 @@
 import { useMemo, useState } from "react";
 import { useIncomes } from "@/hooks/useIncomes";
 import { useExpenses } from "@/hooks/useExpenses";
-import { useProfile } from "@/hooks/useProfile";
 import { useCategories } from "@/hooks/useCategories";
-import { useTithe } from "@/hooks/useTithe";
+import { useDimeAmount } from "@/hooks/useDimeAmount";
 import { useGoals } from "@/hooks/useGoals";
 import { useMonthlyTrend } from "@/hooks/useMonthlyTrend";
 import { computeMonthFinancials } from "@/lib/calculations";
@@ -26,29 +25,26 @@ const monthTitleFormatter = new Intl.DateTimeFormat("fr-FR", { month: "long", ye
 export default function DashboardPage() {
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { data: profile } = useProfile();
   const { data: incomes = [], refetch: refetchIncomes } = useIncomes();
   const { data: expenses = [], refetch: refetchExpenses } = useExpenses();
   const { data: categories = [] } = useCategories();
-  const { data: tithe = null } = useTithe();
   const { data: goals = [] } = useGoals();
   const { data: trend = [] } = useMonthlyTrend(6);
+  const { data: dimeMontant = 0 } = useDimeAmount();
 
   const previousMonth = subMonths(new Date(), 1);
   const { data: prevIncomes = [] } = useIncomes(previousMonth, { realtime: false });
   const { data: prevExpenses = [] } = useExpenses(previousMonth, { realtime: false });
-
-  const dimeActive = profile?.dimeActive ?? false;
-  const pourcentageDime = dimeActive ? profile?.pourcentageDime ?? 15 : 0;
+  const { data: prevDimeMontant = 0 } = useDimeAmount(previousMonth);
 
   const financials = useMemo(
-    () => computeMonthFinancials(incomes, expenses, pourcentageDime),
-    [incomes, expenses, pourcentageDime]
+    () => computeMonthFinancials(incomes, expenses, dimeMontant),
+    [incomes, expenses, dimeMontant]
   );
 
   const previousFinancials = useMemo(
-    () => computeMonthFinancials(prevIncomes, prevExpenses, pourcentageDime),
-    [prevIncomes, prevExpenses, pourcentageDime]
+    () => computeMonthFinancials(prevIncomes, prevExpenses, prevDimeMontant),
+    [prevIncomes, prevExpenses, prevDimeMontant]
   );
 
   const categoryTotals = useMemo(() => expensesByCategory(expenses, categories, 6), [expenses, categories]);
@@ -82,7 +78,7 @@ export default function DashboardPage() {
       </div>
 
       {/* KPI Cards */}
-      <SummaryCards financials={financials} previousFinancials={previousFinancials} dimeActive={dimeActive} />
+      <SummaryCards financials={financials} previousFinancials={previousFinancials} />
 
       {/* Charts row */}
       <div className="flex gap-5 mt-6">
@@ -111,7 +107,7 @@ export default function DashboardPage() {
 
         <div className="flex flex-col gap-5" style={{ width: "280px" }}>
           <GlassCard className="p-5">
-            <HealthScore financials={financials} tithe={tithe} />
+            <HealthScore financials={financials} />
           </GlassCard>
           <GlassCard className="p-5">
             <GoalsWidget goals={goals} />

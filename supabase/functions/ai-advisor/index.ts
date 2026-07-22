@@ -71,9 +71,9 @@ Deno.serve(async (req) => {
     const start = startOfMonthISO(now);
     const end = endOfMonthISO(now);
 
-    const [{ data: profile }, { data: incomes }, { data: expenses }, { data: goals }, { data: history }] =
+    const [{ data: profile }, { data: incomes }, { data: expenses }, { data: goals }, { data: history }, { data: savingsAccounts }] =
       await Promise.all([
-        supabase.from("profiles").select("pourcentage_dime, devise").eq("id", user.id).single(),
+        supabase.from("profiles").select("devise").eq("id", user.id).single(),
         supabase
           .from("incomes")
           .select("nom, montant, date")
@@ -92,17 +92,36 @@ Deno.serve(async (req) => {
           .select("role, content")
           .order("created_at", { ascending: false })
           .limit(10),
+        supabase.from("savings_accounts").select("id, nom"),
       ]);
 
     const devise = profile?.devise ?? "FCFA";
     const totalRevenus = (incomes ?? []).reduce((s, i) => s + Number(i.montant), 0);
     const totalDepenses = (expenses ?? []).reduce((s, e) => s + Number(e.montant), 0);
-    const dime = totalRevenus * ((profile?.pourcentage_dime ?? 15) / 100);
+
+    // La dîme n'est plus un pourcentage automatique : c'est une épargne que
+    // l'utilisateur crée lui-même (nommée "Dîme"), comptée comme une dépense.
+    const normalize = (v: string) =>
+      v.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+    const dimeAccountIds = (savingsAccounts ?? [])
+      .filter((a) => normalize(a.nom).includes("dime"))
+      .map((a) => a.id);
+
+    let dime = 0;
+    if (dimeAccountIds.length > 0) {
+      const { data: dimeMovements } = await supabase
+        .from("savings_movements")
+        .select("montant")
+        .in("account_id", dimeAccountIds)
+        .gte("date", start)
+        .lte("date", end);
+      dime = (dimeMovements ?? []).reduce((s, m) => s + Number(m.montant), 0);
+    }
 
     const contextSummary = `Contexte financier du mois en cours (devise: ${devise}) :
 - Revenus totaux : ${totalRevenus} ${devise}
 - Dépenses totales : ${totalDepenses} ${devise}
-- Dîme (${profile?.pourcentage_dime ?? 15}%) : ${Math.round(dime)} ${devise}
+- Dîme versée ce mois (comptée comme une dépense) : ${Math.round(dime)} ${devise}
 - Détail dépenses : ${(expenses ?? [])
       .map((e) => `${e.nom} (${e.montant} ${devise}, ${e.statut})`)
       .join(", ") || "aucune"}

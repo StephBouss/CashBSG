@@ -109,7 +109,7 @@ export function GoalsGallery({ goals, onChanged, onAddClick }: GoalsGalleryProps
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                   <div className="p-3 rounded-lg" style={{ background: `${goal.couleur}10`, border: `1px solid ${goal.couleur}20` }}>
                     <p className="text-xs text-muted-foreground">Économisé</p>
                     <p className="text-sm font-semibold mt-1" style={{ color: goal.couleur }}>
@@ -152,7 +152,7 @@ export function GoalsGallery({ goals, onChanged, onAddClick }: GoalsGalleryProps
       )}
 
       {goals.length > 0 && (
-        <div className="grid grid-cols-3 gap-4 mt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
           <div className="p-5 rounded-lg" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
             <div className="flex items-center gap-2 mb-2">
               <Icon i="target" size={16} style={{ color: "#10B981" }} />

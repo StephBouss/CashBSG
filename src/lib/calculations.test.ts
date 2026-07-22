@@ -29,11 +29,11 @@ function expense(montant: number, statut: Expense["statut"]): Expense {
 }
 
 describe("computeMonthFinancials", () => {
-  it("calcule la dîme et le solde pour un mois équilibré", () => {
+  it("compte la dîme comme une dépense dans le solde", () => {
     const result = computeMonthFinancials(
       [income(900_000)],
       [expense(600_000, "paye")],
-      15
+      135_000
     );
 
     expect(result.totalRevenus).toBe(900_000);
@@ -46,7 +46,7 @@ describe("computeMonthFinancials", () => {
     const result = computeMonthFinancials(
       [income(500_000)],
       [expense(100_000, "a_venir"), expense(50_000, "en_retard"), expense(200_000, "paye")],
-      15
+      75_000
     );
 
     expect(result.totalDepensesPayees).toBe(200_000);
@@ -59,7 +59,7 @@ describe("computeMonthFinancials", () => {
     const result = computeMonthFinancials(
       [income(300_000)],
       [expense(280_000, "paye")],
-      20
+      60_000
     );
 
     expect(result.dime).toBe(60_000);
@@ -67,17 +67,22 @@ describe("computeMonthFinancials", () => {
     expect(result.solde).toBeLessThan(0);
   });
 
-  it("gère l'absence de revenus et de dépenses", () => {
-    const result = computeMonthFinancials([], [], 15);
+  it("gère l'absence de revenus, de dépenses et de dîme", () => {
+    const result = computeMonthFinancials([], [], 0);
 
     expect(result).toEqual({
       totalRevenus: 0,
-      pourcentageDime: 15,
       dime: 0,
       totalDepensesPayees: 0,
       totalDepensesAVenir: 0,
       totalDepensesEnRetard: 0,
       solde: 0,
     });
+  });
+
+  it("le montant de dîme est optionnel et vaut 0 par défaut", () => {
+    const result = computeMonthFinancials([income(100_000)], []);
+    expect(result.dime).toBe(0);
+    expect(result.solde).toBe(100_000);
   });
 });

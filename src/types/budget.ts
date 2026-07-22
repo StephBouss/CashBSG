@@ -33,25 +33,11 @@ export interface Expense {
   datePaiement: string | null;
 }
 
-export type TitheStatut = "paye" | "du";
-
-export interface Tithe {
-  id: string;
-  userId: string;
-  revenuBrut: number;
-  pourcentage: number;
-  montant: number;
-  statut: TitheStatut;
-  date: string;
-}
-
 export interface Profile {
   id: string;
   nom: string | null;
   devise: string;
   langue: string;
-  pourcentageDime: number;
-  dimeActive: boolean;
 }
 
 export interface Goal {

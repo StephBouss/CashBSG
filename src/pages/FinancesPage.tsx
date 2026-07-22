@@ -1,21 +1,21 @@
 import { useState } from "react";
-import { TitheSection } from "@/components/finances/TitheSection";
 import { SavingsSection } from "@/components/finances/SavingsSection";
 
 const TABS = [
-  { key: "dime", label: "Dîme" },
   { key: "epargne", label: "Épargne" },
   { key: "investissement", label: "Investissement" },
 ] as const;
 
 export default function FinancesPage() {
-  const [tab, setTab] = useState<(typeof TABS)[number]["key"]>("dime");
+  const [tab, setTab] = useState<(typeof TABS)[number]["key"]>("epargne");
 
   return (
     <div className="flex flex-col min-w-0">
       <div className="mb-6">
         <h1 className="text-2xl font-headings font-semibold text-foreground">Finances</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Dîme, épargne et investissements</p>
+        <p className="text-sm text-muted-foreground mt-0.5">
+          Épargne et investissements — créez un compte « Dîme » pour la suivre ici.
+        </p>
       </div>
 
       <div className="flex gap-2 mb-6">
@@ -35,7 +35,6 @@ export default function FinancesPage() {
         ))}
       </div>
 
-      {tab === "dime" && <TitheSection />}
       {tab === "epargne" && <SavingsSection type="epargne" title="Mes épargnes" color="#3B82F6" />}
       {tab === "investissement" && (
         <SavingsSection type="investissement" title="Mes investissements" color="#6366F1" />

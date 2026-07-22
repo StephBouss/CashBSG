@@ -37,7 +37,7 @@ export default function ResetPasswordPage() {
       return;
     }
     setSuccess(true);
-    setTimeout(() => navigate("/"), 1500);
+    setTimeout(() => navigate("/app"), 1500);
   };
 
   return (

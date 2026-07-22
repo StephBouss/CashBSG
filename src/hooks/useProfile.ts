@@ -12,7 +12,7 @@ export function useProfile() {
     queryFn: async (): Promise<Profile> => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, nom, devise, langue, pourcentage_dime, dime_active")
+        .select("id, nom, devise, langue")
         .eq("id", user!.id)
         .single();
 
@@ -23,23 +23,12 @@ export function useProfile() {
         nom: data.nom,
         devise: data.devise,
         langue: data.langue,
-        pourcentageDime: data.pourcentage_dime,
-        dimeActive: data.dime_active,
       };
     },
   });
 }
 
-export async function updateTithePercentage(userId: string, pourcentageDime: number) {
-  const { error } = await supabase
-    .from("profiles")
-    .update({ pourcentage_dime: pourcentageDime })
-    .eq("id", userId);
-
-  if (error) throw error;
-}
-
-export async function setTitheActive(userId: string, active: boolean) {
-  const { error } = await supabase.from("profiles").update({ dime_active: active }).eq("id", userId);
+export async function updateProfileName(userId: string, nom: string) {
+  const { error } = await supabase.from("profiles").update({ nom }).eq("id", userId);
   if (error) throw error;
 }
