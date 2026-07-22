@@ -29,7 +29,7 @@ export function SummaryCards({ financials, previousFinancials }: SummaryCardsPro
       label: "Revenus du mois",
       value: financials.totalRevenus,
       trend: trendPct(financials.totalRevenus, previousFinancials?.totalRevenus),
-      accent: "#10B981",
+      accent: "var(--color-primary)",
     },
     ...(financials.dime > 0
       ? [
@@ -47,7 +47,7 @@ export function SummaryCards({ financials, previousFinancials }: SummaryCardsPro
       label: "Dépenses payées",
       value: financials.totalDepensesPayees,
       trend: trendPct(financials.totalDepensesPayees, previousFinancials?.totalDepensesPayees),
-      accent: "#3B82F6",
+      accent: "var(--color-secondary)",
     },
     {
       icon: "⏳",
@@ -61,7 +61,7 @@ export function SummaryCards({ financials, previousFinancials }: SummaryCardsPro
       label: "Solde disponible",
       value: financials.solde,
       sub: "Après toutes charges",
-      accent: financials.solde >= 0 ? "#10B981" : "#EF4444",
+      accent: financials.solde >= 0 ? "var(--color-primary)" : "#EF4444",
       featured: true,
     },
   ];
@@ -75,10 +75,10 @@ export function SummaryCards({ financials, previousFinancials }: SummaryCardsPro
           style={{
             background: card.featured
               ? "linear-gradient(135deg, rgba(16,185,129,0.18) 0%, rgba(59,130,246,0.14) 100%)"
-              : "rgba(255,255,255,0.58)",
+              : "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.58)",
             border: card.featured
               ? "1px solid rgba(16,185,129,0.35)"
-              : "1px solid rgba(255,255,255,0.75)",
+              : "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.75)",
             boxShadow: card.featured
               ? "0 0 32px rgba(16,185,129,0.12), 0 8px 32px rgba(120,120,180,0.10)"
               : "0 8px 32px rgba(120,120,180,0.09)",
@@ -90,7 +90,7 @@ export function SummaryCards({ financials, previousFinancials }: SummaryCardsPro
           {card.featured && (
             <div
               className="absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-30 pointer-events-none"
-              style={{ background: "radial-gradient(circle, #10B981 0%, transparent 70%)" }}
+              style={{ background: "radial-gradient(circle, var(--color-primary) 0%, transparent 70%)" }}
             />
           )}
 
@@ -100,7 +100,7 @@ export function SummaryCards({ financials, previousFinancials }: SummaryCardsPro
             className="font-headings font-semibold leading-tight mb-1"
             style={{
               fontSize: card.featured ? "22px" : "16px",
-              color: card.featured ? card.accent : "#1a1a2e",
+              color: card.featured ? card.accent : "var(--color-ink)",
             }}
           >
             {formatMontant(card.value)}
@@ -109,7 +109,7 @@ export function SummaryCards({ financials, previousFinancials }: SummaryCardsPro
             <div className="flex items-center gap-1 mt-1">
               <span
                 className="text-xs font-semibold"
-                style={{ color: card.trend >= 0 ? "#10B981" : "#EF4444" }}
+                style={{ color: card.trend >= 0 ? "var(--color-primary)" : "#EF4444" }}
               >
                 {card.trend >= 0 ? "+" : ""}
                 {card.trend}%
@@ -118,7 +118,7 @@ export function SummaryCards({ financials, previousFinancials }: SummaryCardsPro
             </div>
           )}
           {card.sub && (
-            <p className="text-xs mt-1" style={{ color: "rgba(30,30,60,0.4)" }}>
+            <p className="text-xs mt-1" style={{ color: "rgba(var(--ink-r),var(--ink-g),var(--ink-b),0.4)" }}>
               {card.sub}
             </p>
           )}

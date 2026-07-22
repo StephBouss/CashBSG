@@ -74,9 +74,9 @@ export function NewSavingsAccountModal({ type, onClose, onCreated }: NewSavingsA
       <div
         className="w-full max-w-sm p-6 rounded-lg relative max-h-[90vh] overflow-y-auto"
         style={{
-          background: "rgba(255,255,255,0.95)",
+          background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.95)",
           backdropFilter: "blur(40px)",
-          border: "1px solid rgba(255,255,255,0.85)",
+          border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.85)",
           boxShadow: "0 24px 64px rgba(120,120,180,0.20)",
         }}
         onClick={(e) => e.stopPropagation()}
@@ -114,7 +114,7 @@ export function NewSavingsAccountModal({ type, onClose, onCreated }: NewSavingsA
                 className="flex-1 py-2 px-4 rounded-lg font-medium text-sm"
                 style={{
                   background: mode === "montant" ? "rgba(16,185,129,0.15)" : "rgba(0,0,0,0.04)",
-                  color: mode === "montant" ? "#10B981" : "#1a1a2e",
+                  color: mode === "montant" ? "var(--color-primary)" : "var(--color-ink)",
                   border: mode === "montant" ? "1px solid rgba(16,185,129,0.3)" : "1px solid transparent",
                 }}
               >
@@ -126,7 +126,7 @@ export function NewSavingsAccountModal({ type, onClose, onCreated }: NewSavingsA
                 className="flex-1 py-2 px-4 rounded-lg font-medium text-sm"
                 style={{
                   background: mode === "pourcentage" ? "rgba(59,130,246,0.15)" : "rgba(0,0,0,0.04)",
-                  color: mode === "pourcentage" ? "#3B82F6" : "#1a1a2e",
+                  color: mode === "pourcentage" ? "var(--color-secondary)" : "var(--color-ink)",
                   border: mode === "pourcentage" ? "1px solid rgba(59,130,246,0.3)" : "1px solid transparent",
                 }}
               >
@@ -200,7 +200,7 @@ export function NewSavingsAccountModal({ type, onClose, onCreated }: NewSavingsA
             type="button"
             onClick={onClose}
             className="flex-1 py-2.5 px-4 rounded-lg font-medium text-sm"
-            style={{ background: "rgba(0,0,0,0.06)", color: "#1a1a2e" }}
+            style={{ background: "rgba(0,0,0,0.06)", color: "var(--color-ink)" }}
           >
             Annuler
           </button>
@@ -210,7 +210,7 @@ export function NewSavingsAccountModal({ type, onClose, onCreated }: NewSavingsA
             disabled={submitting}
             className="flex-1 py-2.5 px-4 rounded-lg font-medium text-sm text-white disabled:opacity-60"
             style={{
-              background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+              background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)",
               boxShadow: "0 4px 12px rgba(16,185,129,0.25)",
             }}
           >

@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { createGoal } from "@/hooks/useGoals";
 
 const EMOJIS = ["🎯", "🚗", "🏠", "✈️", "📚", "💻", "🎓", "💍", "🏥", "🎁"];
-const COLORS = ["#10B981", "#3B82F6", "#F59E0B", "#EC4899", "#6366F1", "#14B8A6"];
+const COLORS = ["var(--color-primary)", "var(--color-secondary)", "#F59E0B", "#EC4899", "#6366F1", "#14B8A6"];
 
 const schema = z.object({
   label: z.string().min(1, "Le nom de l'objectif est requis"),
@@ -61,9 +61,9 @@ export function NewGoalModal({ onClose, onCreated }: NewGoalModalProps) {
       <div
         className="w-full max-w-md p-6 rounded-lg relative"
         style={{
-          background: "rgba(255,255,255,0.95)",
+          background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.95)",
           backdropFilter: "blur(40px)",
-          border: "1px solid rgba(255,255,255,0.85)",
+          border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.85)",
           boxShadow: "0 24px 64px rgba(120,120,180,0.20)",
         }}
         onClick={(e) => e.stopPropagation()}
@@ -112,7 +112,7 @@ export function NewGoalModal({ onClose, onCreated }: NewGoalModalProps) {
                   className="w-7 h-7 rounded-full"
                   style={{
                     background: c,
-                    outline: selectedCouleur === c ? "2px solid #1a1a2e" : "none",
+                    outline: selectedCouleur === c ? "2px solid var(--color-ink)" : "none",
                     outlineOffset: "2px",
                   }}
                 />
@@ -204,7 +204,7 @@ export function NewGoalModal({ onClose, onCreated }: NewGoalModalProps) {
               type="button"
               onClick={onClose}
               className="flex-1 py-2.5 px-4 rounded-lg font-medium text-sm"
-              style={{ background: "rgba(0,0,0,0.06)", color: "#1a1a2e" }}
+              style={{ background: "rgba(0,0,0,0.06)", color: "var(--color-ink)" }}
             >
               Annuler
             </button>
@@ -213,7 +213,7 @@ export function NewGoalModal({ onClose, onCreated }: NewGoalModalProps) {
               disabled={isSubmitting}
               className="flex-1 py-2.5 px-4 rounded-lg font-medium text-sm text-white disabled:opacity-60"
               style={{
-                background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+                background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)",
                 boxShadow: "0 4px 12px rgba(16,185,129,0.25)",
               }}
             >

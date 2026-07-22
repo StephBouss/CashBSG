@@ -18,10 +18,11 @@ const navItems = [
 interface SidebarContentProps {
   displayName: string;
   initial: string;
+  isAdmin: boolean;
   onNavigate?: () => void;
 }
 
-function SidebarContent({ displayName, initial, onNavigate }: SidebarContentProps) {
+function SidebarContent({ displayName, initial, isAdmin, onNavigate }: SidebarContentProps) {
   return (
     <>
       {/* Logo */}
@@ -59,19 +60,43 @@ function SidebarContent({ displayName, initial, onNavigate }: SidebarContentProp
             <span>{item.label}</span>
           </NavLink>
         ))}
+
+        {isAdmin && (
+          <>
+            <div className="mx-3 mb-2 mt-1" style={{ height: "1px", background: "rgba(0,0,0,0.08)" }} />
+            <NavLink
+              to="/app/admin"
+              onClick={onNavigate}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium"
+              style={({ isActive }) =>
+                isActive
+                  ? {
+                      background: "linear-gradient(135deg, #7C3AED, #4F46E5)",
+                      boxShadow: "0 4px 16px rgba(124,58,237,0.3)",
+                      border: "1px solid rgba(124,58,237,0.4)",
+                      color: "white",
+                    }
+                  : { border: "1px solid transparent", color: "#7C3AED", opacity: 0.85 }
+              }
+            >
+              <Icon i="shield" size={17} />
+              <span>Administration</span>
+            </NavLink>
+          </>
+        )}
       </nav>
 
       {/* Bottom profile */}
       <div
         className="flex items-center gap-3 mt-8 p-3 rounded-lg"
         style={{
-          background: "rgba(255,255,255,0.55)",
-          border: "1px solid rgba(255,255,255,0.75)",
+          background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.55)",
+          border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.75)",
         }}
       >
         <div
           className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0"
-          style={{ background: "linear-gradient(135deg, #10B981, #3B82F6)" }}
+          style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))" }}
         >
           {initial}
         </div>
@@ -98,6 +123,7 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
 
   const displayName = profile?.nom || user?.email || "";
   const initial = displayName.charAt(0).toUpperCase();
+  const isAdmin = profile?.isAdmin ?? false;
 
   return (
     <>
@@ -107,13 +133,13 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
         style={{
           width: "240px",
           minWidth: "240px",
-          background: "rgba(255,255,255,0.62)",
+          background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.62)",
           backdropFilter: "blur(40px)",
           WebkitBackdropFilter: "blur(40px)",
-          borderRight: "1px solid rgba(255,255,255,0.72)",
+          borderRight: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.72)",
         }}
       >
-        <SidebarContent displayName={displayName} initial={initial} />
+        <SidebarContent displayName={displayName} initial={initial} isAdmin={isAdmin} />
       </aside>
 
       {/* Mobile drawer */}
@@ -127,7 +153,7 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
               maxWidth: "280px",
               background: "rgba(245,246,250,0.98)",
               backdropFilter: "blur(40px)",
-              borderRight: "1px solid rgba(255,255,255,0.72)",
+              borderRight: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.72)",
             }}
           >
             <button
@@ -135,11 +161,11 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
               aria-label="Fermer le menu"
               onClick={onCloseMobile}
               className="absolute top-6 right-5 w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(255,255,255,0.85)" }}
+              style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.85)" }}
             >
               <Icon i="x" size={16} />
             </button>
-            <SidebarContent displayName={displayName} initial={initial} onNavigate={onCloseMobile} />
+            <SidebarContent displayName={displayName} initial={initial} isAdmin={isAdmin} onNavigate={onCloseMobile} />
           </aside>
         </div>
       )}

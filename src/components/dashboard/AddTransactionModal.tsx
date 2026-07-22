@@ -76,10 +76,10 @@ export function AddTransactionModal({ onClose, onCreated, defaultType = "depense
       <div
         className="w-full max-w-md p-6 rounded-lg relative"
         style={{
-          background: "rgba(255,255,255,0.95)",
+          background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.95)",
           backdropFilter: "blur(40px)",
           WebkitBackdropFilter: "blur(40px)",
-          border: "1px solid rgba(255,255,255,0.85)",
+          border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.85)",
           boxShadow: "0 24px 64px rgba(120,120,180,0.20)",
         }}
         onClick={(e) => e.stopPropagation()}
@@ -106,7 +106,7 @@ export function AddTransactionModal({ onClose, onCreated, defaultType = "depense
               className="flex-1 py-2 px-4 rounded-lg font-medium text-sm"
               style={{
                 background: type === "revenu" ? "rgba(16,185,129,0.15)" : "rgba(0,0,0,0.04)",
-                color: type === "revenu" ? "#10B981" : "#1a1a2e",
+                color: type === "revenu" ? "var(--color-primary)" : "var(--color-ink)",
                 border: type === "revenu" ? "1px solid rgba(16,185,129,0.3)" : "1px solid transparent",
               }}
             >
@@ -118,7 +118,7 @@ export function AddTransactionModal({ onClose, onCreated, defaultType = "depense
               className="flex-1 py-2 px-4 rounded-lg font-medium text-sm"
               style={{
                 background: type === "depense" ? "rgba(239,68,68,0.08)" : "rgba(0,0,0,0.04)",
-                color: type === "depense" ? "#7F1D1D" : "#1a1a2e",
+                color: type === "depense" ? "#7F1D1D" : "var(--color-ink)",
                 border: type === "depense" ? "1px solid rgba(239,68,68,0.2)" : "1px solid transparent",
               }}
             >
@@ -131,7 +131,7 @@ export function AddTransactionModal({ onClose, onCreated, defaultType = "depense
               <label className="text-xs font-semibold text-foreground block mb-1.5">Description</label>
               <div
                 className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm"
-                style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
+                style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
               >
                 <Icon i="edit-2" size={14} />
                 <input
@@ -147,7 +147,7 @@ export function AddTransactionModal({ onClose, onCreated, defaultType = "depense
               <label className="text-xs font-semibold text-foreground block mb-1.5">Montant (FCFA)</label>
               <div
                 className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm"
-                style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
+                style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
               >
                 <Controller
                   control={control}
@@ -170,7 +170,7 @@ export function AddTransactionModal({ onClose, onCreated, defaultType = "depense
               <label className="text-xs font-semibold text-foreground block mb-1.5">Catégorie</label>
               <div
                 className="flex items-center justify-between px-4 py-3 rounded-lg text-sm"
-                style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
+                style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
               >
                 <select
                   {...register("categoryId")}
@@ -191,7 +191,7 @@ export function AddTransactionModal({ onClose, onCreated, defaultType = "depense
               <label className="text-xs font-semibold text-foreground block mb-1.5">Date</label>
               <div
                 className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm"
-                style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
+                style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
               >
                 <Icon i="calendar" size={14} />
                 <input
@@ -208,7 +208,7 @@ export function AddTransactionModal({ onClose, onCreated, defaultType = "depense
                 <label className="text-xs font-semibold text-foreground block mb-1.5">Fréquence</label>
                 <div
                   className="flex items-center justify-between px-4 py-3 rounded-lg text-sm"
-                  style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
+                  style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
                 >
                   <select
                     {...register("frequence")}
@@ -229,7 +229,7 @@ export function AddTransactionModal({ onClose, onCreated, defaultType = "depense
               type="button"
               onClick={onClose}
               className="flex-1 py-2.5 px-4 rounded-lg font-medium text-sm"
-              style={{ background: "rgba(0,0,0,0.06)", color: "#1a1a2e" }}
+              style={{ background: "rgba(0,0,0,0.06)", color: "var(--color-ink)" }}
             >
               Annuler
             </button>
@@ -238,7 +238,7 @@ export function AddTransactionModal({ onClose, onCreated, defaultType = "depense
               disabled={isSubmitting}
               className="flex-1 py-2.5 px-4 rounded-lg font-medium text-sm text-white disabled:opacity-60"
               style={{
-                background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+                background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)",
                 boxShadow: "0 4px 12px rgba(16,185,129,0.25)",
               }}
             >

@@ -12,7 +12,7 @@ interface ExpensesTableProps {
 }
 
 const statusColors: Record<string, string> = {
-  paye: "#10B981",
+  paye: "var(--color-primary)",
   a_venir: "#F59E0B",
   en_retard: "#EF4444",
 };
@@ -26,7 +26,7 @@ const statusLabels: Record<string, string> = {
 const priorityColors: Record<string, string> = {
   high: "#EF4444",
   medium: "#F59E0B",
-  low: "#3B82F6",
+  low: "var(--color-secondary)",
 };
 
 const priorityLabels: Record<string, string> = {
@@ -72,7 +72,7 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
           onClick={onAddClick}
           className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white"
           style={{
-            background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+            background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)",
             boxShadow: "0 4px 16px rgba(16,185,129,0.25)",
           }}
         >
@@ -84,10 +84,10 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
       <div
         className="rounded-lg overflow-hidden"
         style={{
-          background: "rgba(255,255,255,0.58)",
+          background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.58)",
           backdropFilter: "blur(32px)",
           WebkitBackdropFilter: "blur(32px)",
-          border: "1px solid rgba(255,255,255,0.75)",
+          border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.75)",
           boxShadow: "0 8px 32px rgba(120,120,180,0.09)",
         }}
       >
@@ -127,8 +127,8 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
                     onClick={() => !checked && markExpensePaid(expense.id).then(onChanged)}
                     className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 cursor-pointer"
                     style={{
-                      background: checked ? "#10B981" : "rgba(0,0,0,0.1)",
-                      border: checked ? "1px solid #10B981" : "1px solid rgba(0,0,0,0.15)",
+                      background: checked ? "var(--color-primary)" : "rgba(0,0,0,0.1)",
+                      border: checked ? "1px solid var(--color-primary)" : "1px solid rgba(0,0,0,0.15)",
                     }}
                   >
                     {checked && <Icon i="check" size={12} className="text-white" />}
@@ -164,7 +164,7 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
                         <button
                           onClick={() => saveEdit(expense.id)}
                           className="p-1.5 rounded text-xs"
-                          style={{ background: "rgba(16,185,129,0.15)", color: "#10B981" }}
+                          style={{ background: "rgba(16,185,129,0.15)", color: "var(--color-primary)" }}
                         >
                           <Icon i="check" size={13} />
                         </button>
@@ -189,7 +189,7 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
                         {category?.nom ?? "—"}
                       </div>
                       <div
-                        style={{ width: "100px", textAlign: "right", color: expense.statut === "en_retard" ? "#EF4444" : "#1a1a2e" }}
+                        style={{ width: "100px", textAlign: "right", color: expense.statut === "en_retard" ? "#EF4444" : "var(--color-ink)" }}
                         className="font-semibold"
                       >
                         -{formatMontant(expense.montant)}
@@ -229,7 +229,7 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
                         <button
                           onClick={() => startEdit(expense)}
                           className="p-1.5 rounded text-xs"
-                          style={{ background: "rgba(0,0,0,0.06)", color: "#1a1a2e" }}
+                          style={{ background: "rgba(0,0,0,0.06)", color: "var(--color-ink)" }}
                         >
                           <Icon i="edit-2" size={13} />
                         </button>

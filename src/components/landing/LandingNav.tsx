@@ -42,7 +42,7 @@ export function LandingNav() {
             : { background: "transparent" }
         }
       >
-        <img src={logoFull} alt="Iwadu Cash" className="h-7 md:h-8" />
+        <img src={logoFull} alt="Iwadu Cash" className="h-10 md:h-12" />
 
         <div className="hidden lg:flex items-center gap-7">
           {navLinks.map((link) => (

@@ -23,8 +23,8 @@ function computeScore(financials: MonthFinancials) {
   return {
     score: clamp(score),
     metrics: [
-      { label: "Taux d'épargne", value: `${Math.round(tauxEpargne)}%`, color: "#10B981" },
-      { label: "Dépenses à temps", value: `${Math.round(depensesATemps)}%`, color: "#3B82F6" },
+      { label: "Taux d'épargne", value: `${Math.round(tauxEpargne)}%`, color: "var(--color-primary)" },
+      { label: "Dépenses à temps", value: `${Math.round(depensesATemps)}%`, color: "var(--color-secondary)" },
       { label: "Couverture mensuelle", value: `${Math.round(couverture)}%`, color: "#6366F1" },
     ],
   };
@@ -33,7 +33,7 @@ function computeScore(financials: MonthFinancials) {
 export function HealthScore({ financials }: HealthScoreProps) {
   const { score, metrics } = computeScore(financials);
   const status = score >= 80 ? "Excellent" : score >= 60 ? "Bon" : "À améliorer";
-  const statusColor = score >= 80 ? "#10B981" : score >= 60 ? "#F59E0B" : "#EF4444";
+  const statusColor = score >= 80 ? "var(--color-primary)" : score >= 60 ? "#F59E0B" : "#EF4444";
 
   const circumference = 2 * Math.PI * 45;
   const strokeDashoffset = circumference - (score / 100) * circumference;

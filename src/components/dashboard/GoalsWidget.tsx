@@ -24,7 +24,7 @@ export function GoalsWidget({ goals }: GoalsWidgetProps) {
     <div>
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm font-semibold text-foreground">Objectifs financiers</p>
-        <Link to="/objectifs" className="text-xs font-medium" style={{ color: "#10B981" }}>
+        <Link to="/objectifs" className="text-xs font-medium" style={{ color: "var(--color-primary)" }}>
           Voir tout
         </Link>
       </div>

@@ -64,7 +64,7 @@ export function RecentTransactions({ incomes, expenses, categories }: RecentTran
     <div>
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm font-semibold text-foreground">Transactions récentes</p>
-        <Link to="/depenses" className="text-xs font-medium" style={{ color: "#10B981" }}>
+        <Link to="/depenses" className="text-xs font-medium" style={{ color: "var(--color-primary)" }}>
           Voir tout
         </Link>
       </div>
@@ -85,7 +85,7 @@ export function RecentTransactions({ incomes, expenses, categories }: RecentTran
                 <p className="text-xs text-muted-foreground">{tx.categoryNom}</p>
               </div>
               <div className="text-right flex-shrink-0">
-                <p className="text-sm font-semibold" style={{ color: tx.amount < 0 ? "#EF4444" : "#10B981" }}>
+                <p className="text-sm font-semibold" style={{ color: tx.amount < 0 ? "#EF4444" : "var(--color-primary)" }}>
                   {fmt(tx.amount)}
                 </p>
                 <p className="text-xs text-muted-foreground">{dateFormatter.format(new Date(tx.date))}</p>

@@ -52,15 +52,15 @@ export function LineChart({ points }: LineChartProps) {
         <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="w-full block" style={{ height: `${H}px` }}>
           <defs>
             <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#10B981" stopOpacity="0.22" />
-              <stop offset="100%" stopColor="#10B981" stopOpacity="0" />
+              <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.22" />
+              <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0" />
             </linearGradient>
           </defs>
           <path d={buildArea()} fill="url(#lineGrad)" />
           <path
             d={buildPath()}
             fill="none"
-            stroke="#10B981"
+            stroke="var(--color-primary)"
             strokeWidth="2.5"
             strokeLinejoin="round"
             strokeLinecap="round"
@@ -68,7 +68,7 @@ export function LineChart({ points }: LineChartProps) {
           {values.map((v, i) => {
             const x = PAD + (i / Math.max(1, values.length - 1)) * (W - 2 * PAD);
             const y = norm(v);
-            return <circle key={i} cx={x} cy={y} r="3.5" fill="white" stroke="#10B981" strokeWidth="2" />;
+            return <circle key={i} cx={x} cy={y} r="3.5" fill="white" stroke="var(--color-primary)" strokeWidth="2" />;
           })}
         </svg>
         <div className="relative mt-1" style={{ height: "14px" }}>
@@ -82,7 +82,7 @@ export function LineChart({ points }: LineChartProps) {
                   left: `${xPercent(i, points.length)}%`,
                   transform: "translateX(-50%)",
                   fontSize: "10px",
-                  color: isCurrent ? "#10B981" : undefined,
+                  color: isCurrent ? "var(--color-primary)" : undefined,
                   fontWeight: isCurrent ? 600 : 400,
                 }}
               >

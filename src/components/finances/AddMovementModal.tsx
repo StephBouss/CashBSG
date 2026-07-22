@@ -48,9 +48,9 @@ export function AddMovementModal({ accountId, accountNom, onClose, onCreated }: 
       <div
         className="w-full max-w-sm p-6 rounded-lg relative"
         style={{
-          background: "rgba(255,255,255,0.95)",
+          background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.95)",
           backdropFilter: "blur(40px)",
-          border: "1px solid rgba(255,255,255,0.85)",
+          border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.85)",
           boxShadow: "0 24px 64px rgba(120,120,180,0.20)",
         }}
         onClick={(e) => e.stopPropagation()}
@@ -74,7 +74,7 @@ export function AddMovementModal({ accountId, accountNom, onClose, onCreated }: 
             className="flex-1 py-2 px-4 rounded-lg font-medium text-sm"
             style={{
               background: sens === "depot" ? "rgba(16,185,129,0.15)" : "rgba(0,0,0,0.04)",
-              color: sens === "depot" ? "#10B981" : "#1a1a2e",
+              color: sens === "depot" ? "var(--color-primary)" : "var(--color-ink)",
               border: sens === "depot" ? "1px solid rgba(16,185,129,0.3)" : "1px solid transparent",
             }}
           >
@@ -86,7 +86,7 @@ export function AddMovementModal({ accountId, accountNom, onClose, onCreated }: 
             className="flex-1 py-2 px-4 rounded-lg font-medium text-sm"
             style={{
               background: sens === "retrait" ? "rgba(239,68,68,0.08)" : "rgba(0,0,0,0.04)",
-              color: sens === "retrait" ? "#7F1D1D" : "#1a1a2e",
+              color: sens === "retrait" ? "#7F1D1D" : "var(--color-ink)",
               border: sens === "retrait" ? "1px solid rgba(239,68,68,0.2)" : "1px solid transparent",
             }}
           >
@@ -124,7 +124,7 @@ export function AddMovementModal({ accountId, accountNom, onClose, onCreated }: 
             type="button"
             onClick={onClose}
             className="flex-1 py-2.5 px-4 rounded-lg font-medium text-sm"
-            style={{ background: "rgba(0,0,0,0.06)", color: "#1a1a2e" }}
+            style={{ background: "rgba(0,0,0,0.06)", color: "var(--color-ink)" }}
           >
             Annuler
           </button>
@@ -134,7 +134,7 @@ export function AddMovementModal({ accountId, accountNom, onClose, onCreated }: 
             disabled={submitting}
             className="flex-1 py-2.5 px-4 rounded-lg font-medium text-sm text-white disabled:opacity-60"
             style={{
-              background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+              background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)",
               boxShadow: "0 4px 12px rgba(16,185,129,0.25)",
             }}
           >

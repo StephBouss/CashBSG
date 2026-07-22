@@ -2,26 +2,140 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Système de thèmes — glassmorphism préservé.
+ * Les "cartes de verre" restent des panneaux translucides + flou ; ce qui
+ * change par thème, c'est (1) le dégradé de fond de page, (2) la teinte de
+ * base du verre (blanc pour les thèmes clairs, sombre pour les thèmes nuit),
+ * (3) la teinte du texte ("ink"), et (4) les couleurs d'accent primaire/secondaire.
+ * --glass-r/g/b et --ink-r/g/b sont des triplets numériques utilisés à
+ * l'intérieur de rgba(...) dans les styles inline existants, pour ne pas
+ * avoir à toucher chaque valeur d'opacité individuellement.
+ */
+
 :root {
+  --page-gradient: linear-gradient(145deg, #eef0f5 0%, #e8ebf2 40%, #ebf0ec 100%);
+
+  --glass-r: 255;
+  --glass-g: 255;
+  --glass-b: 255;
+
+  --ink-r: 26;
+  --ink-g: 26;
+  --ink-b: 46;
+
   --color-background: #f5f3ef;
   --color-foreground: #1a1a2e;
-  --color-border: rgba(255, 255, 255, 0.55);
-  --color-input: rgba(255, 255, 255, 0.35);
+  --color-ink: #1a1a2e;
+  --color-border: rgba(var(--glass-r), var(--glass-g), var(--glass-b), 0.55);
+  --color-input: rgba(var(--glass-r), var(--glass-g), var(--glass-b), 0.35);
   --color-primary: #10b981;
+  --color-primary-dark: #059669;
   --color-primary-foreground: #ffffff;
   --color-secondary: #3b82f6;
+  --color-secondary-dark: #1e40af;
   --color-secondary-foreground: #ffffff;
-  --color-muted: rgba(255, 255, 255, 0.18);
+  --color-muted: rgba(var(--glass-r), var(--glass-g), var(--glass-b), 0.18);
   --color-muted-foreground: rgba(30, 30, 60, 0.55);
   --color-accent: #f59e0b;
   --color-danger: #ef4444;
-  --color-glass: rgba(255, 255, 255, 0.55);
-  --color-glass-border: rgba(255, 255, 255, 0.7);
+  --color-glass: rgba(var(--glass-r), var(--glass-g), var(--glass-b), 0.55);
+  --color-glass-border: rgba(var(--glass-r), var(--glass-g), var(--glass-b), 0.7);
   --color-glass-shadow: rgba(120, 120, 160, 0.12);
-  --color-sidebar-bg: rgba(255, 255, 255, 0.6);
-  --color-card-bg: rgba(255, 255, 255, 0.52);
-  --color-surface: rgba(255, 255, 255, 0.72);
+  --color-sidebar-bg: rgba(var(--glass-r), var(--glass-g), var(--glass-b), 0.6);
+  --color-card-bg: rgba(var(--glass-r), var(--glass-g), var(--glass-b), 0.52);
+  --color-surface: rgba(var(--glass-r), var(--glass-g), var(--glass-b), 0.72);
   --color-text-secondary: rgba(30, 30, 60, 0.55);
+}
+
+/* Vert nuit */
+[data-theme="vert-nuit"] {
+  --page-gradient: linear-gradient(145deg, #0b1f1a 0%, #0e2620 45%, #0a1d17 100%);
+  --glass-r: 22;
+  --glass-g: 40;
+  --glass-b: 34;
+  --ink-r: 232;
+  --ink-g: 245;
+  --ink-b: 238;
+  --color-background: #0e2620;
+  --color-foreground: #e8f5ee;
+  --color-ink: #e8f5ee;
+  --color-primary: #34d399;
+  --color-primary-dark: #10b981;
+  --color-secondary: #60a5fa;
+  --color-secondary-dark: #3b82f6;
+  --color-muted-foreground: rgba(232, 245, 238, 0.55);
+  --color-text-secondary: rgba(232, 245, 238, 0.55);
+}
+
+/* Bleu clair */
+[data-theme="bleu-clair"] {
+  --page-gradient: linear-gradient(145deg, #eaf1fb 0%, #e2edfa 45%, #edf3fc 100%);
+  --color-background: #eaf1fb;
+  --color-primary: #3b82f6;
+  --color-primary-dark: #1d4ed8;
+  --color-secondary: #10b981;
+  --color-secondary-dark: #059669;
+}
+
+/* Gris nuit */
+[data-theme="gris-nuit"] {
+  --page-gradient: linear-gradient(145deg, #17181c 0%, #1c1d22 45%, #131418 100%);
+  --glass-r: 34;
+  --glass-g: 35;
+  --glass-b: 40;
+  --ink-r: 240;
+  --ink-g: 241;
+  --ink-b: 244;
+  --color-background: #1c1d22;
+  --color-foreground: #f0f1f4;
+  --color-ink: #f0f1f4;
+  --color-primary: #10b981;
+  --color-primary-dark: #059669;
+  --color-secondary: #60a5fa;
+  --color-secondary-dark: #3b82f6;
+  --color-muted-foreground: rgba(240, 241, 244, 0.5);
+  --color-text-secondary: rgba(240, 241, 244, 0.5);
+}
+
+/* Orangé clair */
+[data-theme="orange-clair"] {
+  --page-gradient: linear-gradient(145deg, #fdf3ea 0%, #fbebdd 45%, #fdf0e4 100%);
+  --color-background: #fdf3ea;
+  --color-primary: #f59e0b;
+  --color-primary-dark: #d97706;
+  --color-secondary: #3b82f6;
+  --color-secondary-dark: #1e40af;
+}
+
+/* Violet clair */
+[data-theme="violet-clair"] {
+  --page-gradient: linear-gradient(145deg, #f3f0fb 0%, #ece7f9 45%, #f1edfa 100%);
+  --color-background: #f3f0fb;
+  --color-primary: #8b5cf6;
+  --color-primary-dark: #7c3aed;
+  --color-secondary: #3b82f6;
+  --color-secondary-dark: #1e40af;
+}
+
+/* Violet nuit */
+[data-theme="violet-nuit"] {
+  --page-gradient: linear-gradient(145deg, #150f26 0%, #190f2e 45%, #120c20 100%);
+  --glass-r: 40;
+  --glass-g: 32;
+  --glass-b: 58;
+  --ink-r: 240;
+  --ink-g: 236;
+  --ink-b: 250;
+  --color-background: #190f2e;
+  --color-foreground: #f0ecfa;
+  --color-ink: #f0ecfa;
+  --color-primary: #a78bfa;
+  --color-primary-dark: #8b5cf6;
+  --color-secondary: #60a5fa;
+  --color-secondary-dark: #3b82f6;
+  --color-muted-foreground: rgba(240, 236, 250, 0.55);
+  --color-text-secondary: rgba(240, 236, 250, 0.55);
 }
 
 @layer base {
@@ -35,8 +149,9 @@
 
   body {
     @apply min-h-screen text-foreground antialiased;
-    background: linear-gradient(145deg, #eef0f5 0%, #e8ebf2 40%, #ebf0ec 100%);
+    background: var(--page-gradient);
     background-attachment: fixed;
+    transition: background 0.4s ease;
   }
 }
 

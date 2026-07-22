@@ -38,7 +38,7 @@ export function PieChart({ data, total }: PieChartProps) {
                 transform: "translate(-50%, -50%)",
                 width: "94px",
                 height: "94px",
-                background: "rgba(255,255,255,0.9)",
+                background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.9)",
                 backdropFilter: "blur(8px)",
               }}
             >

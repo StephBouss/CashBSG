@@ -38,6 +38,9 @@ export interface Profile {
   nom: string | null;
   devise: string;
   langue: string;
+  theme: string;
+  pays: string | null;
+  isAdmin: boolean;
 }
 
 export interface Goal {

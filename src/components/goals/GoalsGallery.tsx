@@ -42,7 +42,7 @@ export function GoalsGallery({ goals, onChanged, onAddClick }: GoalsGalleryProps
           onClick={onAddClick}
           className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white"
           style={{
-            background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+            background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)",
             boxShadow: "0 4px 16px rgba(16,185,129,0.25)",
           }}
         >
@@ -63,10 +63,10 @@ export function GoalsGallery({ goals, onChanged, onAddClick }: GoalsGalleryProps
                 key={goal.id}
                 className="p-6 rounded-lg"
                 style={{
-                  background: "rgba(255,255,255,0.58)",
+                  background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.58)",
                   backdropFilter: "blur(32px)",
                   WebkitBackdropFilter: "blur(32px)",
-                  border: "1px solid rgba(255,255,255,0.75)",
+                  border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.75)",
                   boxShadow: "0 8px 32px rgba(120,120,180,0.09)",
                 }}
               >
@@ -122,7 +122,7 @@ export function GoalsGallery({ goals, onChanged, onAddClick }: GoalsGalleryProps
                   </div>
                   <div className="p-3 rounded-lg" style={{ background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)" }}>
                     <p className="text-xs text-muted-foreground">Reste</p>
-                    <p className="text-sm font-semibold mt-1" style={{ color: "#3B82F6" }}>
+                    <p className="text-sm font-semibold mt-1" style={{ color: "var(--color-secondary)" }}>
                       {fmt(Math.max(0, goal.montantCible - goal.montantEpargne))} FCFA
                     </p>
                   </div>
@@ -155,17 +155,17 @@ export function GoalsGallery({ goals, onChanged, onAddClick }: GoalsGalleryProps
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
           <div className="p-5 rounded-lg" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
             <div className="flex items-center gap-2 mb-2">
-              <Icon i="target" size={16} style={{ color: "#10B981" }} />
+              <Icon i="target" size={16} style={{ color: "var(--color-primary)" }} />
               <p className="text-xs text-muted-foreground">Objectifs totaux</p>
             </div>
             <p className="text-xl font-semibold text-primary">{fmt(totalTarget)} FCFA</p>
           </div>
           <div className="p-5 rounded-lg" style={{ background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)" }}>
             <div className="flex items-center gap-2 mb-2">
-              <Icon i="piggy-bank" size={16} style={{ color: "#3B82F6" }} />
+              <Icon i="piggy-bank" size={16} style={{ color: "var(--color-secondary)" }} />
               <p className="text-xs text-muted-foreground">Total économisé</p>
             </div>
-            <p className="text-xl font-semibold" style={{ color: "#3B82F6" }}>{fmt(totalSaved)} FCFA</p>
+            <p className="text-xl font-semibold" style={{ color: "var(--color-secondary)" }}>{fmt(totalSaved)} FCFA</p>
           </div>
           <div className="p-5 rounded-lg" style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)" }}>
             <div className="flex items-center gap-2 mb-2">

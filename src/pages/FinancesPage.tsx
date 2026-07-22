@@ -26,8 +26,8 @@ export default function FinancesPage() {
             className="px-4 py-2 rounded-lg text-sm font-medium"
             style={
               tab === t.key
-                ? { background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)", color: "#10B981" }
-                : { background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.08)", color: "#1a1a2e" }
+                ? { background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)", color: "var(--color-primary)" }
+                : { background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(0,0,0,0.08)", color: "var(--color-ink)" }
             }
           >
             {t.label}
@@ -35,7 +35,7 @@ export default function FinancesPage() {
         ))}
       </div>
 
-      {tab === "epargne" && <SavingsSection type="epargne" title="Mes épargnes" color="#3B82F6" />}
+      {tab === "epargne" && <SavingsSection type="epargne" title="Mes épargnes" color="var(--color-secondary)" />}
       {tab === "investissement" && (
         <SavingsSection type="investissement" title="Mes investissements" color="#6366F1" />
       )}

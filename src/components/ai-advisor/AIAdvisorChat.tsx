@@ -39,7 +39,7 @@ export function AIAdvisorChat() {
         <div className="flex items-center gap-3">
           <div
             className="w-12 h-12 rounded-full flex items-center justify-center text-xl"
-            style={{ background: "linear-gradient(135deg, #10B981, #059669)", color: "white" }}
+            style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))", color: "white" }}
           >
             ✨
           </div>
@@ -63,8 +63,8 @@ export function AIAdvisorChat() {
               <div
                 className="px-4 py-3 rounded-lg"
                 style={{
-                  background: msg.role === "user" ? "linear-gradient(135deg, #10B981, #059669)" : "rgba(255,255,255,0.7)",
-                  color: msg.role === "user" ? "white" : "#1a1a2e",
+                  background: msg.role === "user" ? "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))" : "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)",
+                  color: msg.role === "user" ? "white" : "var(--color-ink)",
                   border: msg.role === "assistant" ? "1px solid rgba(0,0,0,0.08)" : "none",
                   whiteSpace: "pre-wrap",
                   wordWrap: "break-word",
@@ -85,7 +85,7 @@ export function AIAdvisorChat() {
           <div className="flex justify-start">
             <div
               className="px-4 py-3 rounded-lg text-sm text-muted-foreground"
-              style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
+              style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
             >
               Le conseiller réfléchit…
             </div>
@@ -98,7 +98,7 @@ export function AIAdvisorChat() {
         {error && <p className="text-xs text-danger mb-2">{error}</p>}
         <div
           className="flex items-center gap-3 px-4 py-3 rounded-lg"
-          style={{ background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
+          style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
         >
           <input
             type="text"
@@ -107,13 +107,13 @@ export function AIAdvisorChat() {
             onKeyDown={(e) => e.key === "Enter" && onSend()}
             placeholder="Posez une question..."
             disabled={sending}
-            style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: "14px", color: "#1a1a2e" }}
+            style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: "14px", color: "var(--color-ink)" }}
           />
           <button
             onClick={onSend}
             disabled={sending || !input.trim()}
             className="flex-shrink-0 p-2 rounded-lg disabled:opacity-50"
-            style={{ background: "linear-gradient(135deg, #10B981, #059669)", color: "white" }}
+            style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))", color: "white" }}
           >
             <Icon i="send" size={16} className="text-white" />
           </button>

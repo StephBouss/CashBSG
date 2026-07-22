@@ -63,7 +63,7 @@ function totalValeur(items: PricingItem[]) {
 const plans = [
   {
     key: "gratuit",
-    title: "Gratuit",
+    title: "Iwadu Free",
     subtitle: "Pour découvrir Iwadu Cash",
     items: gratuitItems,
     prixAppel: 0,
@@ -72,7 +72,7 @@ const plans = [
   },
   {
     key: "essentiel",
-    title: "Essentiel",
+    title: "Iwadu Essentiel",
     subtitle: "Tout ce qu'il faut pour démarrer",
     items: essentielItems,
     prixAppel: 5000,
@@ -81,7 +81,7 @@ const plans = [
   },
   {
     key: "complet",
-    title: "Complet + IA",
+    title: "Iwadu Pro",
     subtitle: "Tout l'essentiel + l'IA",
     items: [...essentielItems, iaItem],
     prixAppel: 15000,
@@ -222,8 +222,8 @@ export function LandingSocialProof() {
                   )}
 
                   <div className="px-8 py-6 border-b" style={{ borderColor: "rgba(16,185,129,0.15)" }}>
-                    <p className="text-sm font-semibold" style={{ color: "#10B981" }}>{plan.title}</p>
-                    <p className="text-xs mt-0.5 text-muted-foreground">{plan.subtitle}</p>
+                    <p className="font-headings font-semibold" style={{ color: "#10B981", fontSize: "22px" }}>{plan.title}</p>
+                    <p className="text-xs mt-1 text-muted-foreground">{plan.subtitle}</p>
                   </div>
 
                   <div className="px-8 py-8 flex-1 flex flex-col">

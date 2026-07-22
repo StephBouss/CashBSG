@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import App from "@/App";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { AdminRoute } from "@/components/layout/AdminRoute";
 import LandingPage from "@/pages/LandingPage";
 import LoginPage from "@/pages/LoginPage";
 import DashboardPage from "@/pages/DashboardPage";
@@ -11,6 +12,7 @@ import GoalsPage from "@/pages/GoalsPage";
 import ReportsPage from "@/pages/ReportsPage";
 import AiAdvisorPage from "@/pages/AiAdvisorPage";
 import SettingsPage from "@/pages/SettingsPage";
+import AdminPage from "@/pages/AdminPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
 
 export const router = createBrowserRouter([
@@ -34,6 +36,7 @@ export const router = createBrowserRouter([
           { path: "rapports", element: <ReportsPage /> },
           { path: "conseiller-ia", element: <AiAdvisorPage /> },
           { path: "parametres", element: <SettingsPage /> },
+          { path: "admin", element: <AdminRoute><AdminPage /></AdminRoute> },
         ],
       },
     ],

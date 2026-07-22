@@ -75,7 +75,7 @@ function buildSuggestions(
     );
     suggestions.push({
       icon: "target",
-      color: "#3B82F6",
+      color: "var(--color-secondary)",
       text: `Votre objectif "${closestGoal.label}" sera atteint dans ~${months} mois au rythme actuel.`,
     });
   }
@@ -83,7 +83,7 @@ function buildSuggestions(
   if (suggestions.length === 0) {
     suggestions.push({
       icon: "sparkles",
-      color: "#10B981",
+      color: "var(--color-primary)",
       text: "Tout est sous contrôle ce mois-ci. Ajoutez un objectif pour des conseils personnalisés.",
     });
   }
@@ -98,10 +98,10 @@ export function AIAdvisorWidget({ expenses, categoryTotals, totalDepenses, goals
     <div
       className="p-5 rounded-lg"
       style={{
-        background: "rgba(255,255,255,0.58)",
+        background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.58)",
         backdropFilter: "blur(32px)",
         WebkitBackdropFilter: "blur(32px)",
-        border: "1px solid rgba(255,255,255,0.75)",
+        border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.75)",
         boxShadow: "0 8px 32px rgba(120,120,180,0.09)",
       }}
     >
@@ -109,7 +109,7 @@ export function AIAdvisorWidget({ expenses, categoryTotals, totalDepenses, goals
         <div
           className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
           style={{
-            background: "linear-gradient(135deg, #10B981 0%, #3B82F6 100%)",
+            background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)",
             boxShadow: "0 0 16px rgba(16,185,129,0.35)",
           }}
         >
@@ -137,7 +137,7 @@ export function AIAdvisorWidget({ expenses, categoryTotals, totalDepenses, goals
       <Link
         to="/conseiller-ia"
         className="block text-center text-xs font-medium mt-4"
-        style={{ color: "#10B981" }}
+        style={{ color: "var(--color-primary)" }}
       >
         Discuter avec le conseiller IA →
       </Link>

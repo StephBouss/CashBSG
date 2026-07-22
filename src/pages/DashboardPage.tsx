@@ -69,7 +69,7 @@ export default function DashboardPage() {
           onClick={() => setModalOpen(true)}
           className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white"
           style={{
-            background: "linear-gradient(135deg, #10B981 0%, #059669 100%)",
+            background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)",
             boxShadow: "0 4px 16px rgba(16,185,129,0.25)",
           }}
         >

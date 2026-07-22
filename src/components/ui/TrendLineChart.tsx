@@ -17,7 +17,7 @@ function xPercent(i: number, count: number) {
   return (x / W) * 100;
 }
 
-export function TrendLineChart({ points, color = "#10B981", height = 140 }: TrendLineChartProps) {
+export function TrendLineChart({ points, color = "var(--color-primary)", height = 140 }: TrendLineChartProps) {
   const H = height;
   const values = points.map((p) => p.value);
   const max = Math.max(...values, 0);

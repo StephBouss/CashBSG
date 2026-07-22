@@ -64,8 +64,8 @@ export function ReportsDashboard() {
               className="px-4 py-2 rounded-lg text-sm font-medium"
               style={
                 period === p.key
-                  ? { background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)", color: "#10B981" }
-                  : { background: "rgba(255,255,255,0.7)", border: "1px solid rgba(0,0,0,0.08)", color: "#1a1a2e" }
+                  ? { background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)", color: "var(--color-primary)" }
+                  : { background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(0,0,0,0.08)", color: "var(--color-ink)" }
               }
             >
               {p.label}
@@ -82,7 +82,7 @@ export function ReportsDashboard() {
               <p className="text-xs text-muted-foreground">Revenus totaux</p>
               <p className="text-lg font-semibold text-primary mt-2">{formatMontant(totalRevenus)}</p>
             </div>
-            <Icon i="trending-up" size={24} style={{ color: "#10B981" }} />
+            <Icon i="trending-up" size={24} style={{ color: "var(--color-primary)" }} />
           </div>
         </div>
         <div className="p-4 rounded-lg" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
@@ -98,9 +98,9 @@ export function ReportsDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-muted-foreground">Épargne nette</p>
-              <p className="text-lg font-semibold" style={{ color: "#3B82F6" }}>{formatMontant(epargneNette)}</p>
+              <p className="text-lg font-semibold" style={{ color: "var(--color-secondary)" }}>{formatMontant(epargneNette)}</p>
             </div>
-            <Icon i="bar-chart-2" size={24} style={{ color: "#3B82F6" }} />
+            <Icon i="bar-chart-2" size={24} style={{ color: "var(--color-secondary)" }} />
           </div>
         </div>
         <div className="p-4 rounded-lg" style={{ background: "rgba(168,85,247,0.1)", border: "1px solid rgba(168,85,247,0.2)" }}>
@@ -118,7 +118,7 @@ export function ReportsDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
         <div
           className="p-6 rounded-lg"
-          style={{ background: "rgba(255,255,255,0.58)", backdropFilter: "blur(32px)", border: "1px solid rgba(255,255,255,0.75)", boxShadow: "0 8px 32px rgba(120,120,180,0.09)" }}
+          style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.58)", backdropFilter: "blur(32px)", border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.75)", boxShadow: "0 8px 32px rgba(120,120,180,0.09)" }}
         >
           <h3 className="text-sm font-semibold text-foreground mb-4">Revenus vs Dépenses</h3>
           <div className="flex items-end justify-around gap-3 px-4" style={{ height: "240px", background: "rgba(0,0,0,0.04)", borderRadius: "8px", padding: "16px" }}>
@@ -129,7 +129,7 @@ export function ReportsDashboard() {
                     style={{
                       width: "10px",
                       height: `${Math.max(4, (p.totalRevenus / maxBar) * 180)}px`,
-                      background: "linear-gradient(180deg, #10B981, #059669)",
+                      background: "linear-gradient(180deg, var(--color-primary), var(--color-primary-dark))",
                       borderRadius: "4px",
                     }}
                   />
@@ -148,7 +148,7 @@ export function ReportsDashboard() {
           </div>
           <div className="flex gap-4 mt-4 text-xs">
             <div className="flex items-center gap-2">
-              <div style={{ width: "12px", height: "12px", borderRadius: "2px", background: "#10B981" }} />
+              <div style={{ width: "12px", height: "12px", borderRadius: "2px", background: "var(--color-primary)" }} />
               <span className="text-muted-foreground">Revenus</span>
             </div>
             <div className="flex items-center gap-2">
@@ -160,7 +160,7 @@ export function ReportsDashboard() {
 
         <div
           className="p-6 rounded-lg"
-          style={{ background: "rgba(255,255,255,0.58)", backdropFilter: "blur(32px)", border: "1px solid rgba(255,255,255,0.75)", boxShadow: "0 8px 32px rgba(120,120,180,0.09)" }}
+          style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.58)", backdropFilter: "blur(32px)", border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.75)", boxShadow: "0 8px 32px rgba(120,120,180,0.09)" }}
         >
           <h3 className="text-sm font-semibold text-foreground mb-4">Tendance d'épargne</h3>
           <div className="flex items-end justify-around gap-3" style={{ height: "240px", background: "rgba(0,0,0,0.04)", borderRadius: "8px", padding: "16px" }}>
@@ -172,7 +172,7 @@ export function ReportsDashboard() {
                     style={{
                       width: "60%",
                       height: `${Math.max(4, (Math.abs(p.solde) / maxSolde) * 190)}px`,
-                      background: p.solde >= 0 ? "linear-gradient(180deg, #3B82F6, #1E40AF)" : "linear-gradient(180deg, #EF4444, #DC2626)",
+                      background: p.solde >= 0 ? "linear-gradient(180deg, var(--color-secondary), var(--color-secondary-dark))" : "linear-gradient(180deg, #EF4444, #DC2626)",
                       borderRadius: "4px",
                     }}
                   />
@@ -193,7 +193,7 @@ export function ReportsDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         <div
           className="p-6 rounded-lg"
-          style={{ background: "rgba(255,255,255,0.58)", backdropFilter: "blur(32px)", border: "1px solid rgba(255,255,255,0.75)", boxShadow: "0 8px 32px rgba(120,120,180,0.09)" }}
+          style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.58)", backdropFilter: "blur(32px)", border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.75)", boxShadow: "0 8px 32px rgba(120,120,180,0.09)" }}
         >
           <h3 className="text-sm font-semibold text-foreground mb-4">Top catégories</h3>
           {categoryTotals.length === 0 ? (
@@ -220,7 +220,7 @@ export function ReportsDashboard() {
 
         <div
           className="p-6 rounded-lg"
-          style={{ background: "rgba(255,255,255,0.58)", backdropFilter: "blur(32px)", border: "1px solid rgba(255,255,255,0.75)", boxShadow: "0 8px 32px rgba(120,120,180,0.09)" }}
+          style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.58)", backdropFilter: "blur(32px)", border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.75)", boxShadow: "0 8px 32px rgba(120,120,180,0.09)" }}
         >
           <h3 className="text-sm font-semibold text-foreground mb-4">Flux de trésorerie</h3>
           <div className="space-y-4">
@@ -228,7 +228,7 @@ export function ReportsDashboard() {
               <span className="text-xs font-medium text-foreground">Solde début de période</span>
               <span className="text-sm font-semibold text-foreground">{formatMontant(soldeDebut)}</span>
             </div>
-            <div style={{ padding: "2px", borderRadius: "4px", background: "linear-gradient(90deg, #10B981, #3B82F6)" }}>
+            <div style={{ padding: "2px", borderRadius: "4px", background: "linear-gradient(90deg, var(--color-primary), var(--color-secondary))" }}>
               <div style={{ padding: "8px", background: "white", borderRadius: "3px", textAlign: "center" }}>
                 <p className="text-xs font-medium text-primary">
                   {variation >= 0 ? "+" : ""}
@@ -238,7 +238,7 @@ export function ReportsDashboard() {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-foreground">Solde fin de période</span>
-              <span className="text-sm font-semibold" style={{ color: soldeFin >= 0 ? "#10B981" : "#EF4444" }}>
+              <span className="text-sm font-semibold" style={{ color: soldeFin >= 0 ? "var(--color-primary)" : "#EF4444" }}>
                 {formatMontant(soldeFin)}
               </span>
             </div>
@@ -247,7 +247,7 @@ export function ReportsDashboard() {
 
         <div
           className="p-6 rounded-lg"
-          style={{ background: "rgba(255,255,255,0.58)", backdropFilter: "blur(32px)", border: "1px solid rgba(255,255,255,0.75)", boxShadow: "0 8px 32px rgba(120,120,180,0.09)" }}
+          style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.58)", backdropFilter: "blur(32px)", border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.75)", boxShadow: "0 8px 32px rgba(120,120,180,0.09)" }}
         >
           <h3 className="text-sm font-semibold text-foreground mb-4">Insights</h3>
           <div className="space-y-3 text-xs">

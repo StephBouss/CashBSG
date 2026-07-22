@@ -22,10 +22,10 @@ export function Header({ onOpenMenu }: HeaderProps) {
     <div
       className="flex items-center justify-between gap-3 px-4 md:px-8 py-4"
       style={{
-        background: "rgba(255,255,255,0.55)",
+        background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.55)",
         backdropFilter: "blur(32px)",
         WebkitBackdropFilter: "blur(32px)",
-        borderBottom: "1px solid rgba(255,255,255,0.72)",
+        borderBottom: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.72)",
       }}
     >
       <div className="flex items-center gap-3 min-w-0">
@@ -35,7 +35,7 @@ export function Header({ onOpenMenu }: HeaderProps) {
           aria-label="Ouvrir le menu"
           onClick={onOpenMenu}
           className="flex md:hidden items-center justify-center w-9 h-9 rounded-lg flex-shrink-0"
-          style={{ background: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.75)" }}
+          style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.6)", border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.75)" }}
         >
           <Icon i="menu" size={16} />
         </button>
@@ -57,24 +57,37 @@ export function Header({ onOpenMenu }: HeaderProps) {
         <div
           className="hidden sm:flex relative w-9 h-9 rounded-lg items-center justify-center"
           style={{
-            background: "rgba(255,255,255,0.6)",
-            border: "1px solid rgba(255,255,255,0.75)",
+            background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.6)",
+            border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.75)",
           }}
         >
           <Icon i="bell" size={16} />
         </div>
 
-        {/* Avatar + sign out */}
-        <button
-          onClick={() => signOut()}
-          title="Déconnexion"
+        {/* Avatar */}
+        <div
           className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-semibold flex-shrink-0"
           style={{
-            background: "linear-gradient(135deg, #10B981, #3B82F6)",
+            background: "linear-gradient(135deg, var(--color-primary), var(--color-secondary))",
             border: "2px solid rgba(16,185,129,0.5)",
           }}
         >
           {initial}
+        </div>
+
+        {/* Déconnexion */}
+        <button
+          type="button"
+          onClick={() => signOut()}
+          title="Déconnexion"
+          aria-label="Déconnexion"
+          className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+          style={{
+            background: "rgba(239,68,68,0.1)",
+            border: "1px solid rgba(239,68,68,0.25)",
+          }}
+        >
+          <Icon i="log-out" size={16} style={{ color: "#EF4444" }} />
         </button>
       </div>
     </div>

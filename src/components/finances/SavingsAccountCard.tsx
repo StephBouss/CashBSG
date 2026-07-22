@@ -88,9 +88,9 @@ export function SavingsAccountCard({ account, color, onChanged }: SavingsAccount
     <div
       className="p-6 rounded-lg"
       style={{
-        background: "rgba(255,255,255,0.58)",
+        background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.58)",
         backdropFilter: "blur(32px)",
-        border: "1px solid rgba(255,255,255,0.75)",
+        border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.75)",
         boxShadow: "0 8px 32px rgba(120,120,180,0.09)",
       }}
     >

@@ -57,6 +57,7 @@ import {
   Info,
   LogOut,
   Menu,
+  MapPin,
   type LucideIcon,
 } from "lucide-react";
 
@@ -119,6 +120,7 @@ const icons: Record<string, LucideIcon> = {
   info: Info,
   "log-out": LogOut,
   menu: Menu,
+  "map-pin": MapPin,
 };
 
 interface IconProps {
