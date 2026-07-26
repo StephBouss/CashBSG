@@ -23,7 +23,7 @@ export function upgradeOptions(plan: Plan): Plan[] {
  * Temporairement désactivé à la demande — accessible à tous les plans pour
  * l'instant. Remettre `return plan !== "free";` pour réactiver le gating. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function canAccessGoals(plan: Plan): boolean {
+export function canAccessGoals(_plan: Plan): boolean {
   return true;
 }
 

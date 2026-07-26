@@ -37,6 +37,21 @@ const priorityLabels: Record<string, string> = {
 
 const dateFormatter = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" });
 
+// Colonnes à largeur fixe : flexShrink 0 partout pour empêcher le tassement/
+// chevauchement du montant et de l'échéance quand le tableau est plus large
+// que son conteneur (le défilement horizontal prend le relais).
+const CATEGORIE_W = 130;
+const MONTANT_W = 140;
+const ECHEANCE_W = 110;
+const PRIORITE_W = 90;
+const STATUT_W = 90;
+const ACTIONS_W = 72;
+const NOM_W = 200;
+const ROW_GAP = 8; // correspond à gap-2 (Tailwind), 7 espaces entre les 8 colonnes
+const MIN_TABLE_WIDTH = 32 + NOM_W + CATEGORIE_W + MONTANT_W + ECHEANCE_W + PRIORITE_W + STATUT_W + ACTIONS_W + 7 * ROW_GAP;
+const fixedCol = (width: number) => ({ width: `${width}px`, flexShrink: 0 });
+const nomCol = { flex: `1 1 ${NOM_W}px`, minWidth: `${NOM_W}px` };
+
 export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: ExpensesTableProps) {
   const categoryById = new Map(categories.map((c) => [c.id, c]));
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -91,18 +106,20 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
           boxShadow: "0 8px 32px rgba(120,120,180,0.09)",
         }}
       >
+        <div className="overflow-x-auto">
+        <div style={{ minWidth: `${MIN_TABLE_WIDTH}px` }}>
         <div
-          className="flex items-center px-6 py-4 font-semibold text-xs uppercase tracking-wide"
+          className="flex items-center gap-2 px-6 py-4 font-semibold text-xs uppercase tracking-wide"
           style={{ background: "rgba(0,0,0,0.04)", borderBottom: "1px solid rgba(0,0,0,0.08)", color: "#949494" }}
         >
-          <div style={{ width: "32px" }} />
-          <div style={{ flex: 1 }}>Dépense</div>
-          <div style={{ width: "100px" }}>Catégorie</div>
-          <div style={{ width: "100px", textAlign: "right" }}>Montant</div>
-          <div style={{ width: "120px" }}>Échéance</div>
-          <div style={{ width: "80px" }}>Priorité</div>
-          <div style={{ width: "80px" }}>Statut</div>
-          <div style={{ width: "60px" }} />
+          <div style={{ width: "32px", flexShrink: 0 }} />
+          <div style={nomCol}>Dépense</div>
+          <div style={fixedCol(CATEGORIE_W)}>Catégorie</div>
+          <div style={{ ...fixedCol(MONTANT_W), textAlign: "right" }}>Montant</div>
+          <div style={fixedCol(ECHEANCE_W)}>Échéance</div>
+          <div style={fixedCol(PRIORITE_W)}>Priorité</div>
+          <div style={fixedCol(STATUT_W)}>Statut</div>
+          <div style={fixedCol(ACTIONS_W)} />
         </div>
 
         {expenses.length === 0 ? (
@@ -117,7 +134,7 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
               return (
                 <div
                   key={expense.id}
-                  className="flex items-center px-6 py-3.5 text-sm"
+                  className="flex items-center gap-2 px-6 py-3.5 text-sm"
                   style={{ background: checked ? "rgba(16,185,129,0.06)" : "transparent" }}
                 >
                   <div
@@ -139,28 +156,29 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
                       <input
                         value={editValues.nom}
                         onChange={(e) => setEditValues((v) => ({ ...v, nom: e.target.value }))}
-                        className="ml-3 flex-1 bg-white/60 rounded px-2 py-1 text-sm"
+                        style={nomCol}
+                        className="bg-white/60 rounded px-2 py-1 text-sm"
                       />
-                      <div style={{ width: "100px" }} className="text-xs text-muted-foreground">
+                      <div style={fixedCol(CATEGORIE_W)} className="text-xs text-muted-foreground truncate pr-2">
                         {category?.nom ?? "—"}
                       </div>
                       <input
                         value={editValues.montant}
                         onChange={(e) => setEditValues((v) => ({ ...v, montant: e.target.value }))}
                         type="number"
-                        style={{ width: "96px" }}
+                        style={fixedCol(MONTANT_W)}
                         className="bg-white/60 rounded px-2 py-1 text-sm text-right"
                       />
                       <input
                         value={editValues.dateEcheance}
                         onChange={(e) => setEditValues((v) => ({ ...v, dateEcheance: e.target.value }))}
                         type="date"
-                        style={{ width: "128px" }}
+                        style={fixedCol(ECHEANCE_W)}
                         className="bg-white/60 rounded px-2 py-1 text-xs"
                       />
-                      <div style={{ width: "80px" }} />
-                      <div style={{ width: "80px" }} />
-                      <div style={{ width: "60px" }} className="flex items-center justify-end gap-1">
+                      <div style={fixedCol(PRIORITE_W)} />
+                      <div style={fixedCol(STATUT_W)} />
+                      <div style={fixedCol(ACTIONS_W)} className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => saveEdit(expense.id)}
                           className="p-1.5 rounded text-xs"
@@ -180,24 +198,29 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
                   ) : (
                     <>
                       <div
-                        className="ml-3 flex-1 font-medium text-foreground truncate"
-                        style={{ textDecoration: checked ? "line-through" : "none" }}
+                        className="font-medium text-foreground truncate"
+                        style={{ ...nomCol, textDecoration: checked ? "line-through" : "none" }}
                       >
                         {expense.nom}
                       </div>
-                      <div style={{ width: "100px" }} className="text-xs text-muted-foreground truncate">
+                      <div style={fixedCol(CATEGORIE_W)} className="text-xs text-muted-foreground truncate pr-2">
                         {category?.nom ?? "—"}
                       </div>
                       <div
-                        style={{ width: "100px", textAlign: "right", color: expense.statut === "en_retard" ? "#EF4444" : "var(--color-ink)" }}
+                        style={{
+                          ...fixedCol(MONTANT_W),
+                          textAlign: "right",
+                          whiteSpace: "nowrap",
+                          color: expense.statut === "en_retard" ? "#EF4444" : "var(--color-ink)",
+                        }}
                         className="font-semibold"
                       >
                         -{formatMontant(expense.montant)}
                       </div>
-                      <div style={{ width: "120px" }} className="text-xs text-muted-foreground">
+                      <div style={{ ...fixedCol(ECHEANCE_W), whiteSpace: "nowrap" }} className="text-xs text-muted-foreground">
                         {dateFormatter.format(new Date(expense.dateEcheance))}
                       </div>
-                      <div style={{ width: "80px" }}>
+                      <div style={fixedCol(PRIORITE_W)}>
                         {expense.priorite && priorityColors[expense.priorite] ? (
                           <div
                             className="px-2 py-1 rounded text-xs font-medium text-center"
@@ -213,7 +236,7 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
                           <span className="text-xs text-muted-foreground">—</span>
                         )}
                       </div>
-                      <div style={{ width: "80px" }}>
+                      <div style={fixedCol(STATUT_W)}>
                         <div
                           className="px-2 py-1 rounded text-xs font-medium text-center"
                           style={{
@@ -225,7 +248,7 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
                           {statusLabels[expense.statut]}
                         </div>
                       </div>
-                      <div style={{ width: "60px" }} className="flex items-center justify-end gap-1">
+                      <div style={fixedCol(ACTIONS_W)} className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => startEdit(expense)}
                           className="p-1.5 rounded text-xs"
@@ -248,6 +271,8 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
             })}
           </div>
         )}
+        </div>
+        </div>
       </div>
 
       <div className="flex gap-4 mt-6">
