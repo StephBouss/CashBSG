@@ -19,9 +19,12 @@ export function upgradeOptions(plan: Plan): Plan[] {
   return PLAN_ORDER.slice(PLAN_ORDER.indexOf(plan) + 1);
 }
 
-/** Objectifs financiers illimités : réservé aux offres payantes (voir tarifs). */
+/** Objectifs financiers illimités : réservé aux offres payantes (voir tarifs).
+ * Temporairement désactivé à la demande — accessible à tous les plans pour
+ * l'instant. Remettre `return plan !== "free";` pour réactiver le gating. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function canAccessGoals(plan: Plan): boolean {
-  return plan !== "free";
+  return true;
 }
 
 /** Historique complet (rapports sur plusieurs mois) : réservé aux offres payantes. */

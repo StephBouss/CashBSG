@@ -25,7 +25,7 @@ export function useProfile() {
     queryFn: async (): Promise<Profile> => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, nom, devise, langue, theme, pays, is_admin, plan, plan_expires_at")
+        .select("id, nom, devise, langue, theme, pays, is_admin, plan, plan_expires_at, whatsapp")
         .eq("id", user!.id)
         .single();
 
@@ -41,6 +41,7 @@ export function useProfile() {
         isAdmin: data.is_admin,
         plan: data.plan,
         planExpiresAt: data.plan_expires_at,
+        whatsapp: data.whatsapp,
       };
     },
   });
@@ -63,6 +64,11 @@ export function useProfile() {
 
 export async function updateProfileName(userId: string, nom: string) {
   const { error } = await supabase.from("profiles").update({ nom }).eq("id", userId);
+  if (error) throw error;
+}
+
+export async function updateProfileWhatsapp(userId: string, whatsapp: string) {
+  const { error } = await supabase.from("profiles").update({ whatsapp: whatsapp || null }).eq("id", userId);
   if (error) throw error;
 }
 

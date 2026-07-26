@@ -18,6 +18,7 @@ import { AIAdvisorWidget } from "@/components/dashboard/AIAdvisorWidget";
 import { GoalsWidget } from "@/components/dashboard/GoalsWidget";
 import { HealthScore } from "@/components/dashboard/HealthScore";
 import { AddTransactionModal } from "@/components/dashboard/AddTransactionModal";
+import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { GlassCard } from "@/components/ui/GlassCard";
 
 const monthTitleFormatter = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" });
@@ -76,6 +77,8 @@ export default function DashboardPage() {
           + Ajouter
         </button>
       </div>
+
+      <OnboardingChecklist />
 
       {/* KPI Cards */}
       <SummaryCards financials={financials} previousFinancials={previousFinancials} />

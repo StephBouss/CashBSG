@@ -54,6 +54,7 @@ export interface Profile {
   isAdmin: boolean;
   plan: Plan;
   planExpiresAt: string | null;
+  whatsapp: string | null;
 }
 
 export interface Goal {

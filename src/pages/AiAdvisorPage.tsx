@@ -1,7 +1,11 @@
 import { AIAdvisorChat } from "@/components/ai-advisor/AIAdvisorChat";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { OnboardingLock } from "@/components/onboarding/OnboardingLock";
+import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 
 export default function AiAdvisorPage() {
+  const status = useOnboardingStatus();
+
   return (
     <div className="flex flex-col min-w-0 h-full">
       <div className="mb-6">
@@ -11,9 +15,13 @@ export default function AiAdvisorPage() {
         </p>
       </div>
 
-      <GlassCard className="flex-1 flex flex-col p-0 overflow-hidden" style={{ minHeight: "500px" }}>
-        <AIAdvisorChat />
-      </GlassCard>
+      {!status.loading && !status.isComplete ? (
+        <OnboardingLock status={status} />
+      ) : (
+        <GlassCard className="flex-1 flex flex-col p-0 overflow-hidden" style={{ minHeight: "500px" }}>
+          <AIAdvisorChat />
+        </GlassCard>
+      )}
     </div>
   );
 }

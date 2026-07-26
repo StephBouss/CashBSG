@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Icon } from "@/components/ui/Icon";
 import { useAuth } from "@/hooks/useAuth";
-import { useProfile, updateProfileName, useUpdateProfilePreferences } from "@/hooks/useProfile";
+import { useProfile, updateProfileName, updateProfileWhatsapp, useUpdateProfilePreferences } from "@/hooks/useProfile";
 import { useTheme, THEMES } from "@/hooks/useTheme";
 import { LANGUAGES, COUNTRIES, CURRENCIES } from "@/lib/preferences";
 import type { CountryOption, CurrencyOption, LanguageOption } from "@/lib/preferences";
@@ -167,6 +167,9 @@ export default function SettingsPage() {
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(profile?.nom ?? "");
   const [savingName, setSavingName] = useState(false);
+  const [editingWhatsapp, setEditingWhatsapp] = useState(false);
+  const [whatsappInput, setWhatsappInput] = useState(profile?.whatsapp ?? "");
+  const [savingWhatsapp, setSavingWhatsapp] = useState(false);
   const [resetSent, setResetSent] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -184,6 +187,23 @@ export default function SettingsPage() {
       setEditingName(false);
     } finally {
       setSavingName(false);
+    }
+  };
+
+  const startEditWhatsapp = () => {
+    setWhatsappInput(profile?.whatsapp ?? "");
+    setEditingWhatsapp(true);
+  };
+
+  const saveWhatsapp = async () => {
+    if (!user) return;
+    setSavingWhatsapp(true);
+    try {
+      await updateProfileWhatsapp(user.id, whatsappInput.trim());
+      await queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
+      setEditingWhatsapp(false);
+    } finally {
+      setSavingWhatsapp(false);
     }
   };
 
@@ -249,6 +269,47 @@ export default function SettingsPage() {
               label="Profil"
               desc={profile?.nom ? `Nom actuel : ${profile.nom}` : "Ajoutez votre nom complet"}
               onClick={startEditName}
+            />
+          )}
+
+          {editingWhatsapp ? (
+            <div
+              className="p-4 rounded-lg border flex flex-col gap-3"
+              style={{ borderColor: "rgba(16,185,129,0.15)", background: "rgba(16,185,129,0.02)" }}
+            >
+              <label className="text-xs font-semibold text-foreground">Numéro WhatsApp (facultatif)</label>
+              <input
+                value={whatsappInput}
+                onChange={(e) => setWhatsappInput(e.target.value)}
+                placeholder="Ex : +221 77 123 45 67"
+                className="px-4 py-2.5 rounded-lg text-sm bg-white/70 border border-black/10 text-foreground outline-none"
+              />
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={saveWhatsapp}
+                  disabled={savingWhatsapp}
+                  className="flex-1 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-60"
+                  style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))" }}
+                >
+                  Enregistrer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingWhatsapp(false)}
+                  className="flex-1 py-2 rounded-lg text-sm font-medium"
+                  style={{ background: "rgba(0,0,0,0.06)", color: "var(--color-ink)" }}
+                >
+                  Annuler
+                </button>
+              </div>
+            </div>
+          ) : (
+            <SettingsRow
+              icon="smartphone"
+              label="WhatsApp"
+              desc={profile?.whatsapp ? profile.whatsapp : "Ajoutez votre numéro (facultatif)"}
+              onClick={startEditWhatsapp}
             />
           )}
 

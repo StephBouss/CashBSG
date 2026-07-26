@@ -3,6 +3,7 @@ import { Icon } from "@/components/ui/Icon";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
 import { canAccessGoals } from "@/lib/plan";
+import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
 import logoIcon from "@/assets/logo-icon.png";
 import type { Plan } from "@/types/budget";
 
@@ -23,11 +24,12 @@ interface SidebarContentProps {
   initial: string;
   isAdmin: boolean;
   showProBadgeOn: string[];
+  lockedOn: string[];
   plan: Plan | undefined;
   onNavigate?: () => void;
 }
 
-function SidebarContent({ displayName, initial, isAdmin, showProBadgeOn, plan, onNavigate }: SidebarContentProps) {
+function SidebarContent({ displayName, initial, isAdmin, showProBadgeOn, lockedOn, plan, onNavigate }: SidebarContentProps) {
   return (
     <>
       {/* Logo */}
@@ -40,39 +42,58 @@ function SidebarContent({ displayName, initial, isAdmin, showProBadgeOn, plan, o
 
       {/* Nav Items */}
       <nav className="flex flex-col gap-1 flex-1">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
-            onClick={onNavigate}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium ${
-                isActive ? "text-primary" : "text-foreground opacity-60 hover:opacity-100"
-              }`
-            }
-            style={({ isActive }) =>
-              isActive
-                ? {
-                    background: "rgba(16,185,129,0.12)",
-                    border: "1px solid rgba(16,185,129,0.22)",
-                    boxShadow: "0 0 12px rgba(16,185,129,0.10)",
-                  }
-                : { border: "1px solid transparent" }
-            }
-          >
-            <Icon i={item.icon} size={17} />
-            <span className="flex-1">{item.label}</span>
-            {showProBadgeOn.includes(item.to) && (
-              <span
-                className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0"
-                style={{ background: "rgba(124,58,237,0.12)", color: "#7C3AED" }}
-              >
-                PRO
-              </span>
-            )}
-          </NavLink>
-        ))}
+        {navItems.map((item) => {
+          // Mise en avant temporaire du Tracker (nouvelle fonctionnalité) :
+          // effet glassmorphism jaune quand l'onglet n'est pas sélectionné,
+          // même gabarit que le surlignage vert de l'onglet actif.
+          const attention = item.to === "/app/tracker";
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              onClick={onNavigate}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium ${
+                  isActive ? "text-primary" : attention ? "text-foreground" : "text-foreground opacity-60 hover:opacity-100"
+                }`
+              }
+              style={({ isActive }) =>
+                isActive
+                  ? {
+                      background: "rgba(16,185,129,0.12)",
+                      border: "1px solid rgba(16,185,129,0.22)",
+                      boxShadow: "0 0 12px rgba(16,185,129,0.10)",
+                    }
+                  : attention
+                  ? {
+                      background: "rgba(245,158,11,0.14)",
+                      border: "1px solid rgba(245,158,11,0.32)",
+                      boxShadow: "0 0 12px rgba(245,158,11,0.18)",
+                      backdropFilter: "blur(20px)",
+                      WebkitBackdropFilter: "blur(20px)",
+                    }
+                  : { border: "1px solid transparent" }
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <Icon i={item.icon} size={17} style={!isActive && attention ? { color: "#D97706" } : undefined} />
+                  <span className="flex-1">{item.label}</span>
+                  {lockedOn.includes(item.to) && <Icon i="lock" size={13} style={{ color: "#9CA3AF" }} className="flex-shrink-0" />}
+                  {showProBadgeOn.includes(item.to) && (
+                    <span
+                      className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0"
+                      style={{ background: "rgba(124,58,237,0.12)", color: "#7C3AED" }}
+                    >
+                      PRO
+                    </span>
+                  )}
+                </>
+              )}
+            </NavLink>
+          );
+        })}
 
         {isAdmin && (
           <>
@@ -145,11 +166,13 @@ interface SidebarProps {
 export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
   const { data: profile } = useProfile();
   const { user } = useAuth();
+  const onboarding = useOnboardingStatus();
 
   const displayName = profile?.nom || user?.email || "";
   const initial = displayName.charAt(0).toUpperCase();
   const isAdmin = profile?.isAdmin ?? false;
   const showProBadgeOn = profile && !canAccessGoals(profile.plan) ? ["/app/objectifs"] : [];
+  const lockedOn = !onboarding.loading && !onboarding.isComplete ? ["/app/conseiller-ia"] : [];
 
   return (
     <>
@@ -165,7 +188,7 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
           borderRight: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.72)",
         }}
       >
-        <SidebarContent displayName={displayName} initial={initial} isAdmin={isAdmin} showProBadgeOn={showProBadgeOn} plan={profile?.plan} />
+        <SidebarContent displayName={displayName} initial={initial} isAdmin={isAdmin} showProBadgeOn={showProBadgeOn} lockedOn={lockedOn} plan={profile?.plan} />
       </aside>
 
       {/* Mobile drawer */}
@@ -191,7 +214,7 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
             >
               <Icon i="x" size={16} />
             </button>
-            <SidebarContent displayName={displayName} initial={initial} isAdmin={isAdmin} showProBadgeOn={showProBadgeOn} plan={profile?.plan} onNavigate={onCloseMobile} />
+            <SidebarContent displayName={displayName} initial={initial} isAdmin={isAdmin} showProBadgeOn={showProBadgeOn} lockedOn={lockedOn} plan={profile?.plan} onNavigate={onCloseMobile} />
           </aside>
         </div>
       )}
