@@ -8,10 +8,25 @@ const DEEPSEEK_API_KEY = Deno.env.get("DEEPSEEK_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+// CORS restreint : ALLOWED_ORIGINS (secret, liste séparée par des virgules,
+// ex: "https://iwaducash.com,https://www.iwaducash.com") détermine les
+// origines autorisées en production. Sans ce secret, seul le serveur de
+// développement local est autorisé (fail-closed plutôt que "*").
+const DEFAULT_DEV_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"];
+
+function buildCorsHeaders(req: Request): Record<string, string> {
+  const configured = (Deno.env.get("ALLOWED_ORIGINS") ?? "")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+  const allowlist = configured.length > 0 ? configured : DEFAULT_DEV_ORIGINS;
+  const origin = req.headers.get("Origin") ?? "";
+  return {
+    "Access-Control-Allow-Origin": allowlist.includes(origin) ? origin : allowlist[0],
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    Vary: "Origin",
+  };
+}
 
 function startOfMonthISO(d: Date) {
   return new Date(d.getFullYear(), d.getMonth(), 1).toISOString().slice(0, 10);
@@ -20,7 +35,27 @@ function endOfMonthISO(d: Date) {
   return new Date(d.getFullYear(), d.getMonth() + 1, 0).toISOString().slice(0, 10);
 }
 
+// Contrôle de coût : évite qu'un compte authentifié ne fasse exploser la
+// facture DeepSeek en spammant l'endpoint.
+const BURST_LIMIT = 8; // messages max sur 5 minutes
+const DAILY_LIMIT = 60; // messages max sur 24h
+
+// deno-lint-ignore no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function countUserMessagesSince(supabase: any, userId: string, sinceISO: string): Promise<number> {
+  const { count, error } = await supabase
+    .from("ai_messages")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .eq("role", "user")
+    .gte("created_at", sinceISO);
+  if (error) throw error;
+  return count ?? 0;
+}
+
 Deno.serve(async (req) => {
+  const corsHeaders = buildCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
@@ -65,6 +100,27 @@ Deno.serve(async (req) => {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    const rateLimitNow = new Date();
+    const fiveMinAgo = new Date(rateLimitNow.getTime() - 5 * 60 * 1000).toISOString();
+    const oneDayAgo = new Date(rateLimitNow.getTime() - 24 * 60 * 60 * 1000).toISOString();
+    const [burstCount, dailyCount] = await Promise.all([
+      countUserMessagesSince(supabase, user.id, fiveMinAgo),
+      countUserMessagesSince(supabase, user.id, oneDayAgo),
+    ]);
+
+    if (burstCount >= BURST_LIMIT) {
+      return new Response(
+        JSON.stringify({ error: "Trop de messages envoyés en peu de temps. Merci de patienter quelques minutes." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    if (dailyCount >= DAILY_LIMIT) {
+      return new Response(
+        JSON.stringify({ error: "Limite quotidienne de messages avec le conseiller IA atteinte. Réessayez demain." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const now = new Date();
@@ -147,7 +203,7 @@ Deno.serve(async (req) => {
         authorization: `Bearer ${DEEPSEEK_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "deepseek-chat",
+        model: "deepseek-v4-flash",
         max_tokens: 1024,
         messages: [
           {

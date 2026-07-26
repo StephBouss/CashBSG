@@ -1,0 +1,40 @@
+export const COUNTRY_TIMEZONES: Record<string, string> = {
+  SN: "Africa/Dakar",
+  CI: "Africa/Abidjan",
+  ML: "Africa/Bamako",
+  BF: "Africa/Ouagadougou",
+  BJ: "Africa/Porto-Novo",
+  TG: "Africa/Lome",
+  NE: "Africa/Niamey",
+  GW: "Africa/Bissau",
+  CM: "Africa/Douala",
+  GA: "Africa/Libreville",
+  CG: "Africa/Brazzaville",
+  CD: "Africa/Kinshasa",
+  TD: "Africa/Ndjamena",
+  CF: "Africa/Bangui",
+  GQ: "Africa/Malabo",
+  GN: "Africa/Conakry",
+  MR: "Africa/Nouakchott",
+  MA: "Africa/Casablanca",
+  DZ: "Africa/Algiers",
+  TN: "Africa/Tunis",
+  EG: "Africa/Cairo",
+  NG: "Africa/Lagos",
+  GH: "Africa/Accra",
+  SA: "Asia/Riyadh",
+  AE: "Asia/Dubai",
+  FR: "Europe/Paris",
+  BE: "Europe/Brussels",
+  CH: "Europe/Zurich",
+  CA: "America/Toronto",
+  GB: "Europe/London",
+  US: "America/New_York",
+  ES: "Europe/Madrid",
+  CN: "Asia/Shanghai",
+};
+
+export function resolveTimeZone(countryCode: string | null | undefined): string {
+  if (countryCode && COUNTRY_TIMEZONES[countryCode]) return COUNTRY_TIMEZONES[countryCode];
+  return Intl.DateTimeFormat().resolvedOptions().timeZone;
+}

@@ -1,18 +1,31 @@
+import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import type { Profile } from "@/types/budget";
 import { useAuth } from "@/hooks/useAuth";
 
+function extractOAuthName(user: User): string | null {
+  const meta = user.user_metadata as Record<string, unknown> | undefined;
+  if (!meta) return null;
+  const fullName = (meta.full_name as string | undefined) ?? (meta.name as string | undefined);
+  if (fullName?.trim()) return fullName.trim();
+  const given = (meta.given_name as string | undefined) ?? "";
+  const family = (meta.family_name as string | undefined) ?? "";
+  const combined = `${given} ${family}`.trim();
+  return combined || null;
+}
+
 export function useProfile() {
   const { user } = useAuth();
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ["profile", user?.id],
     enabled: !!user,
     queryFn: async (): Promise<Profile> => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, nom, devise, langue, theme, pays, is_admin")
+        .select("id, nom, devise, langue, theme, pays, is_admin, plan")
         .eq("id", user!.id)
         .single();
 
@@ -26,9 +39,25 @@ export function useProfile() {
         theme: data.theme,
         pays: data.pays,
         isAdmin: data.is_admin,
+        plan: data.plan,
       };
     },
   });
+
+  const fetchedNom = query.data?.nom;
+
+  // Un compte connecté via Google n'a pas de nom tant qu'on ne le récupère pas
+  // depuis les métadonnées OAuth fournies par Supabase — on le fait une seule
+  // fois, dès qu'on détecte un profil sans nom.
+  useEffect(() => {
+    if (!user || fetchedNom) return;
+    const oauthName = extractOAuthName(user);
+    if (!oauthName) return;
+    updateProfileName(user.id, oauthName).then(() => query.refetch());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, fetchedNom]);
+
+  return query;
 }
 
 export async function updateProfileName(userId: string, nom: string) {

@@ -2,18 +2,23 @@ import { useState } from "react";
 import { useMonthlyTrend } from "@/hooks/useMonthlyTrend";
 import { useCategoryTotalsRange } from "@/hooks/useCategoryTotalsRange";
 import { useGoals } from "@/hooks/useGoals";
+import { useProfile } from "@/hooks/useProfile";
 import { Icon } from "@/components/ui/Icon";
 import { formatMontant } from "@/lib/formatters";
+import { canAccessFullHistory } from "@/lib/plan";
 
 const PERIODS = [
-  { key: "mois", label: "Mois", months: 1 },
-  { key: "trimestre", label: "Trimestre", months: 3 },
-  { key: "annee", label: "Année", months: 12 },
+  { key: "mois", label: "Mois", months: 1, locked: false },
+  { key: "trimestre", label: "Trimestre", months: 3, locked: true },
+  { key: "annee", label: "Année", months: 12, locked: true },
 ] as const;
 
 export function ReportsDashboard() {
+  const { data: profile } = useProfile();
+  const hasFullHistory = profile ? canAccessFullHistory(profile.plan) : true;
   const [period, setPeriod] = useState<(typeof PERIODS)[number]["key"]>("trimestre");
-  const months = PERIODS.find((p) => p.key === period)!.months;
+  const effectivePeriod = !hasFullHistory ? "mois" : period;
+  const months = PERIODS.find((p) => p.key === effectivePeriod)!.months;
 
   const { data: trend = [] } = useMonthlyTrend(months);
   const { totals: categoryTotals } = useCategoryTotalsRange(months);
@@ -57,22 +62,43 @@ export function ReportsDashboard() {
           <p className="text-xs text-muted-foreground mt-0.5">Analyses détaillées et tendances</p>
         </div>
         <div className="flex gap-2">
-          {PERIODS.map((p) => (
-            <button
-              key={p.key}
-              onClick={() => setPeriod(p.key)}
-              className="px-4 py-2 rounded-lg text-sm font-medium"
-              style={
-                period === p.key
-                  ? { background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)", color: "var(--color-primary)" }
-                  : { background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(0,0,0,0.08)", color: "var(--color-ink)" }
-              }
-            >
-              {p.label}
-            </button>
-          ))}
+          {PERIODS.map((p) => {
+            const isLocked = p.locked && !hasFullHistory;
+            return (
+              <button
+                key={p.key}
+                onClick={() => !isLocked && setPeriod(p.key)}
+                disabled={isLocked}
+                title={isLocked ? "Historique complet réservé aux offres Essentiel et Pro" : undefined}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium disabled:cursor-not-allowed"
+                style={
+                  effectivePeriod === p.key
+                    ? { background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)", color: "var(--color-primary)" }
+                    : {
+                        background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)",
+                        border: "1px solid rgba(0,0,0,0.08)",
+                        color: isLocked ? "var(--color-muted-foreground, #9CA3AF)" : "var(--color-ink)",
+                        opacity: isLocked ? 0.6 : 1,
+                      }
+                }
+              >
+                {isLocked && <Icon i="lock" size={12} />}
+                {p.label}
+              </button>
+            );
+          })}
         </div>
       </div>
+
+      {!hasFullHistory && (
+        <div
+          className="flex items-center gap-2 px-4 py-2.5 rounded-lg mb-6 text-xs"
+          style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.18)", color: "#7C3AED" }}
+        >
+          <Icon i="lock" size={13} />
+          Vous consultez le mois en cours. L&apos;historique complet (trimestre, année) est réservé aux offres Iwadu Essentiel et Pro.
+        </div>
+      )}
 
       {/* KPI Summary */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

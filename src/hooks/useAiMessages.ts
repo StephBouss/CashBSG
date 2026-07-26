@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { FunctionsHttpError } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import type { AiMessage } from "@/types/budget";
 import { useAuth } from "@/hooks/useAuth";
@@ -55,7 +56,13 @@ export async function sendAdvisorMessage(message: string): Promise<string> {
     body: { message },
   });
 
-  if (error) throw error;
+  if (error) {
+    if (error instanceof FunctionsHttpError) {
+      const body = await error.context.json().catch(() => null);
+      throw new Error(body?.error ?? error.message);
+    }
+    throw error;
+  }
   if (!data) throw new Error("Réponse vide du conseiller IA.");
 
   return data.reply;

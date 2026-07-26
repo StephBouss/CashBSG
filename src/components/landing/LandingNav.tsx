@@ -4,8 +4,16 @@ import { Icon } from "@/components/ui/Icon";
 import logoFull from "@/assets/logo-full.png";
 
 const navLinks = [
-  { href: "#probleme", label: "Le problème" },
-  { href: "#promesse", label: "La promesse" },
+  {
+    href: "#probleme",
+    label: "Le problème",
+    tooltip: "Découvrez les erreurs financières les plus courantes qui vous coûtent cher chaque mois, sans même vous en rendre compte.",
+  },
+  {
+    href: "#promesse",
+    label: "La promesse",
+    tooltip: "Iwadu Cash transforme votre façon de gérer votre argent : une vision claire et sereine de vos finances en quelques minutes.",
+  },
   { href: "#fonctionnalites", label: "Fonctionnalités" },
   { href: "#tarifs", label: "Tarifs" },
   { href: "#temoignages", label: "Témoignages" },
@@ -42,18 +50,37 @@ export function LandingNav() {
             : { background: "transparent" }
         }
       >
-        <img src={logoFull} alt="Iwadu Cash" className="h-10 md:h-12" />
+        <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+          <img src={logoFull} alt="Iwadu Cash" className="h-10 md:h-12" />
+        </Link>
 
         <div className="hidden lg:flex items-center gap-7">
           {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="text-sm font-medium text-foreground transition-opacity hover:opacity-100 whitespace-nowrap"
-              style={{ opacity: 0.65 }}
-            >
-              {link.label}
-            </a>
+            <div key={link.href} className="relative group">
+              <a
+                href={link.href}
+                className="text-sm font-medium text-foreground transition-opacity hover:opacity-100 whitespace-nowrap"
+                style={{ opacity: 0.65 }}
+              >
+                {link.label}
+              </a>
+
+              {link.tooltip && (
+                <div
+                  className="absolute left-1/2 top-full mt-3 w-64 -translate-x-1/2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 p-4 rounded-2xl z-10 pointer-events-none"
+                  style={{
+                    background: "rgba(255,255,255,0.98)",
+                    backdropFilter: "blur(40px)",
+                    border: "1px solid rgba(255,255,255,0.9)",
+                    boxShadow: "0 8px 32px rgba(120,120,180,0.15)",
+                  }}
+                >
+                  <p className="text-xs leading-relaxed text-foreground" style={{ opacity: 0.8 }}>
+                    {link.tooltip}
+                  </p>
+                </div>
+              )}
+            </div>
           ))}
         </div>
 

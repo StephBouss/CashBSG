@@ -1,11 +1,16 @@
 import { Icon } from "@/components/ui/Icon";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
+import { useLocalDateTime } from "@/hooks/useLocalDateTime";
 
 function firstName(name: string | null | undefined, email: string | null | undefined) {
   if (name) return name.split(" ")[0];
   if (email) return email.split("@")[0];
   return "";
+}
+
+function capitalize(text: string) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 interface HeaderProps {
@@ -17,6 +22,7 @@ export function Header({ onOpenMenu }: HeaderProps) {
   const { user, signOut } = useAuth();
   const displayName = profile?.nom || user?.email || "";
   const initial = displayName.charAt(0).toUpperCase();
+  const { salutation, formattedDate, formattedTime } = useLocalDateTime(profile?.pays);
 
   return (
     <div
@@ -43,10 +49,10 @@ export function Header({ onOpenMenu }: HeaderProps) {
         {/* Greeting */}
         <div className="min-w-0">
           <h2 className="text-base md:text-xl font-headings font-semibold text-foreground truncate">
-            Bonjour {firstName(profile?.nom, user?.email)} <span>👋</span>
+            {salutation} {firstName(profile?.nom, user?.email)} <span>👋</span>
           </h2>
-          <p className="hidden sm:block text-sm text-muted-foreground mt-0.5">
-            Bienvenue. Prenez le contrôle de vos finances.
+          <p className="hidden sm:block text-sm text-muted-foreground mt-0.5 truncate">
+            {capitalize(formattedDate)} · {formattedTime}
           </p>
         </div>
       </div>

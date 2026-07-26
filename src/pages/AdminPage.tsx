@@ -1,7 +1,12 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { formatMontant, formatDate } from "@/lib/formatters";
 import { useAdminDashboard } from "@/hooks/useAdminDashboard";
+import { AdminDetailModal } from "@/components/admin/AdminDetailModal";
+import { AdminAccountsDetail, type AccountsDetailMode } from "@/components/admin/AdminAccountsDetail";
+import { AdminGoalsDetail } from "@/components/admin/AdminGoalsDetail";
+
+type ActiveModal = AccountsDetailMode | "objectifs" | null;
 
 const monthLabel = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" }).format(new Date());
 
@@ -29,6 +34,7 @@ function initials(nom: string | null, email: string | null) {
 
 export default function AdminPage() {
   const { data, isLoading, error } = useAdminDashboard();
+  const [activeModal, setActiveModal] = useState<ActiveModal>(null);
 
   return (
     <div>
@@ -69,24 +75,84 @@ export default function AdminPage() {
           {/* KPIs */}
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
             {[
-              { icon: "users", label: "Comptes totaux", value: `${data.kpis.totalComptes}`, color: "var(--color-secondary)" },
-              { icon: "trending-up", label: "Revenus agrégés (mois)", value: formatMontant(data.kpis.totalRevenusMois), color: "var(--color-primary)" },
-              { icon: "credit-card", label: "Dépenses agrégées (mois)", value: formatMontant(data.kpis.totalDepensesMois), color: "#F59E0B" },
-              { icon: "bot", label: "Messages IA (mois)", value: `${data.kpis.totalMessagesIaMois}`, color: "#A855F7" },
-              { icon: "target", label: "Objectifs (atteints)", value: `${data.kpis.totalObjectifs} (${data.kpis.objectifsAtteints})`, color: "#EC4899" },
+              { icon: "users", label: "Comptes totaux", value: `${data.kpis.totalComptes}`, color: "var(--color-secondary)", modal: "comptes" as const },
+              { icon: "trending-up", label: "Revenus agrégés (mois)", value: formatMontant(data.kpis.totalRevenusMois), color: "var(--color-primary)", modal: "revenus" as const },
+              { icon: "credit-card", label: "Dépenses agrégées (mois)", value: formatMontant(data.kpis.totalDepensesMois), color: "#F59E0B", modal: "depenses" as const },
+              { icon: "bot", label: "Messages IA (mois)", value: `${data.kpis.totalMessagesIaMois}`, color: "#A855F7", modal: "messages" as const },
+              { icon: "target", label: "Objectifs (atteints)", value: `${data.kpis.totalObjectifs} (${data.kpis.objectifsAtteints})`, color: "#EC4899", modal: "objectifs" as const },
             ].map((kpi) => (
-              <GlassCard key={kpi.label} className="p-4">
-                <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center mb-3"
-                  style={{ background: `${kpi.color}18`, border: `1px solid ${kpi.color}30` }}
-                >
-                  <Icon i={kpi.icon} size={16} style={{ color: kpi.color }} />
-                </div>
-                <p className="text-lg font-semibold text-foreground font-headings leading-tight">{kpi.value}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{kpi.label}</p>
-              </GlassCard>
+              <button
+                key={kpi.label}
+                type="button"
+                onClick={() => setActiveModal(kpi.modal)}
+                className="text-left"
+              >
+                <GlassCard className="p-4 h-full transition-transform hover:-translate-y-0.5 hover:shadow-md cursor-pointer">
+                  <div className="flex items-center justify-between mb-3">
+                    <div
+                      className="w-8 h-8 rounded-lg flex items-center justify-center"
+                      style={{ background: `${kpi.color}18`, border: `1px solid ${kpi.color}30` }}
+                    >
+                      <Icon i={kpi.icon} size={16} style={{ color: kpi.color }} />
+                    </div>
+                    <Icon i="chevron-right" size={14} style={{ color: "#B0B0C0" }} />
+                  </div>
+                  <p className="text-lg font-semibold text-foreground font-headings leading-tight">{kpi.value}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{kpi.label}</p>
+                </GlassCard>
+              </button>
             ))}
           </div>
+
+          {activeModal && activeModal !== "objectifs" && (
+            <AdminDetailModal
+              icon={
+                activeModal === "comptes" ? "users" : activeModal === "revenus" ? "trending-up" : activeModal === "depenses" ? "credit-card" : "bot"
+              }
+              color={
+                activeModal === "comptes"
+                  ? "var(--color-secondary)"
+                  : activeModal === "revenus"
+                  ? "var(--color-primary)"
+                  : activeModal === "depenses"
+                  ? "#F59E0B"
+                  : "#A855F7"
+              }
+              title={
+                activeModal === "comptes"
+                  ? "Tous les comptes"
+                  : activeModal === "revenus"
+                  ? "Revenus agrégés du mois"
+                  : activeModal === "depenses"
+                  ? "Dépenses agrégées du mois"
+                  : "Messages IA du mois"
+              }
+              subtitle={
+                activeModal === "comptes"
+                  ? "Identité, pays, statut et offre de chaque compte"
+                  : activeModal === "revenus"
+                  ? "Répartition des revenus déclarés par compte"
+                  : activeModal === "depenses"
+                  ? "Répartition des dépenses par compte, avec ratio de risque"
+                  : "Utilisation du conseiller IA par compte"
+              }
+              onClose={() => setActiveModal(null)}
+            >
+              <AdminAccountsDetail users={data.users} mode={activeModal} />
+            </AdminDetailModal>
+          )}
+
+          {activeModal === "objectifs" && (
+            <AdminDetailModal
+              icon="target"
+              color="#EC4899"
+              title="Objectifs financiers"
+              subtitle="Progression de chaque objectif, tous comptes confondus"
+              onClose={() => setActiveModal(null)}
+            >
+              <AdminGoalsDetail goals={data.goalsDetail ?? []} />
+            </AdminDetailModal>
+          )}
 
           {/* Users table */}
           <GlassCard className="overflow-hidden mb-5">

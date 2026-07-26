@@ -15,3 +15,15 @@ const dateFormatter = new Intl.DateTimeFormat("fr-FR", {
 export function formatDate(isoDate: string): string {
   return dateFormatter.format(new Date(isoDate));
 }
+
+const dateTimeFormatter = new Intl.DateTimeFormat("fr-FR", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+export function formatDateTime(isoDateTime: string): string {
+  return dateTimeFormatter.format(new Date(isoDateTime));
+}

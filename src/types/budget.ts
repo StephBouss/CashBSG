@@ -33,6 +33,17 @@ export interface Expense {
   datePaiement: string | null;
 }
 
+export interface TrackedExpense {
+  id: string;
+  userId: string;
+  nom: string;
+  categoryId: string;
+  montant: number;
+  createdAt: string;
+}
+
+export type Plan = "free" | "essentiel" | "pro";
+
 export interface Profile {
   id: string;
   nom: string | null;
@@ -41,6 +52,7 @@ export interface Profile {
   theme: string;
   pays: string | null;
   isAdmin: boolean;
+  plan: Plan;
 }
 
 export interface Goal {

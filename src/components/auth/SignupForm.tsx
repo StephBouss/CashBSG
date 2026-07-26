@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { Icon } from "@/components/ui/Icon";
+import { GoogleIcon } from "@/components/ui/GoogleIcon";
 import logoFull from "@/assets/logo-full.png";
 
 const signupSchema = z
@@ -72,8 +73,10 @@ export function SignupForm() {
 
   return (
     <GlassCard className="w-full max-w-sm">
-      <img src={logoFull} alt="Iwadu Cash" className="h-7 mb-6" />
-      <h1 className="mb-6 text-2xl font-bold text-foreground">Créer un compte</h1>
+      <Link to="/" className="mb-6 flex justify-center">
+        <img src={logoFull} alt="Iwadu Cash" className="h-14" />
+      </Link>
+      <h1 className="mb-6 text-center text-2xl font-bold text-foreground">Créer un compte</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
         <input
           {...register("email")}
@@ -105,8 +108,9 @@ export function SignupForm() {
       </form>
       <button
         onClick={() => signInWithGoogle()}
-        className="mt-3 w-full rounded-2xl border border-black/10 px-4 py-2 text-foreground hover:bg-black/5"
+        className="mt-3 flex w-full items-center justify-center gap-3 rounded-2xl border border-black/10 px-4 py-2 font-medium text-foreground hover:bg-black/5"
       >
+        <GoogleIcon size={18} />
         Continuer avec Google
       </button>
       <p className="mt-4 text-center text-sm text-muted-foreground">

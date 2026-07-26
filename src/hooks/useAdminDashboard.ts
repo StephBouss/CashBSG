@@ -3,17 +3,38 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 
+export type AdminPlan = "free" | "essentiel" | "pro";
+export type AdminStatus = "actif" | "inactif";
+
 export interface AdminUserRow {
   id: string;
   nom: string | null;
   email: string | null;
+  pays: string | null;
   devise: string;
+  plan: AdminPlan;
   isAdmin: boolean;
+  status: AdminStatus;
   createdAt: string;
+  lastSignInAt: string | null;
   revenusMois: number;
   depensesMois: number;
   messagesIaMois: number;
   objectifs: number;
+  objectifsAtteints: number;
+}
+
+export interface AdminGoalRow {
+  id: string;
+  userId: string;
+  userNom: string | null;
+  userEmail: string | null;
+  label: string;
+  icone: string;
+  montantCible: number;
+  montantEpargne: number;
+  dateCible: string | null;
+  atteint: boolean;
 }
 
 export interface AdminDashboardData {
@@ -24,10 +45,14 @@ export interface AdminDashboardData {
     totalMessagesIaMois: number;
     totalObjectifs: number;
     objectifsAtteints: number;
+    activeCount: number;
+    inactiveCount: number;
   };
   users: AdminUserRow[];
   recentSignups: AdminUserRow[];
   deviseBreakdown: { devise: string; count: number }[];
+  planBreakdown: { plan: AdminPlan; count: number }[];
+  goalsDetail: AdminGoalRow[];
 }
 
 export function useAdminDashboard() {

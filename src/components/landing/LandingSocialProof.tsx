@@ -446,6 +446,14 @@ export function LandingSocialProof() {
             {[
               { title: "Produit", links: [{ label: "Fonctionnalités", href: "#fonctionnalites" }, { label: "Tarifs", href: "#tarifs" }] },
               { title: "Compte", links: [{ label: "Connexion", href: "/login" }, { label: "Créer un compte", href: "/signup" }] },
+              {
+                title: "Légal",
+                links: [
+                  { label: "Mentions légales", href: "/mentions-legales" },
+                  { label: "CGU", href: "/cgu" },
+                  { label: "Confidentialité", href: "/confidentialite" },
+                ],
+              },
             ].map((col) => (
               <div key={col.title}>
                 <p className="text-xs font-semibold uppercase tracking-widest mb-4" style={{ color: "#10B981" }}>{col.title}</p>

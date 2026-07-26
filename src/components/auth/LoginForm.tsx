@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useAuth } from "@/hooks/useAuth";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { GoogleIcon } from "@/components/ui/GoogleIcon";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
 import logoFull from "@/assets/logo-full.png";
@@ -42,8 +43,10 @@ export function LoginForm() {
 
   return (
     <GlassCard className="w-full max-w-sm">
-      <img src={logoFull} alt="Iwadu Cash" className="h-7 mb-6" />
-      <h1 className="mb-6 text-2xl font-bold text-foreground">Bienvenue</h1>
+      <Link to="/" className="mb-6 flex justify-center">
+        <img src={logoFull} alt="Iwadu Cash" className="h-14" />
+      </Link>
+      <h1 className="mb-6 text-center text-2xl font-bold text-foreground">Bienvenue</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
         <input
           {...register("email")}
@@ -76,8 +79,9 @@ export function LoginForm() {
       </form>
       <button
         onClick={() => signInWithGoogle()}
-        className="mt-3 w-full rounded-2xl border border-black/10 px-4 py-2 text-foreground hover:bg-black/5"
+        className="mt-3 flex w-full items-center justify-center gap-3 rounded-2xl border border-black/10 px-4 py-2 font-medium text-foreground hover:bg-black/5"
       >
+        <GoogleIcon size={18} />
         Continuer avec Google
       </button>
       <p className="mt-4 text-center text-sm text-muted-foreground">

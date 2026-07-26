@@ -2,12 +2,14 @@ import { NavLink } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
+import { canAccessGoals } from "@/lib/plan";
 import logoIcon from "@/assets/logo-icon.png";
 
 const navItems = [
   { to: "/app", label: "Dashboard", icon: "layout-dashboard", end: true },
   { to: "/app/revenus", label: "Revenus", icon: "trending-up" },
   { to: "/app/depenses", label: "Dépenses", icon: "credit-card" },
+  { to: "/app/tracker", label: "Tracker", icon: "zap" },
   { to: "/app/finances", label: "Finances", icon: "piggy-bank" },
   { to: "/app/objectifs", label: "Objectifs", icon: "target" },
   { to: "/app/rapports", label: "Rapports", icon: "bar-chart-2" },
@@ -19,10 +21,11 @@ interface SidebarContentProps {
   displayName: string;
   initial: string;
   isAdmin: boolean;
+  showProBadgeOn: string[];
   onNavigate?: () => void;
 }
 
-function SidebarContent({ displayName, initial, isAdmin, onNavigate }: SidebarContentProps) {
+function SidebarContent({ displayName, initial, isAdmin, showProBadgeOn, onNavigate }: SidebarContentProps) {
   return (
     <>
       {/* Logo */}
@@ -57,7 +60,15 @@ function SidebarContent({ displayName, initial, isAdmin, onNavigate }: SidebarCo
             }
           >
             <Icon i={item.icon} size={17} />
-            <span>{item.label}</span>
+            <span className="flex-1">{item.label}</span>
+            {showProBadgeOn.includes(item.to) && (
+              <span
+                className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0"
+                style={{ background: "rgba(124,58,237,0.12)", color: "#7C3AED" }}
+              >
+                PRO
+              </span>
+            )}
           </NavLink>
         ))}
 
@@ -124,6 +135,7 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
   const displayName = profile?.nom || user?.email || "";
   const initial = displayName.charAt(0).toUpperCase();
   const isAdmin = profile?.isAdmin ?? false;
+  const showProBadgeOn = profile && !canAccessGoals(profile.plan) ? ["/app/objectifs"] : [];
 
   return (
     <>
@@ -139,7 +151,7 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
           borderRight: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.72)",
         }}
       >
-        <SidebarContent displayName={displayName} initial={initial} isAdmin={isAdmin} />
+        <SidebarContent displayName={displayName} initial={initial} isAdmin={isAdmin} showProBadgeOn={showProBadgeOn} />
       </aside>
 
       {/* Mobile drawer */}
@@ -165,7 +177,7 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
             >
               <Icon i="x" size={16} />
             </button>
-            <SidebarContent displayName={displayName} initial={initial} isAdmin={isAdmin} onNavigate={onCloseMobile} />
+            <SidebarContent displayName={displayName} initial={initial} isAdmin={isAdmin} showProBadgeOn={showProBadgeOn} onNavigate={onCloseMobile} />
           </aside>
         </div>
       )}
