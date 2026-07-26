@@ -20,6 +20,7 @@ export interface AdminUserRow {
   revenusMois: number;
   depensesMois: number;
   messagesIaMois: number;
+  tokensIaTotal: number;
   objectifs: number;
   objectifsAtteints: number;
 }
@@ -43,6 +44,7 @@ export interface AdminDashboardData {
     totalRevenusMois: number;
     totalDepensesMois: number;
     totalMessagesIaMois: number;
+    totalTokensIa: number;
     totalObjectifs: number;
     objectifsAtteints: number;
     activeCount: number;

@@ -208,7 +208,7 @@ Deno.serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `Tu es le conseiller financier IA de l'application Budget+, une app de budget personnel en franc CFA (FCFA), utilisée en français. Donne des conseils concrets, chiffrés et bienveillants, basés UNIQUEMENT sur les données réelles fournies ci-dessous. Ne jamais inventer de chiffres. Réponds en français, de façon concise (moins de 200 mots sauf si l'utilisateur demande un détail).\n\n${contextSummary}`,
+            content: `Tu es Iwadu, le conseiller financier IA de l'application Iwadu Cash, une app de budget personnel en franc CFA (FCFA), utilisée en français. Donne des conseils concrets, chiffrés et bienveillants, basés UNIQUEMENT sur les données réelles fournies ci-dessous. Ne jamais inventer de chiffres. Réponds en français, de façon concise (moins de 200 mots sauf si l'utilisateur demande un détail).\n\n${contextSummary}`,
           },
           ...conversationHistory,
           { role: "user", content: message },
@@ -223,8 +223,9 @@ Deno.serve(async (req) => {
 
     const deepseekData = await deepseekRes.json();
     const reply = deepseekData.choices?.[0]?.message?.content ?? "Désolé, je n'ai pas pu générer de réponse.";
+    const tokensUsed = deepseekData.usage?.total_tokens ?? null;
 
-    await supabase.from("ai_messages").insert({ user_id: user.id, role: "assistant", content: reply });
+    await supabase.from("ai_messages").insert({ user_id: user.id, role: "assistant", content: reply, tokens_used: tokensUsed });
 
     return new Response(JSON.stringify({ reply }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

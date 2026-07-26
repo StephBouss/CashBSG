@@ -12,6 +12,7 @@ import FinancesPage from "@/pages/FinancesPage";
 import GoalsPage from "@/pages/GoalsPage";
 import ReportsPage from "@/pages/ReportsPage";
 import AiAdvisorPage from "@/pages/AiAdvisorPage";
+import UpgradePage from "@/pages/UpgradePage";
 import SettingsPage from "@/pages/SettingsPage";
 import AdminPage from "@/pages/AdminPage";
 import ResetPasswordPage from "@/pages/ResetPasswordPage";
@@ -43,6 +44,7 @@ export const router = createBrowserRouter([
           { path: "objectifs", element: <GoalsPage /> },
           { path: "rapports", element: <ReportsPage /> },
           { path: "conseiller-ia", element: <AiAdvisorPage /> },
+          { path: "mise-a-niveau", element: <UpgradePage /> },
           { path: "parametres", element: <SettingsPage /> },
           { path: "admin", element: <AdminRoute><AdminPage /></AdminRoute> },
         ],

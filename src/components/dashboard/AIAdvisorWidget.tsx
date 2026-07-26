@@ -135,11 +135,11 @@ export function AIAdvisorWidget({ expenses, categoryTotals, totalDepenses, goals
         ))}
       </div>
       <Link
-        to="/conseiller-ia"
+        to="/app/conseiller-ia"
         className="block text-center text-xs font-medium mt-4"
         style={{ color: "var(--color-primary)" }}
       >
-        Discuter avec le conseiller IA →
+        Discuter avec Iwadu →
       </Link>
     </div>
   );

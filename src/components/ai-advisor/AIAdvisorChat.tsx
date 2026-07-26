@@ -44,7 +44,7 @@ export function AIAdvisorChat() {
             ✨
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-foreground">Conseiller IA Iwadu Cash</h2>
+            <h2 className="text-sm font-semibold text-foreground">Iwadu</h2>
             <p className="text-xs text-muted-foreground mt-0.5">En ligne</p>
           </div>
         </div>

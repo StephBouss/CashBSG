@@ -25,7 +25,7 @@ export function useProfile() {
     queryFn: async (): Promise<Profile> => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, nom, devise, langue, theme, pays, is_admin, plan")
+        .select("id, nom, devise, langue, theme, pays, is_admin, plan, plan_expires_at")
         .eq("id", user!.id)
         .single();
 
@@ -40,6 +40,7 @@ export function useProfile() {
         pays: data.pays,
         isAdmin: data.is_admin,
         plan: data.plan,
+        planExpiresAt: data.plan_expires_at,
       };
     },
   });

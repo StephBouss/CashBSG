@@ -6,6 +6,19 @@ export const PLAN_LABELS: Record<Plan, string> = {
   pro: "Iwadu Pro",
 };
 
+export const PLAN_ORDER: Plan[] = ["free", "essentiel", "pro"];
+
+export const PLAN_PRICES: Record<Plan, string> = {
+  free: "Gratuit",
+  essentiel: "5 000 FCFA/mois",
+  pro: "15 000 FCFA/mois",
+};
+
+/** Offres au-dessus du plan actuel, dans l'ordre. */
+export function upgradeOptions(plan: Plan): Plan[] {
+  return PLAN_ORDER.slice(PLAN_ORDER.indexOf(plan) + 1);
+}
+
 /** Objectifs financiers illimités : réservé aux offres payantes (voir tarifs). */
 export function canAccessGoals(plan: Plan): boolean {
   return plan !== "free";

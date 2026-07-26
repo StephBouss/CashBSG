@@ -53,6 +53,7 @@ export interface Profile {
   pays: string | null;
   isAdmin: boolean;
   plan: Plan;
+  planExpiresAt: string | null;
 }
 
 export interface Goal {

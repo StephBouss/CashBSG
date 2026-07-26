@@ -4,6 +4,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
 import { canAccessGoals } from "@/lib/plan";
 import logoIcon from "@/assets/logo-icon.png";
+import type { Plan } from "@/types/budget";
 
 const navItems = [
   { to: "/app", label: "Dashboard", icon: "layout-dashboard", end: true },
@@ -13,7 +14,7 @@ const navItems = [
   { to: "/app/finances", label: "Finances", icon: "piggy-bank" },
   { to: "/app/objectifs", label: "Objectifs", icon: "target" },
   { to: "/app/rapports", label: "Rapports", icon: "bar-chart-2" },
-  { to: "/app/conseiller-ia", label: "IA Conseiller", icon: "bot" },
+  { to: "/app/conseiller-ia", label: "Iwadu", icon: "bot" },
   { to: "/app/parametres", label: "Paramètres", icon: "settings" },
 ];
 
@@ -22,10 +23,11 @@ interface SidebarContentProps {
   initial: string;
   isAdmin: boolean;
   showProBadgeOn: string[];
+  plan: Plan | undefined;
   onNavigate?: () => void;
 }
 
-function SidebarContent({ displayName, initial, isAdmin, showProBadgeOn, onNavigate }: SidebarContentProps) {
+function SidebarContent({ displayName, initial, isAdmin, showProBadgeOn, plan, onNavigate }: SidebarContentProps) {
   return (
     <>
       {/* Logo */}
@@ -97,6 +99,18 @@ function SidebarContent({ displayName, initial, isAdmin, showProBadgeOn, onNavig
         )}
       </nav>
 
+      {plan && plan !== "pro" && (
+        <NavLink
+          to="/app/mise-a-niveau"
+          onClick={onNavigate}
+          className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold text-white mt-2 transition-transform duration-200 hover:scale-105 active:scale-95"
+          style={{ background: "linear-gradient(135deg, #7C3AED, #4F46E5)", boxShadow: "0 8px 24px rgba(124,58,237,0.3)" }}
+        >
+          <Icon i="rocket" size={16} />
+          <span>Mettre à niveau</span>
+        </NavLink>
+      )}
+
       {/* Bottom profile */}
       <div
         className="flex items-center gap-3 mt-8 p-3 rounded-lg"
@@ -151,7 +165,7 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
           borderRight: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.72)",
         }}
       >
-        <SidebarContent displayName={displayName} initial={initial} isAdmin={isAdmin} showProBadgeOn={showProBadgeOn} />
+        <SidebarContent displayName={displayName} initial={initial} isAdmin={isAdmin} showProBadgeOn={showProBadgeOn} plan={profile?.plan} />
       </aside>
 
       {/* Mobile drawer */}
@@ -177,7 +191,7 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
             >
               <Icon i="x" size={16} />
             </button>
-            <SidebarContent displayName={displayName} initial={initial} isAdmin={isAdmin} showProBadgeOn={showProBadgeOn} onNavigate={onCloseMobile} />
+            <SidebarContent displayName={displayName} initial={initial} isAdmin={isAdmin} showProBadgeOn={showProBadgeOn} plan={profile?.plan} onNavigate={onCloseMobile} />
           </aside>
         </div>
       )}

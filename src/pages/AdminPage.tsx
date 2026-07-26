@@ -73,13 +73,14 @@ export default function AdminPage() {
       {data && (
         <>
           {/* KPIs */}
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+          <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
             {[
               { icon: "users", label: "Comptes totaux", value: `${data.kpis.totalComptes}`, color: "var(--color-secondary)", modal: "comptes" as const },
               { icon: "trending-up", label: "Revenus agrégés (mois)", value: formatMontant(data.kpis.totalRevenusMois), color: "var(--color-primary)", modal: "revenus" as const },
               { icon: "credit-card", label: "Dépenses agrégées (mois)", value: formatMontant(data.kpis.totalDepensesMois), color: "#F59E0B", modal: "depenses" as const },
               { icon: "bot", label: "Messages IA (mois)", value: `${data.kpis.totalMessagesIaMois}`, color: "#A855F7", modal: "messages" as const },
               { icon: "target", label: "Objectifs (atteints)", value: `${data.kpis.totalObjectifs} (${data.kpis.objectifsAtteints})`, color: "#EC4899", modal: "objectifs" as const },
+              { icon: "sparkles", label: "Tokens Iwadu (total)", value: data.kpis.totalTokensIa.toLocaleString("fr-FR"), color: "#0EA5E9", modal: "tokens" as const },
             ].map((kpi) => (
               <button
                 key={kpi.label}
@@ -107,7 +108,15 @@ export default function AdminPage() {
           {activeModal && activeModal !== "objectifs" && (
             <AdminDetailModal
               icon={
-                activeModal === "comptes" ? "users" : activeModal === "revenus" ? "trending-up" : activeModal === "depenses" ? "credit-card" : "bot"
+                activeModal === "comptes"
+                  ? "users"
+                  : activeModal === "revenus"
+                  ? "trending-up"
+                  : activeModal === "depenses"
+                  ? "credit-card"
+                  : activeModal === "tokens"
+                  ? "sparkles"
+                  : "bot"
               }
               color={
                 activeModal === "comptes"
@@ -116,6 +125,8 @@ export default function AdminPage() {
                   ? "var(--color-primary)"
                   : activeModal === "depenses"
                   ? "#F59E0B"
+                  : activeModal === "tokens"
+                  ? "#0EA5E9"
                   : "#A855F7"
               }
               title={
@@ -125,6 +136,8 @@ export default function AdminPage() {
                   ? "Revenus agrégés du mois"
                   : activeModal === "depenses"
                   ? "Dépenses agrégées du mois"
+                  : activeModal === "tokens"
+                  ? "Tokens Iwadu (total)"
                   : "Messages IA du mois"
               }
               subtitle={
@@ -134,6 +147,8 @@ export default function AdminPage() {
                   ? "Répartition des revenus déclarés par compte"
                   : activeModal === "depenses"
                   ? "Répartition des dépenses par compte, avec ratio de risque"
+                  : activeModal === "tokens"
+                  ? "Consommation de tokens DeepSeek par compte, toutes périodes confondues"
                   : "Utilisation du conseiller IA par compte"
               }
               onClose={() => setActiveModal(null)}

@@ -5,9 +5,9 @@ export default function AiAdvisorPage() {
   return (
     <div className="flex flex-col min-w-0 h-full">
       <div className="mb-6">
-        <h1 className="text-2xl font-headings font-semibold text-foreground">Conseiller IA</h1>
+        <h1 className="text-2xl font-headings font-semibold text-foreground">Iwadu</h1>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Obtenez des conseils financiers personnalisés
+          Votre conseiller financier IA — obtenez des conseils personnalisés
         </p>
       </div>
 

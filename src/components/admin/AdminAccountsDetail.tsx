@@ -3,7 +3,7 @@ import { formatDate } from "@/lib/formatters";
 import { CountryTag, PlanBadge, StatusBadge, firstName, formatDevise, initials } from "@/components/admin/AdminBadges";
 import type { AdminUserRow } from "@/hooks/useAdminDashboard";
 
-export type AccountsDetailMode = "comptes" | "revenus" | "depenses" | "messages";
+export type AccountsDetailMode = "comptes" | "revenus" | "depenses" | "messages" | "tokens";
 
 interface AdminAccountsDetailProps {
   users: AdminUserRow[];
@@ -15,6 +15,7 @@ const MIN_TABLE_WIDTH: Record<AccountsDetailMode, number> = {
   revenus: 820,
   depenses: 860,
   messages: 760,
+  tokens: 760,
 };
 
 // Colonnes à largeur fixe : flexShrink 0 partout pour empêcher le
@@ -50,12 +51,14 @@ export function AdminAccountsDetail({ users, mode }: AdminAccountsDetailProps) {
     if (mode === "revenus") return copy.sort((a, b) => b.revenusMois - a.revenusMois);
     if (mode === "depenses") return copy.sort((a, b) => b.depensesMois - a.depensesMois);
     if (mode === "messages") return copy.sort((a, b) => b.messagesIaMois - a.messagesIaMois);
+    if (mode === "tokens") return copy.sort((a, b) => b.tokensIaTotal - a.tokensIaTotal);
     return copy.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [users, mode]);
 
   const totalRevenus = useMemo(() => users.reduce((s, u) => s + u.revenusMois, 0), [users]);
   const totalDepenses = useMemo(() => users.reduce((s, u) => s + u.depensesMois, 0), [users]);
   const totalMessages = useMemo(() => users.reduce((s, u) => s + u.messagesIaMois, 0), [users]);
+  const totalTokens = useMemo(() => users.reduce((s, u) => s + u.tokensIaTotal, 0), [users]);
   const contributeursRevenus = users.filter((u) => u.revenusMois > 0).length;
   const contributeursDepenses = users.filter((u) => u.depensesMois > 0).length;
   const atRisk = users.filter((u) => u.revenusMois > 0 && u.depensesMois / u.revenusMois >= 0.9).length;
@@ -110,6 +113,21 @@ export function AdminAccountsDetail({ users, mode }: AdminAccountsDetailProps) {
           />
         </div>
       )}
+      {mode === "tokens" && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <SummaryStat label="Tokens consommés (total)" value={totalTokens.toLocaleString("fr-FR")} color="#0EA5E9" />
+          <SummaryStat label="Utilisateurs ayant utilisé Iwadu" value={`${users.filter((u) => u.tokensIaTotal > 0).length} / ${users.length}`} />
+          <SummaryStat
+            label="Moyenne / utilisateur actif"
+            value={
+              users.filter((u) => u.tokensIaTotal > 0).length > 0
+                ? Math.round(totalTokens / users.filter((u) => u.tokensIaTotal > 0).length).toLocaleString("fr-FR")
+                : "—"
+            }
+          />
+          <SummaryStat label="Plus gros consommateur" value={sorted[0]?.tokensIaTotal ? sorted[0].nom || sorted[0].email || "—" : "—"} color="#0EA5E9" />
+        </div>
+      )}
 
       {/* Tableau */}
       <div className="overflow-x-auto rounded-lg" style={{ border: "1px solid rgba(0,0,0,0.06)" }}>
@@ -144,6 +162,7 @@ export function AdminAccountsDetail({ users, mode }: AdminAccountsDetailProps) {
               </>
             )}
             {mode === "messages" && <div style={fixedCol(160, "right")}>Messages (mois)</div>}
+            {mode === "tokens" && <div style={fixedCol(160, "right")}>Tokens IA (total)</div>}
           </div>
 
           <div className="divide-y" style={{ borderColor: "rgba(0,0,0,0.06)" }}>
@@ -241,6 +260,12 @@ export function AdminAccountsDetail({ users, mode }: AdminAccountsDetailProps) {
                     {mode === "messages" && (
                       <div style={fixedCol(160, "right")}>
                         <p className="text-sm font-semibold" style={{ color: "#A855F7" }}>{u.messagesIaMois}</p>
+                      </div>
+                    )}
+
+                    {mode === "tokens" && (
+                      <div style={fixedCol(160, "right")}>
+                        <p className="text-sm font-semibold" style={{ color: "#0EA5E9" }}>{u.tokensIaTotal.toLocaleString("fr-FR")}</p>
                       </div>
                     )}
                   </div>

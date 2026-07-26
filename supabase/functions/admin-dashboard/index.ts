@@ -109,13 +109,14 @@ Deno.serve(async (req) => {
     const start = startOfMonthISO(now);
     const end = endOfMonthISO(now);
 
-    const [{ data: profiles }, { data: incomes }, { data: expenses }, { data: aiMessages }, { data: goals }] =
+    const [{ data: profiles }, { data: incomes }, { data: expenses }, { data: aiMessages }, { data: goals }, { data: aiTokens }] =
       await Promise.all([
         admin.from("profiles").select("id, nom, devise, pays, plan, is_admin"),
         admin.from("incomes").select("user_id, montant").gte("date", start).lte("date", end),
         admin.from("expenses").select("user_id, montant").gte("date_echeance", start).lte("date_echeance", end),
         admin.from("ai_messages").select("user_id").eq("role", "user").gte("created_at", start).lte("created_at", end),
         admin.from("goals").select("id, user_id, label, icone, montant_cible, montant_epargne, date_cible"),
+        admin.from("ai_messages").select("user_id, tokens_used").eq("role", "assistant"),
       ]);
 
     const profileById = new Map((profiles ?? []).map((p) => [p.id, p]));
@@ -134,6 +135,11 @@ Deno.serve(async (req) => {
     const messagesByUser = new Map<string, number>();
     for (const row of aiMessages ?? []) {
       messagesByUser.set(row.user_id, (messagesByUser.get(row.user_id) ?? 0) + 1);
+    }
+
+    const tokensByUser = new Map<string, number>();
+    for (const row of aiTokens ?? []) {
+      tokensByUser.set(row.user_id, (tokensByUser.get(row.user_id) ?? 0) + (row.tokens_used ?? 0));
     }
 
     const goalsByUser = new Map<string, number>();
@@ -165,6 +171,7 @@ Deno.serve(async (req) => {
           revenusMois: revenusByUser.get(u.id) ?? 0,
           depensesMois: depensesByUser.get(u.id) ?? 0,
           messagesIaMois: messagesByUser.get(u.id) ?? 0,
+          tokensIaTotal: tokensByUser.get(u.id) ?? 0,
           objectifs: goalsByUser.get(u.id) ?? 0,
           objectifsAtteints: goalsAtteintsByUser.get(u.id) ?? 0,
         };
@@ -192,6 +199,7 @@ Deno.serve(async (req) => {
     const totalRevenusMois = Array.from(revenusByUser.values()).reduce((s, v) => s + v, 0);
     const totalDepensesMois = Array.from(depensesByUser.values()).reduce((s, v) => s + v, 0);
     const totalMessagesIaMois = (aiMessages ?? []).length;
+    const totalTokensIa = (aiTokens ?? []).reduce((s, row) => s + (row.tokens_used ?? 0), 0);
     const totalObjectifs = (goals ?? []).length;
     const objectifsAtteints = (goals ?? []).filter((g) => g.montant_epargne >= g.montant_cible).length;
     const activeCount = users.filter((u) => u.status === "actif").length;
@@ -213,6 +221,7 @@ Deno.serve(async (req) => {
         totalRevenusMois,
         totalDepensesMois,
         totalMessagesIaMois,
+        totalTokensIa,
         totalObjectifs,
         objectifsAtteints,
         activeCount,
