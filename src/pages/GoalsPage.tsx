@@ -5,11 +5,18 @@ import { GoalsGallery } from "@/components/goals/GoalsGallery";
 import { NewGoalModal } from "@/components/goals/NewGoalModal";
 import { UpsellCard } from "@/components/plan/UpsellCard";
 import { canAccessGoals } from "@/lib/plan";
+import type { Goal } from "@/types/budget";
 
 export default function GoalsPage() {
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const { data: goals = [], refetch } = useGoals();
   const { data: profile } = useProfile();
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditingGoal(null);
+  };
 
   return (
     <div className="flex flex-col min-w-0">
@@ -25,8 +32,15 @@ export default function GoalsPage() {
         />
       ) : (
         <>
-          <GoalsGallery goals={goals} onChanged={() => refetch()} onAddClick={() => setModalOpen(true)} />
-          {modalOpen && <NewGoalModal onClose={() => setModalOpen(false)} onCreated={() => refetch()} />}
+          <GoalsGallery
+            goals={goals}
+            onChanged={() => refetch()}
+            onAddClick={() => setModalOpen(true)}
+            onEditClick={(goal) => setEditingGoal(goal)}
+          />
+          {(modalOpen || editingGoal) && (
+            <NewGoalModal goal={editingGoal ?? undefined} onClose={closeModal} onCreated={() => refetch()} />
+          )}
         </>
       )}
     </div>

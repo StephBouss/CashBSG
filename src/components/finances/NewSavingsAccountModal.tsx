@@ -3,11 +3,12 @@ import { Icon } from "@/components/ui/Icon";
 import { AmountInput } from "@/components/ui/AmountInput";
 import { useAuth } from "@/hooks/useAuth";
 import { useCategories } from "@/hooks/useCategories";
-import { createSavingsAccount } from "@/hooks/useSavingsAccounts";
-import type { SavingsAccountType, SavingsContributionMode } from "@/types/budget";
+import { createSavingsAccount, updateSavingsAccount } from "@/hooks/useSavingsAccounts";
+import type { SavingsAccount, SavingsAccountType, SavingsContributionMode } from "@/types/budget";
 
 interface NewSavingsAccountModalProps {
   type: SavingsAccountType;
+  account?: SavingsAccount;
   onClose: () => void;
   onCreated: () => void;
 }
@@ -17,19 +18,21 @@ const labels: Record<SavingsAccountType, { title: string; placeholder: string }>
   investissement: { title: "Nouvel investissement", placeholder: "Ex: Actions, Immobilier locatif" },
 };
 
-export function NewSavingsAccountModal({ type, onClose, onCreated }: NewSavingsAccountModalProps) {
+export function NewSavingsAccountModal({ type, account, onClose, onCreated }: NewSavingsAccountModalProps) {
   const { user } = useAuth();
   const { data: categories = [] } = useCategories();
   const revenuCategories = categories.filter((c) => c.type === "revenu");
+  const isEditing = !!account;
 
-  const [nom, setNom] = useState("");
-  const [mode, setMode] = useState<SavingsContributionMode>("montant");
-  const [montantFixe, setMontantFixe] = useState<number | undefined>(undefined);
-  const [pourcentage, setPourcentage] = useState<number | undefined>(undefined);
-  const [categoryId, setCategoryId] = useState<string>("");
+  const [nom, setNom] = useState(account?.nom ?? "");
+  const [mode, setMode] = useState<SavingsContributionMode>(account?.mode ?? "montant");
+  const [montantFixe, setMontantFixe] = useState<number | undefined>(account?.montantFixe ?? undefined);
+  const [pourcentage, setPourcentage] = useState<number | undefined>(account?.pourcentage ?? undefined);
+  const [categoryId, setCategoryId] = useState<string>(account?.categoryId ?? "");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { title, placeholder } = labels[type];
+  const { placeholder } = labels[type];
+  const title = isEditing ? "Modifier l'entrée" : labels[type].title;
 
   const onSubmit = async () => {
     if (!user) return;
@@ -49,13 +52,18 @@ export function NewSavingsAccountModal({ type, onClose, onCreated }: NewSavingsA
     setSubmitting(true);
     setError(null);
     try {
-      await createSavingsAccount(user.id, type, {
+      const input = {
         nom: nom.trim(),
         mode,
         montantFixe,
         pourcentage,
         categoryId: categoryId || null,
-      });
+      };
+      if (isEditing) {
+        await updateSavingsAccount(account.id, input);
+      } else {
+        await createSavingsAccount(user.id, type, input);
+      }
       onCreated();
       onClose();
     } catch (err) {
@@ -214,7 +222,7 @@ export function NewSavingsAccountModal({ type, onClose, onCreated }: NewSavingsA
               boxShadow: "0 4px 12px rgba(16,185,129,0.25)",
             }}
           >
-            Créer
+            {isEditing ? "Enregistrer" : "Créer"}
           </button>
         </div>
       </div>

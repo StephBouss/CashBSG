@@ -5,7 +5,8 @@ import { z } from "zod";
 import { Icon } from "@/components/ui/Icon";
 import { AmountInput } from "@/components/ui/AmountInput";
 import { useAuth } from "@/hooks/useAuth";
-import { createGoal } from "@/hooks/useGoals";
+import { createGoal, updateGoal } from "@/hooks/useGoals";
+import type { Goal } from "@/types/budget";
 
 const EMOJIS = ["🎯", "🚗", "🏠", "✈️", "📚", "💻", "🎓", "💍", "🏥", "🎁"];
 const COLORS = ["var(--color-primary)", "var(--color-secondary)", "#F59E0B", "#EC4899", "#6366F1", "#14B8A6"];
@@ -21,25 +22,38 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 interface NewGoalModalProps {
+  goal?: Goal;
   onClose: () => void;
   onCreated: () => void;
 }
 
-export function NewGoalModal({ onClose, onCreated }: NewGoalModalProps) {
+export function NewGoalModal({ goal, onClose, onCreated }: NewGoalModalProps) {
   const { user } = useAuth();
+  const isEditing = !!goal;
   const {
     register,
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: goal
+      ? {
+          label: goal.label,
+          montantCible: goal.montantCible,
+          montantEpargne: goal.montantEpargne,
+          contributionMensuelle: goal.contributionMensuelle,
+          dateCible: goal.dateCible ?? "",
+        }
+      : undefined,
+  });
 
-  const [selectedIcone, setSelectedIcone] = useState(EMOJIS[0]);
-  const [selectedCouleur, setSelectedCouleur] = useState(COLORS[0]);
+  const [selectedIcone, setSelectedIcone] = useState(goal?.icone ?? EMOJIS[0]);
+  const [selectedCouleur, setSelectedCouleur] = useState(goal?.couleur ?? COLORS[0]);
 
   const onSubmit = async (values: FormValues) => {
     if (!user) return;
-    await createGoal(user.id, {
+    const input = {
       label: values.label,
       icone: selectedIcone,
       couleur: selectedCouleur,
@@ -47,7 +61,12 @@ export function NewGoalModal({ onClose, onCreated }: NewGoalModalProps) {
       montantEpargne: values.montantEpargne ?? 0,
       contributionMensuelle: values.contributionMensuelle ?? 0,
       dateCible: values.dateCible || null,
-    });
+    };
+    if (isEditing) {
+      await updateGoal(goal.id, input);
+    } else {
+      await createGoal(user.id, input);
+    }
     onCreated();
     onClose();
   };
@@ -77,8 +96,12 @@ export function NewGoalModal({ onClose, onCreated }: NewGoalModalProps) {
           <Icon i="x" size={16} />
         </button>
 
-        <h2 className="text-xl font-headings font-semibold text-foreground mb-1">Nouvel objectif</h2>
-        <p className="text-sm text-muted-foreground mb-6">Définissez une cible d'épargne</p>
+        <h2 className="text-xl font-headings font-semibold text-foreground mb-1">
+          {isEditing ? "Modifier l'objectif" : "Nouvel objectif"}
+        </h2>
+        <p className="text-sm text-muted-foreground mb-6">
+          {isEditing ? "Ajustez les informations de cet objectif" : "Définissez une cible d'épargne"}
+        </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <div>
@@ -217,7 +240,7 @@ export function NewGoalModal({ onClose, onCreated }: NewGoalModalProps) {
                 boxShadow: "0 4px 12px rgba(16,185,129,0.25)",
               }}
             >
-              Créer l'objectif
+              {isEditing ? "Enregistrer" : "Créer l'objectif"}
             </button>
           </div>
         </form>

@@ -10,6 +10,7 @@ import { useIncomes } from "@/hooks/useIncomes";
 import { useCategories } from "@/hooks/useCategories";
 import { useAuth } from "@/hooks/useAuth";
 import { AddMovementModal } from "@/components/finances/AddMovementModal";
+import { NewSavingsAccountModal } from "@/components/finances/NewSavingsAccountModal";
 import type { SavingsAccount } from "@/types/budget";
 
 const dateFormatter = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short" });
@@ -23,6 +24,7 @@ interface SavingsAccountCardProps {
 export function SavingsAccountCard({ account, color, onChanged }: SavingsAccountCardProps) {
   const { user } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [addingSuggested, setAddingSuggested] = useState(false);
   const { data: movements = [], refetch } = useSavingsMovements(account.id);
   const { data: incomes = [] } = useIncomes(undefined, { realtime: false });
@@ -121,6 +123,13 @@ export function SavingsAccountCard({ account, color, onChanged }: SavingsAccount
             <Icon i="plus" size={14} />
           </button>
           <button
+            onClick={() => setEditModalOpen(true)}
+            className="p-1.5 rounded text-xs"
+            style={{ background: "rgba(0,0,0,0.06)", color: "var(--color-ink)" }}
+          >
+            <Icon i="edit-2" size={13} />
+          </button>
+          <button
             onClick={() => deleteSavingsAccount(account.id).then(onChanged)}
             className="p-1.5 rounded text-xs"
             style={{ background: "rgba(239,68,68,0.1)", color: "#EF4444" }}
@@ -177,6 +186,15 @@ export function SavingsAccountCard({ account, color, onChanged }: SavingsAccount
             refetch();
             onChanged();
           }}
+        />
+      )}
+
+      {editModalOpen && (
+        <NewSavingsAccountModal
+          type={account.type}
+          account={account}
+          onClose={() => setEditModalOpen(false)}
+          onCreated={onChanged}
         />
       )}
     </div>

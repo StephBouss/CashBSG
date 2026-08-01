@@ -6,6 +6,7 @@ interface GoalsGalleryProps {
   goals: Goal[];
   onChanged: () => void;
   onAddClick: () => void;
+  onEditClick: (goal: Goal) => void;
 }
 
 function pct(saved: number, target: number) {
@@ -24,7 +25,7 @@ function daysLeft(dateCible: string | null): number | null {
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 }
 
-export function GoalsGallery({ goals, onChanged, onAddClick }: GoalsGalleryProps) {
+export function GoalsGallery({ goals, onChanged, onAddClick, onEditClick }: GoalsGalleryProps) {
   const totalTarget = goals.reduce((s, g) => s + g.montantCible, 0);
   const totalSaved = goals.reduce((s, g) => s + g.montantEpargne, 0);
   const avgCompletion = goals.length
@@ -81,6 +82,13 @@ export function GoalsGallery({ goals, onChanged, onAddClick }: GoalsGalleryProps
                     </div>
                   </div>
                   <div className="flex gap-1">
+                    <button
+                      onClick={() => onEditClick(goal)}
+                      className="p-1.5 rounded text-xs"
+                      style={{ background: "rgba(0,0,0,0.06)", color: "var(--color-ink)" }}
+                    >
+                      <Icon i="edit-2" size={13} />
+                    </button>
                     <button
                       onClick={() => deleteGoal(goal.id).then(onChanged)}
                       className="p-1.5 rounded text-xs"

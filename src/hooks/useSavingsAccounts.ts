@@ -81,6 +81,21 @@ export async function createSavingsAccount(
   if (error) throw error;
 }
 
+export async function updateSavingsAccount(accountId: string, input: CreateSavingsAccountInput) {
+  const { error } = await supabase
+    .from("savings_accounts")
+    .update({
+      nom: input.nom,
+      mode: input.mode,
+      montant_fixe: input.mode === "montant" ? input.montantFixe ?? null : null,
+      pourcentage: input.mode === "pourcentage" ? input.pourcentage ?? null : null,
+      category_id: input.mode === "pourcentage" ? input.categoryId ?? null : null,
+    })
+    .eq("id", accountId);
+
+  if (error) throw error;
+}
+
 export async function deleteSavingsAccount(accountId: string) {
   const { error } = await supabase.from("savings_accounts").delete().eq("id", accountId);
   if (error) throw error;

@@ -81,6 +81,23 @@ export async function createGoal(userId: string, input: CreateGoalInput) {
   if (error) throw error;
 }
 
+export async function updateGoal(goalId: string, input: CreateGoalInput) {
+  const { error } = await supabase
+    .from("goals")
+    .update({
+      label: input.label,
+      icone: input.icone,
+      couleur: input.couleur,
+      montant_cible: input.montantCible,
+      montant_epargne: input.montantEpargne ?? 0,
+      date_cible: input.dateCible || null,
+      contribution_mensuelle: input.contributionMensuelle ?? 0,
+    })
+    .eq("id", goalId);
+
+  if (error) throw error;
+}
+
 export async function deleteGoal(goalId: string) {
   const { error } = await supabase.from("goals").delete().eq("id", goalId);
   if (error) throw error;
