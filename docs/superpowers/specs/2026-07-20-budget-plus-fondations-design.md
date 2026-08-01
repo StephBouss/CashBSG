@@ -1,5 +1,10 @@
 # Budget+ — Sous-projet 1 : Fondations (Auth, Dashboard, Revenus, Dépenses, Dîme)
 
+> **Document de conception historique.** La fonctionnalité Dîme décrite ici a
+> été retirée de l'application (voir `CORRECTIONS-IWADU-CASH.md`, chantier
+> C0.1). Ce fichier n'est pas mis à jour, il documente l'état d'origine du
+> projet à titre d'archive.
+
 Date : 2026-07-20
 Statut : Approuvé par l'utilisateur
 

@@ -13,9 +13,7 @@ export default function FinancesPage() {
     <div className="flex flex-col min-w-0">
       <div className="mb-6">
         <h1 className="text-2xl font-headings font-semibold text-foreground">Finances</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">
-          Épargne et investissements — créez un compte « Dîme » pour la suivre ici.
-        </p>
+        <p className="text-sm text-muted-foreground mt-0.5">Épargne et investissements</p>
       </div>
 
       <div className="flex gap-2 mb-6">

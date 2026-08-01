@@ -5,7 +5,7 @@ francophones (FCFA, interface en français), design glassmorphism premium.
 
 Ce dépôt contient le **sous-projet 1** (voir
 `docs/superpowers/specs/2026-07-20-budget-plus-fondations-design.md`) :
-Auth, Dashboard, Revenus, Dépenses, Dîme. Les autres écrans (Investissements,
+Auth, Dashboard, Revenus, Dépenses. Les autres écrans (Investissements,
 Épargne, Objectifs, Calendrier, Rapports, Conseiller IA, Réglages) seront
 ajoutés dans des sous-projets suivants.
 
@@ -23,7 +23,7 @@ avec les valeurs de ton projet Supabase (Project Settings → API).
 
 Applique la migration `supabase/migrations/0001_init.sql` sur ton projet
 Supabase (via le MCP Supabase, le SQL Editor, ou la CLI Supabase). Elle crée
-les tables `profiles`, `categories`, `incomes`, `expenses`, `tithes`, active
+les tables `profiles`, `categories`, `incomes`, `expenses`, active
 la Row Level Security, le trigger de seed à l'inscription et le Realtime.
 
 Active aussi Google comme provider OAuth dans Authentication → Providers si tu

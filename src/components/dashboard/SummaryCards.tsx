@@ -31,17 +31,6 @@ export function SummaryCards({ financials, previousFinancials }: SummaryCardsPro
       trend: trendPct(financials.totalRevenus, previousFinancials?.totalRevenus),
       accent: "var(--color-primary)",
     },
-    ...(financials.dime > 0
-      ? [
-          {
-            icon: "🙏",
-            label: "Dîme",
-            value: financials.dime,
-            sub: "Comptée comme une dépense",
-            accent: "#F59E0B",
-          },
-        ]
-      : []),
     {
       icon: "💳",
       label: "Dépenses payées",

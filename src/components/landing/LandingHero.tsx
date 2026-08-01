@@ -51,7 +51,7 @@ export function LandingHero() {
 
           <Reveal delay={160}>
             <p className="mb-10 leading-relaxed" style={{ fontSize: "17px", color: "rgba(10,20,40,0.62)" }}>
-              Iwadu Cash centralise vos revenus, dépenses, dîme, épargne et investissements dans une seule
+              Iwadu Cash centralise vos revenus, dépenses, épargne et investissements dans une seule
               application intelligente. Suivez votre argent en temps réel et atteignez vos objectifs plus
               rapidement.
             </p>

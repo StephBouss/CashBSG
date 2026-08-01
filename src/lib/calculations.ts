@@ -2,7 +2,6 @@ import type { Expense, Income } from "@/types/budget";
 
 export interface MonthFinancials {
   totalRevenus: number;
-  dime: number;
   totalDepensesPayees: number;
   totalDepensesAVenir: number;
   totalDepensesEnRetard: number;
@@ -14,16 +13,11 @@ function sum(values: number[]): number {
 }
 
 /**
- * Calcule totaux et solde pour un mois donné. La dîme (montant réel versé sur
- * l'épargne "Dîme" ce mois-ci) est traitée comme une dépense dans le solde.
+ * Calcule totaux et solde pour un mois donné.
  * Module pur (aucun import React/Supabase) afin d'être réutilisable
  * tel quel côté client et côté Edge Function.
  */
-export function computeMonthFinancials(
-  incomes: Income[],
-  expenses: Expense[],
-  dimeMontant = 0
-): MonthFinancials {
+export function computeMonthFinancials(incomes: Income[], expenses: Expense[]): MonthFinancials {
   const totalRevenus = sum(incomes.map((income) => income.montant));
 
   const totalDepensesPayees = sum(
@@ -36,11 +30,10 @@ export function computeMonthFinancials(
     expenses.filter((expense) => expense.statut === "en_retard").map((expense) => expense.montant)
   );
 
-  const solde = totalRevenus - totalDepensesPayees - dimeMontant;
+  const solde = totalRevenus - totalDepensesPayees;
 
   return {
     totalRevenus,
-    dime: dimeMontant,
     totalDepensesPayees,
     totalDepensesAVenir,
     totalDepensesEnRetard,

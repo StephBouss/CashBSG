@@ -18,11 +18,11 @@ Iwadu Cash est une SaaS française de gestion de budget personnel, hébergée te
 | **Revenus** | Saisie et suivi des revenus par catégorie |
 | **Dépenses** | Suivi des factures avec échéance, priorité, statut (payé/à venir/en retard), édition inline |
 | **Tracker** | Module simple de dépenses instantanées (nom, catégorie, montant — sans date/heure à saisir), mis en avant dans la sidebar (effet glassmorphism jaune) |
-| **Finances** | Comptes d'épargne/investissement multiples, alimentation par montant fixe ou % d'un revenu, historique des mouvements, gestion de la Dîme |
+| **Finances** | Comptes d'épargne/investissement multiples, alimentation par montant fixe ou % d'un revenu, historique des mouvements |
 | **Objectifs** | Objectifs financiers (icône, couleur, montant cible, échéance, contribution mensuelle) — **création, édition et suppression** |
 | **Rapports** | Historique et analyses sur plusieurs mois |
 | **Iwadu** (conseiller IA) | Chat avec DeepSeek, débloqué seulement après onboarding complet |
-| **Paramètres** | Thème, devise, pays, fuseau horaire, pourcentage de dîme |
+| **Paramètres** | Thème, devise, pays, fuseau horaire |
 | **Administration** | Réservé aux comptes `is_admin` |
 | **Mise à niveau** | Changement de plan (Free → Essentiel/Pro) |
 | **Pages légales** | CGU, Mentions légales, Politique de confidentialité |
@@ -33,8 +33,8 @@ Iwadu Cash est une SaaS française de gestion de budget personnel, hébergée te
 - **Administration** : KPIs globaux (comptes totaux, revenus/dépenses agrégés du mois, messages IA, tokens IA consommés, objectifs atteints), détail par utilisateur (y compris tokens IA par personne), répartition par devise et par plan, détail des objectifs de tous les comptes — le tout via l'Edge Function `admin-dashboard` (clé service_role côté serveur).
 
 ## 4. Modèle de données (Supabase, 14 migrations)
-- `profiles` : nom, devise, langue, % dîme, thème, pays, `plan` (free/essentiel/pro), `plan_expires_at`, `is_admin`, `whatsapp`.
-- `categories`, `incomes`, `expenses`, `tithes` (dîme) — socle initial avec RLS "owner".
+- `profiles` : nom, devise, langue, thème, pays, `plan` (free/essentiel/pro), `plan_expires_at`, `is_admin`, `whatsapp`.
+- `categories`, `incomes`, `expenses` — socle initial avec RLS "owner".
 - `goals` — objectifs financiers.
 - `ai_messages` — historique des échanges avec l'IA, `tokens_used` par message.
 - `savings_accounts` / `savings_movements` — épargne et investissement, avec règles de contribution (montant fixe ou %).
