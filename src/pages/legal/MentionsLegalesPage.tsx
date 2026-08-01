@@ -7,7 +7,7 @@ export default function MentionsLegalesPage() {
         <p>
           Le site et l&apos;application Iwadu Cash sont édités par : <strong>[Raison sociale / nom de l&apos;éditeur à compléter]</strong>,
           [forme juridique à compléter, ex : entreprise individuelle / société], immatriculée sous le numéro
-          [numéro RCCM / SIRET à compléter], dont le siège est situé à [adresse à compléter].
+          [numéro d&apos;immatriculation à compléter], dont le siège est situé à [adresse à compléter].
         </p>
         <p>Responsable de la publication : [nom du responsable à compléter].</p>
         <p>Contact : [email de contact à compléter].</p>

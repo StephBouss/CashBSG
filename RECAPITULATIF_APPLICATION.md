@@ -1,7 +1,7 @@
 # Iwadu Cash — Récapitulatif complet de l'application
 
 ## 1. Positionnement
-Iwadu Cash est une SaaS française de gestion de budget personnel, hébergée temporairement sur Vercel (**https://cash-bsg.vercel.app**), avec le code sur GitHub (**StephBouss/CashBSG**, remote `cashbsg`, branche `master`). Objectif : donner à un particulier une vue complète de ses finances (revenus, dépenses, épargne, objectifs) avec un accompagnement par IA ("Iwadu").
+Iwadu Cash est une SaaS de gestion de budget personnel, hébergée temporairement sur Vercel (**https://cash-bsg.vercel.app**), avec le code sur GitHub (**StephBouss/CashBSG**, remote `cashbsg`, branche `master`). Objectif : donner à un particulier une vue complète de ses finances (revenus, dépenses, épargne, objectifs) avec un accompagnement par IA ("Iwadu").
 
 ## 2. Stack technique
 - **Frontend** : React 18 + TypeScript + Vite, Tailwind CSS (thème glassmorphism piloté par variables CSS), react-router-dom v7, TanStack Query v5, react-hook-form + zod, Recharts, Framer Motion, date-fns.
