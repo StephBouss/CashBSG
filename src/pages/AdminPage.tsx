@@ -5,6 +5,7 @@ import { useAdminDashboard } from "@/hooks/useAdminDashboard";
 import { AdminDetailModal } from "@/components/admin/AdminDetailModal";
 import { AdminAccountsDetail, type AccountsDetailMode } from "@/components/admin/AdminAccountsDetail";
 import { AdminGoalsDetail } from "@/components/admin/AdminGoalsDetail";
+import { PLAN_LABELS } from "@/lib/plan";
 
 type ActiveModal = AccountsDetailMode | "objectifs" | null;
 
@@ -246,7 +247,7 @@ export default function AdminPage() {
           </GlassCard>
 
           {/* Bottom row */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
             <GlassCard className="p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Icon i="globe" size={16} style={{ color: "var(--color-secondary)" }} />
@@ -266,6 +267,33 @@ export default function AdminPage() {
                         </div>
                         <div style={{ height: "5px", background: "rgba(59,130,246,0.12)", borderRadius: "3px", overflow: "hidden" }}>
                           <div style={{ height: "100%", background: "var(--color-secondary)", borderRadius: "3px", width: `${pct}%` }} />
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </GlassCard>
+
+            <GlassCard className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Icon i="shield" size={16} style={{ color: "#7C3AED" }} />
+                <p className="text-sm font-semibold text-foreground">Répartition par offre</p>
+              </div>
+              <div className="space-y-3">
+                {data.planBreakdown.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">Aucune donnée.</p>
+                ) : (
+                  data.planBreakdown.map((p) => {
+                    const pct = data.kpis.totalComptes > 0 ? Math.round((p.count / data.kpis.totalComptes) * 100) : 0;
+                    return (
+                      <div key={p.plan}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-medium text-foreground">{PLAN_LABELS[p.plan] ?? p.plan}</span>
+                          <span className="text-xs font-semibold" style={{ color: "#7C3AED" }}>{p.count} compte{p.count > 1 ? "s" : ""}</span>
+                        </div>
+                        <div style={{ height: "5px", background: "rgba(124,58,237,0.12)", borderRadius: "3px", overflow: "hidden" }}>
+                          <div style={{ height: "100%", background: "#7C3AED", borderRadius: "3px", width: `${pct}%` }} />
                         </div>
                       </div>
                     );

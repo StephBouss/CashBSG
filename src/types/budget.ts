@@ -42,7 +42,7 @@ export interface TrackedExpense {
   createdAt: string;
 }
 
-export type Plan = "free" | "essentiel" | "pro";
+export type Plan = "free" | "essentiel" | "pro" | "business";
 
 export interface Profile {
   id: string;

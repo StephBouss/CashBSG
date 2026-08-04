@@ -9,6 +9,7 @@ const PLAN_PERKS: Record<Plan, string[]> = {
   free: ["Revenus, dépenses & échéances", "Épargne & investissement", "Rapports du mois en cours"],
   essentiel: ["Tout Free", "Objectifs financiers illimités", "Historique complet & rapports détaillés"],
   pro: ["Tout Essentiel", "Assistant IA personnalisé (conseils & analyses)"],
+  business: ["Tout Pro", "Accompagnement prioritaire", "Accès anticipé aux nouvelles fonctionnalités"],
 };
 
 export default function UpgradePage() {

@@ -4,14 +4,16 @@ export const PLAN_LABELS: Record<Plan, string> = {
   free: "Iwadu Free",
   essentiel: "Iwadu Essentiel",
   pro: "Iwadu Pro",
+  business: "Iwadu Business",
 };
 
-export const PLAN_ORDER: Plan[] = ["free", "essentiel", "pro"];
+export const PLAN_ORDER: Plan[] = ["free", "essentiel", "pro", "business"];
 
 export const PLAN_PRICES: Record<Plan, string> = {
   free: "Gratuit",
   essentiel: "5 000 FCFA/mois",
   pro: "15 000 FCFA/mois",
+  business: "25 000 FCFA/mois",
 };
 
 /** Offres au-dessus du plan actuel, dans l'ordre. */

@@ -35,6 +35,7 @@ const PLAN_META: Record<AdminPlan, { label: string; color: string }> = {
   free: { label: "Iwadu Free", color: "#64748B" },
   essentiel: { label: "Iwadu Essentiel", color: "var(--color-secondary)" },
   pro: { label: "Iwadu Pro", color: "#7C3AED" },
+  business: { label: "Iwadu Business", color: "#D97706" },
 };
 
 export function PlanBadge({ plan }: { plan: AdminPlan }) {

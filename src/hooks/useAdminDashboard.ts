@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 
-export type AdminPlan = "free" | "essentiel" | "pro";
+export type AdminPlan = "free" | "essentiel" | "pro" | "business";
 export type AdminStatus = "actif" | "inactif";
 
 export interface AdminUserRow {
