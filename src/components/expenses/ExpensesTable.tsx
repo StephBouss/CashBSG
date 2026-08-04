@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { formatMontant } from "@/lib/formatters";
 import { markExpensePaid, deleteExpense, updateExpense } from "@/hooks/useExpenses";
+import { useProfile } from "@/hooks/useProfile";
 import type { Category, Expense } from "@/types/budget";
 
 interface ExpensesTableProps {
@@ -53,6 +54,8 @@ const fixedCol = (width: number) => ({ width: `${width}px`, flexShrink: 0 });
 const nomCol = { flex: `1 1 ${NOM_W}px`, minWidth: `${NOM_W}px` };
 
 export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: ExpensesTableProps) {
+  const { data: profile } = useProfile();
+  const devise = profile?.devise ?? "FCFA";
   const categoryById = new Map(categories.map((c) => [c.id, c]));
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState({ nom: "", montant: "", dateEcheance: "" });
@@ -215,7 +218,7 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
                         }}
                         className="font-semibold"
                       >
-                        -{formatMontant(expense.montant)}
+                        -{formatMontant(expense.montant, devise)}
                       </div>
                       <div style={{ ...fixedCol(ECHEANCE_W), whiteSpace: "nowrap" }} className="text-xs text-muted-foreground">
                         {dateFormatter.format(new Date(expense.dateEcheance))}
@@ -278,15 +281,15 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
       <div className="flex gap-4 mt-6">
         <div className="flex-1 p-4 rounded-lg" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
           <p className="text-xs text-muted-foreground">Total payé</p>
-          <p className="text-lg font-semibold text-primary mt-1">{formatMontant(totalPaye)}</p>
+          <p className="text-lg font-semibold text-primary mt-1">{formatMontant(totalPaye, devise)}</p>
         </div>
         <div className="flex-1 p-4 rounded-lg" style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)" }}>
           <p className="text-xs text-muted-foreground">À venir</p>
-          <p className="text-lg font-semibold" style={{ color: "#F59E0B" }}>{formatMontant(totalAVenir)}</p>
+          <p className="text-lg font-semibold" style={{ color: "#F59E0B" }}>{formatMontant(totalAVenir, devise)}</p>
         </div>
         <div className="flex-1 p-4 rounded-lg" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
           <p className="text-xs text-muted-foreground">En retard</p>
-          <p className="text-lg font-semibold text-danger">{formatMontant(totalEnRetard)}</p>
+          <p className="text-lg font-semibold text-danger">{formatMontant(totalEnRetard, devise)}</p>
         </div>
       </div>
     </div>

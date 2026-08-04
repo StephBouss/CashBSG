@@ -15,6 +15,7 @@ const PERIODS = [
 
 export function ReportsDashboard() {
   const { data: profile } = useProfile();
+  const devise = profile?.devise ?? "FCFA";
   const hasFullHistory = profile ? canAccessFullHistory(profile.plan) : true;
   const [period, setPeriod] = useState<(typeof PERIODS)[number]["key"]>("trimestre");
   const effectivePeriod = !hasFullHistory ? "mois" : period;
@@ -106,7 +107,7 @@ export function ReportsDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-muted-foreground">Revenus totaux</p>
-              <p className="text-lg font-semibold text-primary mt-2">{formatMontant(totalRevenus)}</p>
+              <p className="text-lg font-semibold text-primary mt-2">{formatMontant(totalRevenus, devise)}</p>
             </div>
             <Icon i="trending-up" size={24} style={{ color: "var(--color-primary)" }} />
           </div>
@@ -115,7 +116,7 @@ export function ReportsDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-muted-foreground">Dépenses totales</p>
-              <p className="text-lg font-semibold" style={{ color: "#EF4444" }}>{formatMontant(totalDepenses)}</p>
+              <p className="text-lg font-semibold" style={{ color: "#EF4444" }}>{formatMontant(totalDepenses, devise)}</p>
             </div>
             <Icon i="trending-down" size={24} style={{ color: "#EF4444" }} />
           </div>
@@ -124,7 +125,7 @@ export function ReportsDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-muted-foreground">Épargne nette</p>
-              <p className="text-lg font-semibold" style={{ color: "var(--color-secondary)" }}>{formatMontant(epargneNette)}</p>
+              <p className="text-lg font-semibold" style={{ color: "var(--color-secondary)" }}>{formatMontant(epargneNette, devise)}</p>
             </div>
             <Icon i="bar-chart-2" size={24} style={{ color: "var(--color-secondary)" }} />
           </div>
@@ -252,20 +253,20 @@ export function ReportsDashboard() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-foreground">Solde début de période</span>
-              <span className="text-sm font-semibold text-foreground">{formatMontant(soldeDebut)}</span>
+              <span className="text-sm font-semibold text-foreground">{formatMontant(soldeDebut, devise)}</span>
             </div>
             <div style={{ padding: "2px", borderRadius: "4px", background: "linear-gradient(90deg, var(--color-primary), var(--color-secondary))" }}>
               <div style={{ padding: "8px", background: "white", borderRadius: "3px", textAlign: "center" }}>
                 <p className="text-xs font-medium text-primary">
                   {variation >= 0 ? "+" : ""}
-                  {formatMontant(variation)}
+                  {formatMontant(variation, devise)}
                 </p>
               </div>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-foreground">Solde fin de période</span>
               <span className="text-sm font-semibold" style={{ color: soldeFin >= 0 ? "var(--color-primary)" : "#EF4444" }}>
-                {formatMontant(soldeFin)}
+                {formatMontant(soldeFin, devise)}
               </span>
             </div>
           </div>
@@ -298,7 +299,7 @@ export function ReportsDashboard() {
               <div className="p-2.5 rounded" style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)" }}>
                 <p className="font-medium text-foreground">Dépense principale</p>
                 <p className="text-muted-foreground text-xs mt-1">
-                  {categoryTotals[0].nom} ({formatMontant(categoryTotals[0].montant)})
+                  {categoryTotals[0].nom} ({formatMontant(categoryTotals[0].montant, devise)})
                 </p>
               </div>
             )}

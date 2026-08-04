@@ -2,11 +2,14 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { IncomeForm } from "@/components/incomes/IncomeForm";
 import { useIncomes } from "@/hooks/useIncomes";
 import { useCategories } from "@/hooks/useCategories";
+import { useProfile } from "@/hooks/useProfile";
 import { formatDate, formatMontant } from "@/lib/formatters";
 
 export default function IncomesPage() {
   const { data: incomes = [], refetch } = useIncomes();
   const { data: categories = [] } = useCategories();
+  const { data: profile } = useProfile();
+  const devise = profile?.devise ?? "FCFA";
   const revenuCategories = categories.filter((category) => category.type === "revenu");
 
   return (
@@ -22,7 +25,7 @@ export default function IncomesPage() {
               <div className="font-medium text-foreground">{income.nom}</div>
               <div className="text-sm text-muted-foreground">{formatDate(income.date)}</div>
             </div>
-            <div className="font-semibold text-primary">{formatMontant(income.montant)}</div>
+            <div className="font-semibold text-primary">{formatMontant(income.montant, devise)}</div>
           </GlassCard>
         ))}
         {incomes.length === 0 && <p className="text-muted-foreground">Aucun revenu ce mois-ci.</p>}

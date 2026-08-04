@@ -7,6 +7,7 @@ import { deleteSavingsAccount } from "@/hooks/useSavingsAccounts";
 import { useIncomes } from "@/hooks/useIncomes";
 import { useCategories } from "@/hooks/useCategories";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { AddMovementModal } from "@/components/finances/AddMovementModal";
 import { NewSavingsAccountModal } from "@/components/finances/NewSavingsAccountModal";
 import type { SavingsAccount } from "@/types/budget";
@@ -21,6 +22,8 @@ interface SavingsAccountCardProps {
 
 export function SavingsAccountCard({ account, color, onChanged }: SavingsAccountCardProps) {
   const { user } = useAuth();
+  const { data: profile } = useProfile();
+  const devise = profile?.devise ?? "FCFA";
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [addingSuggested, setAddingSuggested] = useState(false);
@@ -54,7 +57,7 @@ export function SavingsAccountCard({ account, color, onChanged }: SavingsAccount
   const ruleLabel =
     account.mode === "montant"
       ? account.montantFixe
-        ? `Objectif : ${formatMontant(account.montantFixe)}/mois`
+        ? `Objectif : ${formatMontant(account.montantFixe, devise)}/mois`
         : null
       : `${account.pourcentage}% de ${categoryNom ?? "tous les revenus"}`;
 
@@ -84,7 +87,7 @@ export function SavingsAccountCard({ account, color, onChanged }: SavingsAccount
         <div>
           <h3 className="text-sm font-semibold text-foreground">{account.nom}</h3>
           <p className="text-lg font-semibold mt-1" style={{ color }}>
-            {formatMontant(balance)}
+            {formatMontant(balance, devise)}
           </p>
           {ruleLabel && <p className="text-xs text-muted-foreground mt-0.5">{ruleLabel}</p>}
         </div>
@@ -126,7 +129,7 @@ export function SavingsAccountCard({ account, color, onChanged }: SavingsAccount
           className="w-full mt-4 py-2 rounded-lg text-xs font-medium text-white disabled:opacity-60"
           style={{ background: color, boxShadow: `0 2px 8px ${color}40` }}
         >
-          + Ajouter {formatMontant(suggestedAmount)} (suggéré ce mois-ci)
+          + Ajouter {formatMontant(suggestedAmount, devise)} (suggéré ce mois-ci)
         </button>
       )}
 

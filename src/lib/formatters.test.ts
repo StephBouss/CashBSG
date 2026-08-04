@@ -22,6 +22,16 @@ describe("formatMontant", () => {
   it("formats negative amounts", () => {
     expect(formatMontant(-2500)).toBe(`-2${NBSP}500 FCFA`);
   });
+
+  it("shows no decimals for FCFA/XAF/XOF", () => {
+    expect(formatMontant(1500, "XAF")).toBe(`1${NBSP}500 XAF`);
+    expect(formatMontant(1500, "XOF")).toBe(`1${NBSP}500 XOF`);
+  });
+
+  it("shows two decimals for currencies that have a subunit", () => {
+    expect(formatMontant(1500, "EUR")).toBe(`1${NBSP}500,00 EUR`);
+    expect(formatMontant(1500.5, "USD")).toBe(`1${NBSP}500,50 USD`);
+  });
 });
 
 describe("formatDate", () => {

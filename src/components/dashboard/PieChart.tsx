@@ -4,6 +4,7 @@ import { formatMontant } from "@/lib/formatters";
 interface PieChartProps {
   data: CategoryTotal[];
   total: number;
+  devise?: string;
 }
 
 function buildConicGradient(segments: CategoryTotal[], total: number) {
@@ -17,7 +18,7 @@ function buildConicGradient(segments: CategoryTotal[], total: number) {
   return `conic-gradient(${parts.join(", ")})`;
 }
 
-export function PieChart({ data, total }: PieChartProps) {
+export function PieChart({ data, total, devise = "FCFA" }: PieChartProps) {
   return (
     <div>
       <p className="text-sm font-semibold text-foreground mb-4">Répartition des dépenses</p>
@@ -43,7 +44,7 @@ export function PieChart({ data, total }: PieChartProps) {
               }}
             >
               <span className="text-xs font-semibold text-foreground leading-tight text-center px-1">
-                {formatMontant(total)}
+                {formatMontant(total, devise)}
               </span>
             </div>
           </div>

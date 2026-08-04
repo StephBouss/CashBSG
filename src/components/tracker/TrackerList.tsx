@@ -4,6 +4,7 @@ import { AmountInput } from "@/components/ui/AmountInput";
 import { formatMontant, formatDateTime } from "@/lib/formatters";
 import { categoryColor, categoryIcon } from "@/lib/categoryStyle";
 import { updateTrackedExpense, deleteTrackedExpense } from "@/hooks/useExpenseTracker";
+import { useProfile } from "@/hooks/useProfile";
 import type { Category, TrackedExpense } from "@/types/budget";
 
 interface TrackerListProps {
@@ -24,6 +25,8 @@ const inputStyle = {
 };
 
 export function TrackerList({ expenses, categories, onChanged }: TrackerListProps) {
+  const { data: profile } = useProfile();
+  const devise = profile?.devise ?? "FCFA";
   const categoryById = new Map(categories.map((c) => [c.id, c]));
   const depenseCategories = categories.filter((c) => c.type === "depense");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -136,7 +139,7 @@ export function TrackerList({ expenses, categories, onChanged }: TrackerListProp
                     {nom} · {formatDateTime(expense.createdAt)}
                   </p>
                 </div>
-                <p className="text-sm font-semibold text-danger flex-shrink-0">-{formatMontant(expense.montant)}</p>
+                <p className="text-sm font-semibold text-danger flex-shrink-0">-{formatMontant(expense.montant, devise)}</p>
                 <div className="flex items-center gap-1 flex-shrink-0">
                   <button
                     onClick={() => startEdit(expense)}

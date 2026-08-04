@@ -5,6 +5,7 @@ import type { MonthFinancials } from "@/lib/calculations";
 interface SummaryCardsProps {
   financials: MonthFinancials;
   previousFinancials?: MonthFinancials;
+  devise?: string;
 }
 
 function trendPct(current: number, previous?: number): number | null {
@@ -22,7 +23,7 @@ interface CardDef {
   featured?: boolean;
 }
 
-export function SummaryCards({ financials, previousFinancials }: SummaryCardsProps) {
+export function SummaryCards({ financials, previousFinancials, devise = "FCFA" }: SummaryCardsProps) {
   const cards: CardDef[] = [
     {
       icon: "💰",
@@ -92,7 +93,7 @@ export function SummaryCards({ financials, previousFinancials }: SummaryCardsPro
               color: card.featured ? card.accent : "var(--color-ink)",
             }}
           >
-            {formatMontant(card.value)}
+            {formatMontant(card.value, devise)}
           </p>
           {card.trend !== null && card.trend !== undefined && (
             <div className="flex items-center gap-1 mt-1">
