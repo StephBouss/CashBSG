@@ -54,13 +54,30 @@ const gratuitItems: PricingItem[] = essentielItems.filter((item) => gratuitLabel
 
 const iaItem: PricingItem = { label: "Assistant IA personnalisé (conseils & analyses)", valeur: 25000 };
 
+const businessItems: PricingItem[] = [
+  { label: "Accompagnement prioritaire", valeur: 20000 },
+  { label: "Accès anticipé aux nouvelles fonctionnalités", valeur: 10000 },
+];
+
 const priceFormatter = new Intl.NumberFormat("fr-FR");
 
 function totalValeur(items: PricingItem[]) {
   return items.reduce((sum, item) => sum + item.valeur, 0);
 }
 
-const plans = [
+interface Plan {
+  key: string;
+  title: string;
+  subtitle: string;
+  items: PricingItem[];
+  prixAppel: number;
+  /** Prix "avant réduction" affiché barré — uniquement sur l'offre populaire. */
+  prixBarre?: number;
+  featured: boolean;
+  free: boolean;
+}
+
+const plans: Plan[] = [
   {
     key: "gratuit",
     title: "Iwadu Free",
@@ -85,7 +102,17 @@ const plans = [
     subtitle: "Tout l'essentiel + l'IA",
     items: [...essentielItems, iaItem],
     prixAppel: 15000,
+    prixBarre: 20000,
     featured: true,
+    free: false,
+  },
+  {
+    key: "business",
+    title: "Iwadu Business",
+    subtitle: "Pour aller plus loin, en priorité",
+    items: [...essentielItems, iaItem, ...businessItems],
+    prixAppel: 25000,
+    featured: false,
     free: false,
   },
 ];
@@ -196,34 +223,56 @@ export function LandingSocialProof() {
           </div>
         </Reveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto relative z-10 items-start">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto relative z-10 items-start">
           {plans.map((plan, planIndex) => {
             const valeurTotale = totalValeur(plan.items);
+            const reduction = plan.prixBarre
+              ? Math.round((1 - plan.prixAppel / plan.prixBarre) * 100)
+              : null;
+
             return (
               <Reveal key={plan.key} delay={planIndex * 140}>
                 <div
-                  className="rounded-3xl overflow-hidden transition-transform duration-300 hover:-translate-y-1.5 relative h-full flex flex-col"
+                  className={`rounded-3xl overflow-hidden transition-transform duration-300 relative h-full flex flex-col ${
+                    plan.featured ? "lg:-translate-y-3 hover:lg:-translate-y-4" : "hover:-translate-y-1.5"
+                  }`}
                   style={{
-                    background: "rgba(255,255,255,0.96)",
+                    background: plan.featured
+                      ? "linear-gradient(160deg, #0F2D22 0%, #0B1F2E 100%)"
+                      : "rgba(255,255,255,0.96)",
                     backdropFilter: "blur(40px)",
-                    border: plan.featured ? "2px solid #10B981" : "1px solid rgba(16,185,129,0.3)",
+                    border: plan.featured ? "2px solid #34D399" : "1px solid rgba(16,185,129,0.3)",
                     boxShadow: plan.featured
-                      ? "0 40px 100px rgba(16,185,129,0.32), 0 8px 32px rgba(0,0,0,0.2)"
+                      ? "0 44px 110px rgba(16,185,129,0.4), 0 8px 32px rgba(0,0,0,0.35)"
                       : "0 32px 80px rgba(0,0,0,0.22)",
                   }}
                 >
                   {plan.featured && (
                     <div
                       className="absolute top-0 right-0 px-4 py-1.5 rounded-bl-2xl text-xs font-semibold text-white"
-                      style={{ background: "linear-gradient(135deg, #10B981, #059669)" }}
+                      style={{ background: "linear-gradient(135deg, #F59E0B, #D97706)" }}
                     >
-                      ⚡ Populaire
+                      👑 Le plus populaire
                     </div>
                   )}
 
-                  <div className="px-8 py-6 border-b" style={{ borderColor: "rgba(16,185,129,0.15)" }}>
-                    <p className="font-headings font-semibold" style={{ color: "#10B981", fontSize: "22px" }}>{plan.title}</p>
-                    <p className="text-xs mt-1 text-muted-foreground">{plan.subtitle}</p>
+                  <div
+                    className="px-8 py-6 border-b"
+                    style={{ borderColor: plan.featured ? "rgba(52,211,153,0.25)" : "rgba(16,185,129,0.15)" }}
+                  >
+                    <p
+                      className="font-headings font-semibold"
+                      style={{ color: plan.featured ? "#34D399" : "#10B981", fontSize: "22px" }}
+                    >
+                      {plan.title}
+                    </p>
+                    <p
+                      className="text-xs mt-1"
+                      style={{ color: plan.featured ? "rgba(255,255,255,0.55)" : undefined }}
+                    >
+                      {!plan.featured && <span className="text-muted-foreground">{plan.subtitle}</span>}
+                      {plan.featured && plan.subtitle}
+                    </p>
                   </div>
 
                   <div className="px-8 py-8 flex-1 flex flex-col">
@@ -231,12 +280,26 @@ export function LandingSocialProof() {
                       {plan.items.map((item) => (
                         <div key={item.label} className="flex items-start justify-between gap-3">
                           <div className="flex items-start gap-2">
-                            <Icon i="check-circle" size={14} style={{ color: "#10B981", flexShrink: 0, marginTop: "2px" }} />
-                            <p className="text-sm text-foreground" style={{ opacity: 0.8 }}>{item.label}</p>
+                            <Icon
+                              i="check-circle"
+                              size={14}
+                              style={{ color: plan.featured ? "#34D399" : "#10B981", flexShrink: 0, marginTop: "2px" }}
+                            />
+                            <p
+                              className="text-sm"
+                              style={{ color: plan.featured ? "rgba(255,255,255,0.85)" : "var(--color-ink)", opacity: plan.featured ? 1 : 0.8 }}
+                            >
+                              {item.label}
+                            </p>
                           </div>
                           {!plan.free && (
-                            <p className="text-xs font-medium text-muted-foreground flex-shrink-0 whitespace-nowrap">
-                              {priceFormatter.format(item.valeur)}
+                            <p
+                              className="text-xs font-medium flex-shrink-0 whitespace-nowrap"
+                              style={{ color: plan.featured ? "rgba(255,255,255,0.45)" : undefined }}
+                            >
+                              <span className={plan.featured ? "" : "text-muted-foreground"}>
+                                {priceFormatter.format(item.valeur)}
+                              </span>
                             </p>
                           )}
                         </div>
@@ -245,10 +308,21 @@ export function LandingSocialProof() {
 
                     <div className="mt-auto">
                       {!plan.free && (
-                        <div className="py-3 px-4 rounded-lg mt-6 mb-6" style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.15)" }}>
+                        <div
+                          className="py-3 px-4 rounded-lg mt-6 mb-6"
+                          style={{
+                            background: plan.featured ? "rgba(52,211,153,0.12)" : "rgba(16,185,129,0.08)",
+                            border: plan.featured ? "1px solid rgba(52,211,153,0.25)" : "1px solid rgba(16,185,129,0.15)",
+                          }}
+                        >
                           <div className="flex items-center justify-between">
-                            <p className="text-sm font-semibold text-foreground">Valeur totale</p>
-                            <p className="text-base font-semibold line-through" style={{ color: "#10B981" }}>
+                            <p
+                              className="text-sm font-semibold"
+                              style={{ color: plan.featured ? "white" : "var(--color-ink)" }}
+                            >
+                              Valeur totale
+                            </p>
+                            <p className="text-base font-semibold line-through" style={{ color: plan.featured ? "#34D399" : "#10B981" }}>
                               {priceFormatter.format(valeurTotale)} FCFA
                             </p>
                           </div>
@@ -257,15 +331,46 @@ export function LandingSocialProof() {
 
                       <div className="text-center mb-6 mt-6">
                         {plan.free ? (
-                          <p className="font-headings font-semibold text-foreground" style={{ fontSize: "44px", lineHeight: 1 }}>
+                          <p className="font-headings font-semibold" style={{ fontSize: "44px", lineHeight: 1 }}>
                             <span style={{ color: "#10B981" }}>Gratuit</span>
                           </p>
                         ) : (
                           <>
-                            <p className="text-sm font-medium text-muted-foreground mb-1">Aujourd&apos;hui, à partir de</p>
-                            <p className="font-headings font-semibold text-foreground" style={{ fontSize: "44px", lineHeight: 1 }}>
-                              <span style={{ color: "#10B981" }}>{priceFormatter.format(plan.prixAppel)}</span>
-                              <span className="text-lg text-muted-foreground ml-1">FCFA/mois</span>
+                            {reduction !== null && plan.prixBarre ? (
+                              <div className="flex items-center justify-center gap-2 mb-1">
+                                <span className="text-sm line-through" style={{ color: "rgba(255,255,255,0.45)" }}>
+                                  {priceFormatter.format(plan.prixBarre)} FCFA
+                                </span>
+                                <span
+                                  className="text-xs font-semibold px-2 py-0.5 rounded-full text-white"
+                                  style={{ background: "linear-gradient(135deg, #F59E0B, #D97706)" }}
+                                >
+                                  -{reduction}%
+                                </span>
+                              </div>
+                            ) : (
+                              <p
+                                className="text-sm font-medium mb-1"
+                                style={{ color: plan.featured ? "rgba(255,255,255,0.6)" : undefined }}
+                              >
+                                <span className={plan.featured ? "" : "text-muted-foreground"}>
+                                  Aujourd&apos;hui, à partir de
+                                </span>
+                              </p>
+                            )}
+                            <p
+                              className="font-headings font-semibold"
+                              style={{ fontSize: "38px", lineHeight: 1, color: plan.featured ? "white" : "var(--color-ink)" }}
+                            >
+                              <span style={{ color: plan.featured ? "#34D399" : "#10B981" }}>
+                                {priceFormatter.format(plan.prixAppel)}
+                              </span>
+                            </p>
+                            <p
+                              className="text-sm mt-1"
+                              style={{ color: plan.featured ? "rgba(255,255,255,0.55)" : undefined }}
+                            >
+                              <span className={plan.featured ? "" : "text-muted-foreground"}>FCFA/mois</span>
                             </p>
                           </>
                         )}
@@ -274,7 +379,11 @@ export function LandingSocialProof() {
                       <Link
                         to="/signup"
                         className="block text-center w-full py-4 rounded-xl text-sm font-semibold text-white transition-transform duration-200 hover:scale-[1.02] active:scale-95"
-                        style={{ background: "linear-gradient(135deg, #10B981, #059669)", boxShadow: "0 8px 32px rgba(16,185,129,0.32)" }}
+                        style={
+                          plan.featured
+                            ? { background: "linear-gradient(135deg, #F59E0B, #D97706)", boxShadow: "0 8px 32px rgba(245,158,11,0.4)" }
+                            : { background: "linear-gradient(135deg, #10B981, #059669)", boxShadow: "0 8px 32px rgba(16,185,129,0.32)" }
+                        }
                       >
                         {plan.free ? "Commencer gratuitement" : "Créer mon compte gratuitement"}
                       </Link>
