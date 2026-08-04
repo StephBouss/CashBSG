@@ -86,6 +86,10 @@ Deno.serve(async (req) => {
 
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+    // C1.5 — journal d'audit : trace chaque consultation admin-dashboard
+    // par un admin dont l'identité vient d'être vérifiée côté serveur.
+    await admin.from("admin_audit_log").insert({ admin_id: caller.id, action: "consultation_dashboard" });
+
     // Tous les comptes auth (pagination Supabase Admin API).
     const authUsers: { id: string; email: string | null; created_at: string; last_sign_in_at: string | null }[] = [];
     let page = 1;
