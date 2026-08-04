@@ -27,6 +27,7 @@ export function useExpenses(month: Date = new Date(), options: UseExpensesOption
         .select(
           "id, user_id, category_id, nom, montant, date_echeance, priorite, statut, date_paiement"
         )
+        .eq("source", "facture")
         .gte("date_echeance", start)
         .lte("date_echeance", end)
         .order("date_echeance");

@@ -14,8 +14,9 @@ export function useTrackedExpenses() {
     enabled: !!user,
     queryFn: async (): Promise<TrackedExpense[]> => {
       const { data, error } = await supabase
-        .from("expense_tracker")
+        .from("expenses")
         .select("id, user_id, nom, category_id, montant, created_at")
+        .eq("source", "tracker")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -24,7 +25,7 @@ export function useTrackedExpenses() {
         id: row.id,
         userId: row.user_id,
         nom: row.nom,
-        categoryId: row.category_id,
+        categoryId: row.category_id ?? "",
         montant: row.montant,
         createdAt: row.created_at,
       }));
@@ -38,7 +39,7 @@ export function useTrackedExpenses() {
       .channel(`expense-tracker-${user.id}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "expense_tracker", filter: `user_id=eq.${user.id}` },
+        { event: "*", schema: "public", table: "expenses", filter: `user_id=eq.${user.id}` },
         () => queryClient.invalidateQueries({ queryKey: ["expense-tracker", user.id] })
       )
       .subscribe();
@@ -58,11 +59,16 @@ export interface TrackedExpenseInput {
 }
 
 export async function createTrackedExpense(userId: string, input: TrackedExpenseInput) {
-  const { error } = await supabase.from("expense_tracker").insert({
+  const today = new Date().toISOString().slice(0, 10);
+  const { error } = await supabase.from("expenses").insert({
     user_id: userId,
     nom: input.nom,
     montant: input.montant,
     category_id: input.categoryId,
+    source: "tracker",
+    statut: "paye",
+    date_echeance: today,
+    date_paiement: today,
   });
 
   if (error) throw error;
@@ -70,7 +76,7 @@ export async function createTrackedExpense(userId: string, input: TrackedExpense
 
 export async function updateTrackedExpense(id: string, input: TrackedExpenseInput) {
   const { error } = await supabase
-    .from("expense_tracker")
+    .from("expenses")
     .update({ nom: input.nom, montant: input.montant, category_id: input.categoryId })
     .eq("id", id);
 
@@ -78,6 +84,6 @@ export async function updateTrackedExpense(id: string, input: TrackedExpenseInpu
 }
 
 export async function deleteTrackedExpense(id: string) {
-  const { error } = await supabase.from("expense_tracker").delete().eq("id", id);
+  const { error } = await supabase.from("expenses").delete().eq("id", id);
   if (error) throw error;
 }

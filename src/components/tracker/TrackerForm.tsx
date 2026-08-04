@@ -46,10 +46,13 @@ export function TrackerForm({ categories, onCreated }: TrackerFormProps) {
 
   return (
     <GlassCard className="p-5 mb-6">
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-1">
         <Icon i="zap" size={16} style={{ color: "var(--color-primary)" }} />
         <p className="text-sm font-semibold text-foreground">Nouvelle dépense</p>
       </div>
+      <p className="text-xs text-muted-foreground mb-4">
+        Pour une dépense déjà réglée, à saisir en un instant. Pour une facture à échéance à venir, utilisez la page Dépenses.
+      </p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col sm:flex-row sm:items-start gap-4">
         <div className="flex-1 min-w-0">
