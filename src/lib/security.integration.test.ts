@@ -198,6 +198,31 @@ describe("C1.2 — un compte Free ne peut pas lire son historique ancien", () =>
   });
 });
 
+describe("C1.3 — l'expiration de plan est effective sans dépendre du cron", () => {
+  it("has_paid_plan() renvoie false immédiatement pour un compte payant expiré", async () => {
+    const past = new Date();
+    past.setDate(past.getDate() - 1);
+    await admin.from("profiles").update({ plan: "pro", plan_expires_at: past.toISOString() }).eq("id", idA);
+
+    const { data } = await clientA.rpc("has_paid_plan");
+    expect(data).toBe(false);
+  });
+
+  it("downgrade_expired_plans() repasse le compte à free (exécuté en service_role, à travers le trigger C1.1)", async () => {
+    const { error } = await admin.rpc("downgrade_expired_plans");
+    expect(error).toBeNull();
+
+    const { data: profile } = await admin.from("profiles").select("plan, plan_expires_at").eq("id", idA).single();
+    expect(profile?.plan).toBe("free");
+    expect(profile?.plan_expires_at).toBeNull();
+  });
+
+  it("un compte authentifié normal ne peut pas appeler downgrade_expired_plans()", async () => {
+    const { error } = await clientA.rpc("downgrade_expired_plans");
+    expect(error).toBeTruthy();
+  });
+});
+
 describe("C1.5 — admin-dashboard refuse un appelant non-admin", () => {
   it("B (non-admin) reçoit un 403", async () => {
     const { error } = await clientB.functions.invoke("admin-dashboard");
