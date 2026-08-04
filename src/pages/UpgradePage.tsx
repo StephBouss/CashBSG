@@ -29,6 +29,17 @@ export default function UpgradePage() {
         </p>
       </div>
 
+      {createRequest.isError && (
+        <GlassCard className="mb-6 flex items-center gap-3 p-4" style={{ borderColor: "rgba(239,68,68,0.4)" }}>
+          <Icon i="alert-triangle" size={18} style={{ color: "#EF4444" }} />
+          <p className="text-sm text-foreground">
+            {(createRequest.error as { code?: string })?.code === "23505"
+              ? "Vous avez déjà une demande en attente de traitement."
+              : "Votre demande n'a pas pu être envoyée, réessayez dans un instant."}
+          </p>
+        </GlassCard>
+      )}
+
       {pendingRequest && (
         <GlassCard className="mb-6 flex items-center gap-3 p-4" style={{ borderColor: "rgba(16,185,129,0.4)" }}>
           <Icon i="clock" size={18} style={{ color: "#10B981" }} />

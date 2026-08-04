@@ -223,6 +223,31 @@ describe("C1.3 — l'expiration de plan est effective sans dépendre du cron", (
   });
 });
 
+describe("C1.4 — limitation de débit", () => {
+  it("un appelant non authentifié ne peut plus insérer dans client_errors", async () => {
+    const anonClient = createClient(url, anonKey);
+    const { error } = await anonClient.from("client_errors").insert({ message: "Erreur anonyme test" });
+    expect(error).toBeTruthy();
+  });
+
+  it("au-delà de 20 client_errors en 5 minutes pour le même utilisateur, l'insertion est refusée proprement", async () => {
+    let rejected = false;
+    for (let i = 0; i < 25 && !rejected; i++) {
+      const { error } = await clientA.from("client_errors").insert({ user_id: idA, message: `Erreur rafale ${i}` });
+      if (error) rejected = true;
+    }
+    expect(rejected).toBe(true);
+  });
+
+  it("une deuxième demande de mise à niveau 'en_attente' pour le même utilisateur est refusée (contrainte unique)", async () => {
+    const { error } = await clientA
+      .from("upgrade_requests")
+      .insert({ user_id: idA, current_plan: "free", requested_plan: "essentiel" });
+    expect(error).toBeTruthy();
+    expect((error as { code?: string } | null)?.code).toBe("23505");
+  });
+});
+
 describe("C1.5 — admin-dashboard refuse un appelant non-admin", () => {
   it("B (non-admin) reçoit un 403", async () => {
     const { error } = await clientB.functions.invoke("admin-dashboard");
