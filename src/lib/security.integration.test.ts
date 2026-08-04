@@ -248,6 +248,45 @@ describe("C1.4 — limitation de débit", () => {
   });
 });
 
+describe("C1.6 — client_errors : lecture réservée aux admins", () => {
+  it("un compte non-admin ne peut pas lire ses propres client_errors", async () => {
+    const { data } = await clientA.from("client_errors").select("id").eq("user_id", idA);
+    expect(data ?? []).toHaveLength(0);
+  });
+
+  it("un compte admin peut lire les client_errors de tous les comptes", async () => {
+    await admin.from("profiles").update({ is_admin: true }).eq("id", idB);
+    try {
+      const { data, error } = await clientB.from("client_errors").select("id").eq("user_id", idA);
+      expect(error).toBeNull();
+      expect((data ?? []).length).toBeGreaterThan(0);
+    } finally {
+      await admin.from("profiles").update({ is_admin: false }).eq("id", idB);
+    }
+  });
+
+  it("purge_old_client_errors() supprime les lignes de plus de 30 jours", async () => {
+    // idB plutôt que idA : idA a déjà atteint le plafond de 20/5min dans le
+    // test C1.4 précédent (même trigger, pas d'exemption service_role).
+    const { data: inserted } = await admin
+      .from("client_errors")
+      .insert({ user_id: idB, message: "Erreur ancienne" })
+      .select("id")
+      .single();
+
+    await admin
+      .from("client_errors")
+      .update({ created_at: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString() })
+      .eq("id", inserted!.id);
+
+    const { error } = await admin.rpc("purge_old_client_errors");
+    expect(error).toBeNull();
+
+    const { data: afterPurge } = await admin.from("client_errors").select("id").eq("id", inserted!.id).maybeSingle();
+    expect(afterPurge).toBeNull();
+  });
+});
+
 describe("C1.5 — admin-dashboard refuse un appelant non-admin", () => {
   it("B (non-admin) reçoit un 403", async () => {
     const { error } = await clientB.functions.invoke("admin-dashboard");
