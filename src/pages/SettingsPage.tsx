@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Icon } from "@/components/ui/Icon";
 import { useAuth } from "@/hooks/useAuth";
@@ -73,44 +73,77 @@ function SettingsRow({
 
 function ThemePicker() {
   const { theme, setTheme } = useTheme();
+  const [pending, setPending] = useState(theme);
+  const [justSaved, setJustSaved] = useState(false);
+
+  useEffect(() => {
+    setPending(theme);
+  }, [theme]);
+
+  const dirty = pending !== theme;
+
+  const handleValidate = () => {
+    setTheme(pending);
+    setJustSaved(true);
+    setTimeout(() => setJustSaved(false), 2500);
+  };
+
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-      {THEMES.map((t) => {
-        const active = t.id === theme;
-        return (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => setTheme(t.id)}
-            className="flex flex-col items-center gap-2 p-3 rounded-xl transition"
-            style={{
-              border: active ? `2px solid ${t.accent}` : "1px solid rgba(0,0,0,0.08)",
-              background: active ? `${t.accent}12` : "transparent",
-            }}
-          >
-            <span
-              className="w-full h-12 rounded-lg block relative"
-              style={{ background: t.gradient, border: "1px solid rgba(0,0,0,0.06)" }}
+    <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        {THEMES.map((t) => {
+          const isPending = t.id === pending;
+          const isActive = t.id === theme;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setPending(t.id)}
+              className="flex flex-col items-center gap-2 p-3 rounded-xl transition"
+              style={{
+                border: isPending ? `2px solid ${t.accent}` : "1px solid rgba(0,0,0,0.08)",
+                background: isPending ? `${t.accent}12` : "transparent",
+              }}
             >
-              {active && (
-                <span
-                  className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center"
-                  style={{ background: t.accent }}
-                >
-                  <Icon i="check" size={10} style={{ color: "white" }} />
-                </span>
-              )}
-            </span>
-            <span
-              className="flex items-center gap-1.5 text-xs font-medium"
-              style={{ color: active ? t.accent : "var(--color-foreground)" }}
-            >
-              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: t.accent }} />
-              {t.label}
-            </span>
-          </button>
-        );
-      })}
+              <span
+                className="w-full h-12 rounded-lg block relative"
+                style={{ background: t.gradient, border: "1px solid rgba(0,0,0,0.06)" }}
+              >
+                {isActive && (
+                  <span
+                    className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center"
+                    style={{ background: t.accent }}
+                  >
+                    <Icon i="check" size={10} style={{ color: "white" }} />
+                  </span>
+                )}
+              </span>
+              <span
+                className="flex items-center gap-1.5 text-xs font-medium"
+                style={{ color: isPending ? t.accent : "var(--color-foreground)" }}
+              >
+                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: t.accent }} />
+                {t.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      {dirty && (
+        <button
+          type="button"
+          onClick={handleValidate}
+          className="self-start px-4 py-2 rounded-lg text-sm font-semibold text-white"
+          style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))" }}
+        >
+          Valider le thème
+        </button>
+      )}
+      {!dirty && justSaved && (
+        <span className="flex items-center gap-1.5 text-xs font-medium" style={{ color: "var(--color-primary)" }}>
+          <Icon i="check" size={12} /> Thème appliqué
+        </span>
+      )}
     </div>
   );
 }
@@ -121,18 +154,39 @@ function PreferenceSelect<T extends { code: string; label: string; flag: string 
   desc,
   options,
   value,
-  onChange,
+  onValidate,
 }: {
   icon: string;
   label: string;
   desc: string;
   options: T[];
   value: string;
-  onChange: (value: string) => void;
+  onValidate: (value: string) => Promise<void>;
 }) {
+  const [pending, setPending] = useState(value);
+  const [saving, setSaving] = useState(false);
+  const [justSaved, setJustSaved] = useState(false);
+
+  useEffect(() => {
+    setPending(value);
+  }, [value]);
+
+  const dirty = pending !== value;
+
+  const handleValidate = async () => {
+    setSaving(true);
+    try {
+      await onValidate(pending);
+      setJustSaved(true);
+      setTimeout(() => setJustSaved(false), 2500);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div
-      className="w-full flex items-center justify-between gap-4 p-4 rounded-lg border"
+      className="w-full flex items-center justify-between gap-4 p-4 rounded-lg border flex-wrap"
       style={{ borderColor: "rgba(16,185,129,0.15)", background: "rgba(16,185,129,0.02)" }}
     >
       <div className="flex items-center gap-4 min-w-0">
@@ -142,18 +196,37 @@ function PreferenceSelect<T extends { code: string; label: string; flag: string 
           <p className="text-xs text-muted-foreground mt-0.5 truncate">{desc}</p>
         </div>
       </div>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="text-sm font-medium rounded-lg px-3 py-2 border outline-none flex-shrink-0 max-w-[160px]"
-        style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.8)", borderColor: "rgba(0,0,0,0.1)", color: "var(--color-ink)" }}
-      >
-        {options.map((opt) => (
-          <option key={opt.code} value={opt.code}>
-            {opt.flag} {opt.label}
-          </option>
-        ))}
-      </select>
+      <div className="flex items-center gap-2 flex-shrink-0">
+        <select
+          value={pending}
+          onChange={(e) => setPending(e.target.value)}
+          className="text-sm font-medium rounded-lg px-3 py-2 border outline-none flex-shrink-0 max-w-[160px]"
+          style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.8)", borderColor: "rgba(0,0,0,0.1)", color: "var(--color-ink)" }}
+        >
+          {options.map((opt) => (
+            <option key={opt.code} value={opt.code}>
+              {opt.flag} {opt.label}
+            </option>
+          ))}
+        </select>
+        {dirty ? (
+          <button
+            type="button"
+            onClick={handleValidate}
+            disabled={saving}
+            className="text-xs font-semibold px-3 py-2 rounded-lg text-white disabled:opacity-60 whitespace-nowrap"
+            style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))" }}
+          >
+            {saving ? "…" : "Valider"}
+          </button>
+        ) : (
+          justSaved && (
+            <span className="flex items-center gap-1 text-xs font-medium whitespace-nowrap" style={{ color: "var(--color-primary)" }}>
+              <Icon i="check" size={12} /> Enregistré
+            </span>
+          )
+        )}
+      </div>
     </div>
   );
 }
@@ -251,7 +324,7 @@ export default function SettingsPage() {
                   className="flex-1 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-60"
                   style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))" }}
                 >
-                  Enregistrer
+                  {savingName ? "…" : "Valider"}
                 </button>
                 <button
                   type="button"
@@ -292,7 +365,7 @@ export default function SettingsPage() {
                   className="flex-1 py-2 rounded-lg text-sm font-semibold text-white disabled:opacity-60"
                   style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))" }}
                 >
-                  Enregistrer
+                  {savingWhatsapp ? "…" : "Valider"}
                 </button>
                 <button
                   type="button"
@@ -342,7 +415,7 @@ export default function SettingsPage() {
             desc="Utilisée pour l'IA et les exports"
             options={LANGUAGES}
             value={profile?.langue ?? "fr"}
-            onChange={(langue) => updatePreferences({ langue }).catch(() => {})}
+            onValidate={(langue) => updatePreferences({ langue })}
           />
 
           <PreferenceSelect<CountryOption>
@@ -351,7 +424,7 @@ export default function SettingsPage() {
             desc={profile?.pays ? "Compte associé à ce pays" : "Non renseigné"}
             options={COUNTRIES}
             value={profile?.pays ?? "SN"}
-            onChange={(pays) => updatePreferences({ pays }).catch(() => {})}
+            onValidate={(pays) => updatePreferences({ pays })}
           />
 
           <PreferenceSelect<CurrencyOption>
@@ -360,7 +433,7 @@ export default function SettingsPage() {
             desc="Devise d'affichage de votre compte"
             options={CURRENCIES}
             value={profile?.devise ?? "FCFA"}
-            onChange={(devise) => updatePreferences({ devise }).catch(() => {})}
+            onValidate={(devise) => updatePreferences({ devise })}
           />
 
           <SettingsRow icon="bell" label="Notifications" desc="Gérez vos alertes" badge="Bientôt disponible" />
