@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/landing/Reveal";
-import logoIcon from "@/assets/logo-icon.png";
+import logoIcon from "@/assets/logo-icon.svg";
 
 const testimonials = [
   { name: "Aminata Diallo", job: "Entrepreneur", text: "Grâce à Iwadu Cash, j'épargne chaque mois sans effort. En 3 mois j'ai atteint mon fonds d'urgence." },

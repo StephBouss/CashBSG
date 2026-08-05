@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
-import logoFull from "@/assets/logo-full.png";
+import logoFull from "@/assets/logo-full.svg";
 
 interface LegalLayoutProps {
   title: string;
@@ -14,7 +14,7 @@ export function LegalLayout({ title, updatedAt, children }: LegalLayoutProps) {
     <div className="min-h-screen" style={{ background: "var(--page-gradient, #F5F6FA)" }}>
       <div className="max-w-3xl mx-auto px-6 py-12">
         <Link to="/" className="inline-flex items-center gap-2 mb-8">
-          <img src={logoFull} alt="Iwadu Cash" className="h-9" />
+          <img src={logoFull} alt="Iwadu Cash" className="h-10" />
         </Link>
 
         <Link
