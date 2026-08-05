@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { monthRange } from "@/lib/month";
 import type { Expense } from "@/types/budget";
 import { useAuth } from "@/hooks/useAuth";
+import { LIVE_QUERY_OPTIONS } from "@/lib/queryConfig";
 
 export interface UseExpensesOptions {
   /** Désactivez pour les appels secondaires (ex: mois de comparaison) afin
@@ -21,6 +22,7 @@ export function useExpenses(month: Date = new Date(), options: UseExpensesOption
   const query = useQuery({
     queryKey,
     enabled: !!user,
+    ...LIVE_QUERY_OPTIONS,
     queryFn: async (): Promise<Expense[]> => {
       const { data, error } = await supabase
         .from("expenses")

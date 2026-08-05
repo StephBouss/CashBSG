@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { Category } from "@/types/budget";
 import { useAuth } from "@/hooks/useAuth";
+import { REFERENCE_QUERY_OPTIONS } from "@/lib/queryConfig";
 
 export function useCategories() {
   const { user } = useAuth();
@@ -9,6 +10,7 @@ export function useCategories() {
   return useQuery({
     queryKey: ["categories", user?.id],
     enabled: !!user,
+    ...REFERENCE_QUERY_OPTIONS,
     queryFn: async (): Promise<Category[]> => {
       const { data, error } = await supabase
         .from("categories")

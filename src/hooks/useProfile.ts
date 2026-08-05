@@ -4,6 +4,7 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import type { Profile } from "@/types/budget";
 import { useAuth } from "@/hooks/useAuth";
+import { REFERENCE_QUERY_OPTIONS } from "@/lib/queryConfig";
 
 function extractOAuthName(user: User): string | null {
   const meta = user.user_metadata as Record<string, unknown> | undefined;
@@ -22,6 +23,7 @@ export function useProfile() {
   const query = useQuery({
     queryKey: ["profile", user?.id],
     enabled: !!user,
+    ...REFERENCE_QUERY_OPTIONS,
     queryFn: async (): Promise<Profile> => {
       const { data, error } = await supabase
         .from("profiles")

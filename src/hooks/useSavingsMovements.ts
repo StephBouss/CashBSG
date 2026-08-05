@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { SavingsMovement } from "@/types/budget";
 import { useAuth } from "@/hooks/useAuth";
+import { LIVE_QUERY_OPTIONS } from "@/lib/queryConfig";
 
 export function useSavingsMovements(accountId: string) {
   const { user } = useAuth();
@@ -12,6 +13,7 @@ export function useSavingsMovements(accountId: string) {
   const query = useQuery({
     queryKey,
     enabled: !!user && !!accountId,
+    ...LIVE_QUERY_OPTIONS,
     queryFn: async (): Promise<SavingsMovement[]> => {
       const { data, error } = await supabase
         .from("savings_movements")
@@ -63,6 +65,7 @@ export function useSavingsAccountBalance(accountId: string) {
   const query = useQuery({
     queryKey,
     enabled: !!user && !!accountId,
+    ...LIVE_QUERY_OPTIONS,
     queryFn: async (): Promise<number> => {
       const { data, error } = await supabase.rpc("savings_account_balance", {
         p_account_id: accountId,

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
+import { VOLATILE_QUERY_OPTIONS } from "@/lib/queryConfig";
 import type { Plan } from "@/types/budget";
 
 interface UpgradeRequest {
@@ -16,6 +17,7 @@ export function usePendingUpgradeRequest() {
   return useQuery({
     queryKey: ["upgrade_requests", user?.id],
     enabled: !!user,
+    ...VOLATILE_QUERY_OPTIONS,
     queryFn: async (): Promise<UpgradeRequest | null> => {
       const { data, error } = await supabase
         .from("upgrade_requests")

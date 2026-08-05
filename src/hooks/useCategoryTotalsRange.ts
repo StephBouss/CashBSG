@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCategories } from "@/hooks/useCategories";
 import { expensesByCategory } from "@/lib/expensesByCategory";
 import { monthRange } from "@/lib/month";
+import { VOLATILE_QUERY_OPTIONS } from "@/lib/queryConfig";
 import type { Expense } from "@/types/budget";
 
 /** Totaux de dépenses par catégorie sur les `months` derniers mois. */
@@ -20,6 +21,7 @@ export function useCategoryTotalsRange(months = 1) {
   const query = useQuery({
     queryKey: ["category-totals-range", user?.id, rangeStart, rangeEnd],
     enabled: !!user,
+    ...VOLATILE_QUERY_OPTIONS,
     queryFn: async (): Promise<Expense[]> => {
       const { data, error } = await supabase
         .from("expenses")

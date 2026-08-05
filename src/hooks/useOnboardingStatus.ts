@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import { LIVE_QUERY_OPTIONS } from "@/lib/queryConfig";
 
 export interface OnboardingStatus {
   hasName: boolean;
@@ -30,6 +31,7 @@ export function useOnboardingStatus(): OnboardingStatus {
   const query = useQuery({
     queryKey: ["onboarding-counts", user?.id],
     enabled: !!user,
+    ...LIVE_QUERY_OPTIONS,
     queryFn: async () => {
       const [{ count: incomeCount }, { count: expenseCount }] = await Promise.all([
         supabase.from("incomes").select("id", { count: "exact", head: true }),

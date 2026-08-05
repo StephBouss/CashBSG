@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { TrackedExpense } from "@/types/budget";
 import { useAuth } from "@/hooks/useAuth";
+import { LIVE_QUERY_OPTIONS } from "@/lib/queryConfig";
 
 export function useTrackedExpenses() {
   const { user } = useAuth();
@@ -12,6 +13,7 @@ export function useTrackedExpenses() {
   const query = useQuery({
     queryKey,
     enabled: !!user,
+    ...LIVE_QUERY_OPTIONS,
     queryFn: async (): Promise<TrackedExpense[]> => {
       const { data, error } = await supabase
         .from("expenses")

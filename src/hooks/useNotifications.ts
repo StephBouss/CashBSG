@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import { LIVE_QUERY_OPTIONS } from "@/lib/queryConfig";
 
 export interface AppNotification {
   id: string;
@@ -34,6 +35,7 @@ export function useNotifications() {
   const query = useQuery({
     queryKey,
     enabled: !!user,
+    ...LIVE_QUERY_OPTIONS,
     queryFn: async (): Promise<AppNotification[]> => {
       const { data, error } = await supabase
         .from("notifications")

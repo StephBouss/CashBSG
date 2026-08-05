@@ -4,6 +4,7 @@ import { FunctionsHttpError } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import type { AiMessage } from "@/types/budget";
 import { useAuth } from "@/hooks/useAuth";
+import { LIVE_QUERY_OPTIONS } from "@/lib/queryConfig";
 
 export function useAiMessages() {
   const { user } = useAuth();
@@ -13,6 +14,7 @@ export function useAiMessages() {
   const query = useQuery({
     queryKey,
     enabled: !!user,
+    ...LIVE_QUERY_OPTIONS,
     queryFn: async (): Promise<AiMessage[]> => {
       const { data, error } = await supabase
         .from("ai_messages")

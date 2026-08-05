@@ -3,6 +3,7 @@ import { formatISO, startOfMonth, subMonths } from "date-fns";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { monthRange } from "@/lib/month";
+import { VOLATILE_QUERY_OPTIONS } from "@/lib/queryConfig";
 
 export interface MonthlyTrendPoint {
   label: string;
@@ -27,6 +28,7 @@ export function useMonthlyTrend(months = 6) {
   return useQuery({
     queryKey: ["monthly-trend", user?.id, rangeStart, rangeEnd],
     enabled: !!user,
+    ...VOLATILE_QUERY_OPTIONS,
     queryFn: async (): Promise<MonthlyTrendPoint[]> => {
       const [{ data: incomes, error: incomesError }, { data: expenses, error: expensesError }] =
         await Promise.all([
