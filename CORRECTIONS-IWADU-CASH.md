@@ -572,6 +572,15 @@ Vérifier les ratios de contraste des textes sur fonds translucides (cible 4,5:1
 
 Remplacer les agrégations à la volée de `admin-dashboard` par des **vues matérialisées** rafraîchies toutes les heures par tâche planifiée. À faire dès que le nombre de comptes dépasse la centaine.
 
+> **Statut (vérifié le 2026-08-05)** : `select count(*) from profiles` = 3
+> comptes, très en dessous du seuil des 100 fixé ci-dessus. Une vue
+> matérialisée ajouterait un système de rafraîchissement planifié (pg_cron)
+> et un risque de données figées à corriger avant d'en avoir besoin.
+> Décision : **reporté**, pas de vue matérialisée pour l'instant — l'agrégation
+> à la volée reste largement adaptée à ce volume (C7.5 couvre déjà le coût de
+> re-fetch côté client avec un staleTime de 5 min sur `useAdminDashboard`).
+> Ne coder ce chantier qu'une fois le seuil des 100 comptes approché.
+
 ---
 
 # Checklist de validation finale
