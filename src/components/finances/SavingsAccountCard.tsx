@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { TrendLineChart } from "@/components/ui/TrendLineChart";
 import { formatMontant } from "@/lib/formatters";
-import { useSavingsMovements, createSavingsMovement } from "@/hooks/useSavingsMovements";
+import { useSavingsMovements, useSavingsAccountBalance, createSavingsMovement } from "@/hooks/useSavingsMovements";
 import { deleteSavingsAccount } from "@/hooks/useSavingsAccounts";
 import { useIncomes } from "@/hooks/useIncomes";
 import { useCategories } from "@/hooks/useCategories";
@@ -28,10 +28,9 @@ export function SavingsAccountCard({ account, color, onChanged }: SavingsAccount
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [addingSuggested, setAddingSuggested] = useState(false);
   const { data: movements = [], refetch } = useSavingsMovements(account.id);
+  const { data: balance = 0 } = useSavingsAccountBalance(account.id);
   const { data: incomes = [] } = useIncomes(undefined, { realtime: false });
   const { data: categories = [] } = useCategories();
-
-  const balance = useMemo(() => movements.reduce((s, m) => s + m.montant, 0), [movements]);
 
   const evolutionPoints = useMemo(() => {
     let running = 0;

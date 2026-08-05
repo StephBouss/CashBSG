@@ -51,6 +51,49 @@ export function useSavingsMovements(accountId: string) {
   return query;
 }
 
+/** Solde total du compte, calculé côté serveur sur TOUS les mouvements —
+ * contrairement à useSavingsMovements, qui applique la fenêtre d'historique
+ * par plan (2 mois pour les comptes gratuits) et sous-évaluerait le solde
+ * réel d'un compte Free ayant des mouvements plus anciens. */
+export function useSavingsAccountBalance(accountId: string) {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const queryKey = ["savings-account-balance", accountId];
+
+  const query = useQuery({
+    queryKey,
+    enabled: !!user && !!accountId,
+    queryFn: async (): Promise<number> => {
+      const { data, error } = await supabase.rpc("savings_account_balance", {
+        p_account_id: accountId,
+      });
+
+      if (error) throw error;
+
+      return Number(data ?? 0);
+    },
+  });
+
+  useEffect(() => {
+    if (!user || !accountId) return;
+
+    const channel = supabase
+      .channel(`savings-account-balance-${accountId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "savings_movements", filter: `account_id=eq.${accountId}` },
+        () => queryClient.invalidateQueries({ queryKey: ["savings-account-balance", accountId] })
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, accountId, queryClient]);
+
+  return query;
+}
+
 export async function createSavingsMovement(
   userId: string,
   accountId: string,
