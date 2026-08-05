@@ -1,9 +1,12 @@
 import { configDefaults, defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
+import { visualizer } from "rollup-plugin-visualizer";
 import { fileURLToPath } from "node:url";
 
 export default defineConfig({
-  plugins: [react()],
+  // Rapport HTML (dist/bundle-stats.html, non commité) généré à chaque
+  // `npm run build` — C7.4 : mesurer le poids du bundle avant/après.
+  plugins: [react(), visualizer({ filename: "dist/bundle-stats.html", gzipSize: true })],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
