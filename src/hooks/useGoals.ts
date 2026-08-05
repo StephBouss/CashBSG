@@ -104,10 +104,10 @@ export async function deleteGoal(goalId: string) {
 }
 
 export async function addGoalContribution(goal: Goal, amount: number) {
-  const { error } = await supabase
-    .from("goals")
-    .update({ montant_epargne: goal.montantEpargne + amount })
-    .eq("id", goal.id);
+  const { error } = await supabase.rpc("increment_goal_epargne", {
+    p_goal_id: goal.id,
+    p_amount: amount,
+  });
 
   if (error) throw error;
 }
