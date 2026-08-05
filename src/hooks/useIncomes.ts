@@ -85,6 +85,9 @@ export async function createIncome(userId: string, input: CreateIncomeInput) {
 }
 
 export async function deleteIncome(incomeId: string) {
-  const { error } = await supabase.from("incomes").delete().eq("id", incomeId);
+  const { error } = await supabase
+    .from("incomes")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", incomeId);
   if (error) throw error;
 }

@@ -99,7 +99,10 @@ export async function createExpense(userId: string, input: CreateExpenseInput) {
 }
 
 export async function deleteExpense(expenseId: string) {
-  const { error } = await supabase.from("expenses").delete().eq("id", expenseId);
+  const { error } = await supabase
+    .from("expenses")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", expenseId);
   if (error) throw error;
 }
 

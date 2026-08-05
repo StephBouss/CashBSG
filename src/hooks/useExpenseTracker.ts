@@ -84,6 +84,9 @@ export async function updateTrackedExpense(id: string, input: TrackedExpenseInpu
 }
 
 export async function deleteTrackedExpense(id: string) {
-  const { error } = await supabase.from("expenses").delete().eq("id", id);
+  const { error } = await supabase
+    .from("expenses")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", id);
   if (error) throw error;
 }
