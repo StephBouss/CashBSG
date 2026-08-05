@@ -33,3 +33,21 @@ export function canAccessGoals(_plan: Plan): boolean {
 export function canAccessFullHistory(plan: Plan): boolean {
   return plan !== "free";
 }
+
+/** Quota mensuel de messages au conseiller IA (C3.1) — Pro/Business plafonnés
+ * "raisonnablement" plutôt qu'illimités, pour borner le coût DeepSeek. */
+export const AI_MESSAGE_QUOTA: Record<Plan, number> = {
+  free: 10,
+  essentiel: 100,
+  pro: 1000,
+  business: 1000,
+};
+
+/** Le plan réellement actif compte tenu de l'expiration — même règle que
+ * has_paid_plan() côté serveur (supabase/migrations/20260803135011_...). */
+export function effectivePlan(plan: Plan, planExpiresAt: string | null): Plan {
+  if (plan !== "free" && planExpiresAt && new Date(planExpiresAt) <= new Date()) {
+    return "free";
+  }
+  return plan;
+}

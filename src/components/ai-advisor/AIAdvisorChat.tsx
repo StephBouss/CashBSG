@@ -1,22 +1,38 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { startOfMonth } from "date-fns";
 import { Icon } from "@/components/ui/Icon";
 import { useAiMessages, sendAdvisorMessage } from "@/hooks/useAiMessages";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
+import { AI_MESSAGE_QUOTA, effectivePlan } from "@/lib/plan";
 
 const timeFormatter = new Intl.DateTimeFormat("fr-FR", { hour: "2-digit", minute: "2-digit" });
 
 export function AIAdvisorChat() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { data: profile } = useProfile();
   const { data: messages = [] } = useAiMessages();
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // C3.1 — quota affiché côté front, dérivé des mêmes messages déjà chargés
+  // pour la conversation (la vraie limite est imposée côté serveur).
+  const plan = profile ? effectivePlan(profile.plan, profile.planExpiresAt) : "free";
+  const quotaLimit = AI_MESSAGE_QUOTA[plan];
+  const usedThisMonth = useMemo(() => {
+    const monthStart = startOfMonth(new Date());
+    return messages.filter((m) => m.role === "user" && new Date(m.createdAt) >= monthStart).length;
+  }, [messages]);
+  const quotaRemaining = Math.max(0, quotaLimit - usedThisMonth);
+  const quotaReached = quotaRemaining <= 0;
+
   const onSend = async () => {
     const message = input.trim();
-    if (!message || sending) return;
+    if (!message || sending || quotaReached) return;
 
     setInput("");
     setSending(true);
@@ -45,7 +61,11 @@ export function AIAdvisorChat() {
           </div>
           <div>
             <h2 className="text-sm font-semibold text-foreground">Iwadu</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">En ligne</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {quotaReached
+                ? "Limite du mois atteinte"
+                : `${quotaRemaining} question${quotaRemaining > 1 ? "s" : ""} restante${quotaRemaining > 1 ? "s" : ""} ce mois-ci`}
+            </p>
           </div>
         </div>
       </div>
@@ -96,6 +116,20 @@ export function AIAdvisorChat() {
       {/* Input area */}
       <div className="px-6 py-4 border-t" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
         {error && <p className="text-xs text-danger mb-2">{error}</p>}
+        {quotaReached && (
+          <p className="text-xs mb-2" style={{ color: "#EF4444" }}>
+            Vous avez atteint la limite de {quotaLimit} questions ce mois-ci.
+            {(plan === "free" || plan === "essentiel") && (
+              <>
+                {" "}
+                <Link to="/mise-a-niveau" className="underline font-medium">
+                  Passez à un plan supérieur
+                </Link>
+                .
+              </>
+            )}
+          </p>
+        )}
         <div
           className="flex items-center gap-3 px-4 py-3 rounded-lg"
           style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
@@ -106,12 +140,12 @@ export function AIAdvisorChat() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && onSend()}
             placeholder="Posez une question..."
-            disabled={sending}
+            disabled={sending || quotaReached}
             style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: "14px", color: "var(--color-ink)" }}
           />
           <button
             onClick={onSend}
-            disabled={sending || !input.trim()}
+            disabled={sending || quotaReached || !input.trim()}
             className="flex-shrink-0 p-2 rounded-lg disabled:opacity-50"
             style={{ background: "linear-gradient(135deg, var(--color-primary), var(--color-primary-dark))", color: "white" }}
           >
@@ -119,7 +153,8 @@ export function AIAdvisorChat() {
           </button>
         </div>
         <p className="text-xs text-muted-foreground mt-2 text-center">
-          L'IA peut faire des erreurs. Vérifiez les informations importantes.
+          Les réponses d'Iwadu sont fournies à titre informatif et ne constituent pas un conseil financier. L'IA peut
+          faire des erreurs — vérifiez les informations importantes.
         </p>
       </div>
     </div>
