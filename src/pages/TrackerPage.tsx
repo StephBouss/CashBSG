@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { isSameDay, isSameMonth, isSameYear, isWithinInterval, endOfWeek, startOfWeek } from "date-fns";
 import { useTrackedExpenses } from "@/hooks/useExpenseTracker";
 import { useCategories } from "@/hooks/useCategories";
+import { useProfile } from "@/hooks/useProfile";
+import { effectivePlan, TRACKER_ENTRY_LIMIT } from "@/lib/plan";
 import { TrackerForm } from "@/components/tracker/TrackerForm";
 import { TrackerSummary } from "@/components/tracker/TrackerSummary";
 import { TrackerFilters, type PeriodFilter } from "@/components/tracker/TrackerFilters";
@@ -10,6 +12,11 @@ import { TrackerList } from "@/components/tracker/TrackerList";
 export default function TrackerPage() {
   const { data: expenses = [], refetch } = useTrackedExpenses();
   const { data: categories = [] } = useCategories();
+  const { data: profile } = useProfile();
+
+  const plan = profile ? effectivePlan(profile.plan, profile.planExpiresAt) : "free";
+  const trackerLimit = TRACKER_ENTRY_LIMIT[plan];
+  const limitReached = trackerLimit !== null && expenses.length >= trackerLimit;
 
   const [categoryFilter, setCategoryFilter] = useState("");
   const [periodFilter, setPeriodFilter] = useState<PeriodFilter>("tout");
@@ -45,7 +52,12 @@ export default function TrackerPage() {
         </p>
       </div>
 
-      <TrackerForm categories={categories} onCreated={() => refetch()} />
+      <TrackerForm
+        categories={categories}
+        onCreated={() => refetch()}
+        limitReached={limitReached}
+        limit={trackerLimit}
+      />
 
       <TrackerSummary expenses={expenses} categories={categories} />
 

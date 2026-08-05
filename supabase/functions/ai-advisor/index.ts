@@ -44,10 +44,10 @@ const DAILY_LIMIT = 60; // messages max sur 24h
 // ne fait qu'anti-spam) : borne le coût DeepSeek par offre commerciale.
 // Pro/Business sont plafonnés "raisonnablement" plutôt qu'illimités.
 const AI_MESSAGE_QUOTA: Record<string, number> = {
-  free: 10,
+  free: 25,
   essentiel: 100,
   pro: 1000,
-  business: 1000,
+  business: 3000,
 };
 
 // Même règle que public.has_paid_plan() côté base : un plan payant expiré

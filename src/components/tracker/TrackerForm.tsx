@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
+import { Link } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { AmountInput } from "@/components/ui/AmountInput";
 import { GlassCard } from "@/components/ui/GlassCard";
@@ -19,11 +21,14 @@ type FormValues = z.infer<typeof schema>;
 interface TrackerFormProps {
   categories: Category[];
   onCreated: () => void;
+  limitReached: boolean;
+  limit: number | null;
 }
 
-export function TrackerForm({ categories, onCreated }: TrackerFormProps) {
+export function TrackerForm({ categories, onCreated, limitReached, limit }: TrackerFormProps) {
   const { user } = useAuth();
   const depenseCategories = categories.filter((c) => c.type === "depense");
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const {
     register,
@@ -34,14 +39,19 @@ export function TrackerForm({ categories, onCreated }: TrackerFormProps) {
   } = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   const onSubmit = async (values: FormValues) => {
-    if (!user) return;
-    await createTrackedExpense(user.id, {
-      nom: values.nom,
-      categoryId: values.categoryId,
-      montant: values.montant,
-    });
-    reset({ nom: "", categoryId: "", montant: undefined });
-    onCreated();
+    if (!user || limitReached) return;
+    setServerError(null);
+    try {
+      await createTrackedExpense(user.id, {
+        nom: values.nom,
+        categoryId: values.categoryId,
+        montant: values.montant,
+      });
+      reset({ nom: "", categoryId: "", montant: undefined });
+      onCreated();
+    } catch (err) {
+      setServerError((err as Error).message);
+    }
   };
 
   return (
@@ -53,6 +63,17 @@ export function TrackerForm({ categories, onCreated }: TrackerFormProps) {
       <p className="text-xs text-muted-foreground mb-4">
         Pour une dépense déjà réglée, à saisir en un instant. Pour une facture à échéance à venir, utilisez la page Dépenses.
       </p>
+
+      {limitReached && (
+        <p className="text-xs mb-4" style={{ color: "#EF4444" }}>
+          Vous avez atteint la limite de {limit} entrées du Tracker pour votre formule.{" "}
+          <Link to="/app/mise-a-niveau" className="underline font-medium">
+            Passez à un plan supérieur
+          </Link>
+          .
+        </p>
+      )}
+      {serverError && <p className="text-xs text-danger mb-4">{serverError}</p>}
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col sm:flex-row sm:items-start gap-4">
         <div className="flex-1 min-w-0">
@@ -125,7 +146,7 @@ export function TrackerForm({ categories, onCreated }: TrackerFormProps) {
         <div className="flex-shrink-0 sm:pt-6">
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || limitReached}
             className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 rounded-lg font-medium text-sm text-white disabled:opacity-60"
             style={{
               background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)",

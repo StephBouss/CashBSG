@@ -1,4 +1,4 @@
-import type { Plan } from "@/types/budget";
+import type { Plan, SavingsAccountType } from "@/types/budget";
 
 export const PLAN_LABELS: Record<Plan, string> = {
   free: "Iwadu Free",
@@ -37,10 +37,10 @@ export function canAccessFullHistory(plan: Plan): boolean {
 /** Quota mensuel de messages au conseiller IA (C3.1) — Pro/Business plafonnés
  * "raisonnablement" plutôt qu'illimités, pour borner le coût DeepSeek. */
 export const AI_MESSAGE_QUOTA: Record<Plan, number> = {
-  free: 10,
+  free: 25,
   essentiel: 100,
   pro: 1000,
-  business: 1000,
+  business: 3000,
 };
 
 /** Le plan réellement actif compte tenu de l'expiration — même règle que
@@ -51,3 +51,22 @@ export function effectivePlan(plan: Plan, planExpiresAt: string | null): Plan {
   }
   return plan;
 }
+
+/** Nombre d'entrées Tracker autorisées (expenses.source = 'tracker'),
+ * null = illimité. Appliqué aussi côté serveur (trigger enforce_tracker_limit). */
+export const TRACKER_ENTRY_LIMIT: Record<Plan, number | null> = {
+  free: 5,
+  essentiel: 10,
+  pro: null,
+  business: null,
+};
+
+/** Nombre de comptes savings_accounts autorisés par type (épargne /
+ * investissement), null = illimité. Appliqué aussi côté serveur (trigger
+ * enforce_savings_account_limit). */
+export const SAVINGS_ACCOUNT_LIMIT: Record<Plan, Record<SavingsAccountType, number | null>> = {
+  free: { epargne: 1, investissement: 1 },
+  essentiel: { epargne: 2, investissement: 1 },
+  pro: { epargne: null, investissement: null },
+  business: { epargne: null, investissement: null },
+};
