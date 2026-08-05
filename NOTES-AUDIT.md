@@ -27,3 +27,22 @@ de C6.1, phase explicitement reportée.
 **Action suggérée pour C6.1** : au moment de réactiver `canAccessGoals` avec
 la limite « 2 objectifs en Free », remettre ce test en cohérence avec le
 comportement alors implémenté.
+
+---
+
+## Vulnérabilités npm préexistantes (brace-expansion, postcss, react-router)
+
+**Découvert pendant** : C7.3 (parcours Playwright), lors de l'installation de
+`@playwright/test` comme devDependency (`npm audit` déclenché automatiquement
+par `npm install`).
+
+**Constat** : `npm audit` remonte 4 vulnérabilités (1 modérée, 3 hautes) sur
+des dépendances déjà présentes avant ce chantier — `brace-expansion` (via
+`typescript-eslint`), `postcss`, et `react-router` (CSRF en mode RSC, non
+utilisé par cette app en SPA classique). Aucune n'est introduite par
+`@playwright/test`.
+
+**Pourquoi non corrigé ici** : hors périmètre de C7.3. `npm audit fix` risque
+de faire monter `react-router-dom` vers une version majeure différente sans
+revue — à traiter dans un chantier dédié aux dépendances (proche de C7.4, qui
+touche déjà le nettoyage de dépendances mortes).
