@@ -145,6 +145,12 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
                     aria-checked={checked}
                     tabIndex={0}
                     onClick={() => !checked && markExpensePaid(expense.id).then(onChanged)}
+                    onKeyDown={(e) => {
+                      if ((e.key === "Enter" || e.key === " ") && !checked) {
+                        e.preventDefault();
+                        markExpensePaid(expense.id).then(onChanged);
+                      }
+                    }}
                     className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 cursor-pointer"
                     style={{
                       background: checked ? "var(--color-primary)" : "rgba(0,0,0,0.1)",

@@ -4,7 +4,8 @@ import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
 import { canAccessGoals } from "@/lib/plan";
 import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
-import logoIcon from "@/assets/logo-icon.png";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
+import logoIcon from "@/assets/logo-icon.svg";
 import type { Plan } from "@/types/budget";
 
 const navItems = [
@@ -173,6 +174,7 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
   const isAdmin = profile?.isAdmin ?? false;
   const showProBadgeOn = profile && !canAccessGoals(profile.plan) ? ["/app/objectifs"] : [];
   const lockedOn = !onboarding.loading && !onboarding.isComplete ? ["/app/conseiller-ia"] : [];
+  useEscapeKey(() => onCloseMobile?.());
 
   return (
     <>
@@ -194,6 +196,7 @@ export function Sidebar({ mobileOpen = false, onCloseMobile }: SidebarProps) {
       {/* Mobile drawer */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- fond de fermeture au clic, équivalent clavier via Échap (useEscapeKey) */}
           <div className="absolute inset-0 bg-black/40" onClick={onCloseMobile} />
           <aside
             className="relative flex flex-col py-8 px-5 h-full"

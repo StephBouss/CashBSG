@@ -4,6 +4,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
 import { useLocalDateTime } from "@/hooks/useLocalDateTime";
 import { useNotifications, useMarkAllNotificationsRead, useMarkNotificationRead } from "@/hooks/useNotifications";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 const notifTimeFormatter = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
@@ -31,6 +32,7 @@ export function Header({ onOpenMenu }: HeaderProps) {
   const markAllRead = useMarkAllNotificationsRead();
   const markRead = useMarkNotificationRead();
   const [notifOpen, setNotifOpen] = useState(false);
+  useEscapeKey(() => setNotifOpen(false));
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
@@ -93,6 +95,7 @@ export function Header({ onOpenMenu }: HeaderProps) {
 
           {notifOpen && (
             <>
+              {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- fond de fermeture au clic, équivalent clavier via Échap (useEscapeKey) */}
               <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
               <div
                 className="absolute right-0 top-11 z-50 w-80 rounded-xl overflow-hidden"

@@ -315,8 +315,9 @@ export default function SettingsPage() {
               className="p-4 rounded-lg border flex flex-col gap-3"
               style={{ borderColor: "rgba(16,185,129,0.15)", background: "rgba(16,185,129,0.02)" }}
             >
-              <label className="text-xs font-semibold text-foreground">Nom complet</label>
+              <label htmlFor="settings-nom" className="text-xs font-semibold text-foreground">Nom complet</label>
               <input
+                id="settings-nom"
                 value={nameInput}
                 onChange={(e) => setNameInput(e.target.value)}
                 placeholder="Votre nom"
@@ -356,8 +357,9 @@ export default function SettingsPage() {
               className="p-4 rounded-lg border flex flex-col gap-3"
               style={{ borderColor: "rgba(16,185,129,0.15)", background: "rgba(16,185,129,0.02)" }}
             >
-              <label className="text-xs font-semibold text-foreground">Numéro WhatsApp (facultatif)</label>
+              <label htmlFor="settings-whatsapp" className="text-xs font-semibold text-foreground">Numéro WhatsApp (facultatif)</label>
               <input
+                id="settings-whatsapp"
                 value={whatsappInput}
                 onChange={(e) => setWhatsappInput(e.target.value)}
                 placeholder="Ex : +221 77 123 45 67"

@@ -6,6 +6,7 @@ import { Icon } from "@/components/ui/Icon";
 import { AmountInput } from "@/components/ui/AmountInput";
 import { useAuth } from "@/hooks/useAuth";
 import { createGoal, updateGoal } from "@/hooks/useGoals";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import type { Goal } from "@/types/budget";
 
 const EMOJIS = ["🎯", "🚗", "🏠", "✈️", "📚", "💻", "🎓", "💍", "🏥", "🎁"];
@@ -50,6 +51,7 @@ export function NewGoalModal({ goal, onClose, onCreated }: NewGoalModalProps) {
 
   const [selectedIcone, setSelectedIcone] = useState(goal?.icone ?? EMOJIS[0]);
   const [selectedCouleur, setSelectedCouleur] = useState(goal?.couleur ?? COLORS[0]);
+  useEscapeKey(onClose);
 
   const onSubmit = async (values: FormValues) => {
     if (!user) return;
@@ -72,10 +74,11 @@ export function NewGoalModal({ goal, onClose, onCreated }: NewGoalModalProps) {
   };
 
   return (
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- fond de fermeture au clic, équivalent clavier via Échap (useEscapeKey) et le bouton "x" ci-dessous
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
       style={{ background: "rgba(0, 0, 0, 0.40)" }}
-      onClick={onClose}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
         className="w-full max-w-md p-6 rounded-lg relative"
@@ -85,7 +88,6 @@ export function NewGoalModal({ goal, onClose, onCreated }: NewGoalModalProps) {
           border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.85)",
           boxShadow: "0 24px 64px rgba(120,120,180,0.20)",
         }}
-        onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
@@ -105,7 +107,7 @@ export function NewGoalModal({ goal, onClose, onCreated }: NewGoalModalProps) {
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <div>
-            <label className="text-xs font-semibold text-foreground block mb-1.5">Icône</label>
+            <p className="text-xs font-semibold text-foreground block mb-1.5">Icône</p>
             <div className="flex gap-2 flex-wrap">
               {EMOJIS.map((e) => (
                 <button
@@ -125,7 +127,7 @@ export function NewGoalModal({ goal, onClose, onCreated }: NewGoalModalProps) {
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-foreground block mb-1.5">Couleur</label>
+            <p className="text-xs font-semibold text-foreground block mb-1.5">Couleur</p>
             <div className="flex gap-2">
               {COLORS.map((c) => (
                 <button
@@ -144,8 +146,9 @@ export function NewGoalModal({ goal, onClose, onCreated }: NewGoalModalProps) {
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-foreground block mb-1.5">Nom de l'objectif</label>
+            <label htmlFor="goal-label" className="text-xs font-semibold text-foreground block mb-1.5">Nom de l'objectif</label>
             <input
+              id="goal-label"
               {...register("label")}
               placeholder="Ex: Acheter une voiture"
               className="w-full px-4 py-3 rounded-lg text-sm bg-white/70 border border-black/10 text-foreground placeholder:text-muted-foreground outline-none"
@@ -155,13 +158,14 @@ export function NewGoalModal({ goal, onClose, onCreated }: NewGoalModalProps) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold text-foreground block mb-1.5">Montant cible</label>
+              <label htmlFor="goal-montant-cible" className="text-xs font-semibold text-foreground block mb-1.5">Montant cible</label>
               <div className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm bg-white/70 border border-black/10">
                 <Controller
                   control={control}
                   name="montantCible"
                   render={({ field }) => (
                     <AmountInput
+                      id="goal-montant-cible"
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="0"
@@ -174,13 +178,14 @@ export function NewGoalModal({ goal, onClose, onCreated }: NewGoalModalProps) {
               {errors.montantCible && <p className="text-xs text-danger mt-1">{errors.montantCible.message}</p>}
             </div>
             <div>
-              <label className="text-xs font-semibold text-foreground block mb-1.5">Déjà épargné</label>
+              <label htmlFor="goal-montant-epargne" className="text-xs font-semibold text-foreground block mb-1.5">Déjà épargné</label>
               <div className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm bg-white/70 border border-black/10">
                 <Controller
                   control={control}
                   name="montantEpargne"
                   render={({ field }) => (
                     <AmountInput
+                      id="goal-montant-epargne"
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="0"
@@ -195,13 +200,14 @@ export function NewGoalModal({ goal, onClose, onCreated }: NewGoalModalProps) {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold text-foreground block mb-1.5">Épargne mensuelle</label>
+              <label htmlFor="goal-contribution" className="text-xs font-semibold text-foreground block mb-1.5">Épargne mensuelle</label>
               <div className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm bg-white/70 border border-black/10">
                 <Controller
                   control={control}
                   name="contributionMensuelle"
                   render={({ field }) => (
                     <AmountInput
+                      id="goal-contribution"
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="0"
@@ -213,8 +219,9 @@ export function NewGoalModal({ goal, onClose, onCreated }: NewGoalModalProps) {
               </div>
             </div>
             <div>
-              <label className="text-xs font-semibold text-foreground block mb-1.5">Date cible</label>
+              <label htmlFor="goal-date-cible" className="text-xs font-semibold text-foreground block mb-1.5">Date cible</label>
               <input
+                id="goal-date-cible"
                 {...register("dateCible")}
                 type="date"
                 className="w-full px-4 py-3 rounded-lg text-sm bg-white/70 border border-black/10 text-foreground outline-none"

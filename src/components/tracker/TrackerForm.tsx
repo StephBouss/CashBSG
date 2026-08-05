@@ -56,13 +56,14 @@ export function TrackerForm({ categories, onCreated }: TrackerFormProps) {
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col sm:flex-row sm:items-start gap-4">
         <div className="flex-1 min-w-0">
-          <label className="text-xs font-semibold text-foreground block mb-1.5">Nom de la dépense</label>
+          <label htmlFor="tracker-nom" className="text-xs font-semibold text-foreground block mb-1.5">Nom de la dépense</label>
           <div
             className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm"
             style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
           >
             <Icon i="edit-2" size={14} />
             <input
+              id="tracker-nom"
               {...register("nom")}
               placeholder="Ex: Déjeuner"
               className="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground min-w-0"
@@ -72,12 +73,13 @@ export function TrackerForm({ categories, onCreated }: TrackerFormProps) {
         </div>
 
         <div className="flex-1 min-w-0">
-          <label className="text-xs font-semibold text-foreground block mb-1.5">Catégorie</label>
+          <label htmlFor="tracker-category" className="text-xs font-semibold text-foreground block mb-1.5">Catégorie</label>
           <div
             className="flex items-center justify-between px-4 py-3 rounded-lg text-sm"
             style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
           >
             <select
+              id="tracker-category"
               {...register("categoryId")}
               defaultValue=""
               className="flex-1 bg-transparent outline-none text-foreground min-w-0"
@@ -97,7 +99,7 @@ export function TrackerForm({ categories, onCreated }: TrackerFormProps) {
         </div>
 
         <div className="flex-1 min-w-0">
-          <label className="text-xs font-semibold text-foreground block mb-1.5">Coût total (FCFA)</label>
+          <label htmlFor="tracker-montant" className="text-xs font-semibold text-foreground block mb-1.5">Coût total (FCFA)</label>
           <div
             className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm"
             style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
@@ -107,6 +109,7 @@ export function TrackerForm({ categories, onCreated }: TrackerFormProps) {
               name="montant"
               render={({ field }) => (
                 <AmountInput
+                  id="tracker-montant"
                   value={field.value}
                   onChange={field.onChange}
                   placeholder="0"
