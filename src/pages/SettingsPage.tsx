@@ -166,6 +166,7 @@ function PreferenceSelect<T extends { code: string; label: string; flag: string 
   const [pending, setPending] = useState(value);
   const [saving, setSaving] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setPending(value);
@@ -175,10 +176,14 @@ function PreferenceSelect<T extends { code: string; label: string; flag: string 
 
   const handleValidate = async () => {
     setSaving(true);
+    setError(null);
     try {
       await onValidate(pending);
       setJustSaved(true);
       setTimeout(() => setJustSaved(false), 2500);
+    } catch (e) {
+      setPending(value);
+      setError(e instanceof Error ? e.message : "Une erreur est survenue.");
     } finally {
       setSaving(false);
     }
@@ -227,6 +232,7 @@ function PreferenceSelect<T extends { code: string; label: string; flag: string 
           )
         )}
       </div>
+      {error && <p className="text-xs text-danger w-full">{error}</p>}
     </div>
   );
 }

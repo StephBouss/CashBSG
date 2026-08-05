@@ -15,6 +15,6 @@ export default defineConfig({
     // security.integration.test.ts a besoin de vraies credentials réseau
     // (service_role) et crée de vrais comptes sur le projet Supabase lié :
     // exclu du run par défaut, lancé explicitement via `npm run test:security`.
-    exclude: [...configDefaults.exclude, "src/lib/security.integration.test.ts"],
+    exclude: [...configDefaults.exclude, "src/lib/security.integration.test.ts", ".claude/worktrees/**"],
   },
 });
