@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { TrendLineChart } from "@/components/ui/TrendLineChart";
 import { formatMontant } from "@/lib/formatters";
+import { computeSuggestedContribution } from "@/lib/savingsContribution";
 import { useSavingsMovements, useSavingsAccountBalance, createSavingsMovement } from "@/hooks/useSavingsMovements";
 import { deleteSavingsAccount } from "@/hooks/useSavingsAccounts";
 import { useIncomes } from "@/hooks/useIncomes";
@@ -44,14 +45,10 @@ export function SavingsAccountCard({ account, color, onChanged }: SavingsAccount
     ? categories.find((c) => c.id === account.categoryId)?.nom
     : null;
 
-  const suggestedAmount = useMemo(() => {
-    if (account.mode !== "pourcentage" || !account.pourcentage) return 0;
-    const base = account.categoryId
-      ? incomes.filter((i) => i.categoryId === account.categoryId)
-      : incomes;
-    const total = base.reduce((s, i) => s + i.montant, 0);
-    return Math.round(total * (account.pourcentage / 100));
-  }, [account.mode, account.pourcentage, account.categoryId, incomes]);
+  const suggestedAmount = useMemo(
+    () => computeSuggestedContribution(incomes, account),
+    [account, incomes]
+  );
 
   const ruleLabel =
     account.mode === "montant"
