@@ -358,14 +358,24 @@ describe("P0.7 — quota IA non contournable", () => {
     const period = new Date().toISOString().slice(0, 8) + "01";
     const { error } = await clientA.from("ai_quota_usage").insert({ user_id: idA, period_start: period, message_count: 0 });
     expect(error).toBeTruthy();
+    // Un rejet RLS (42501) prouve la policy ; PGRST205 = table absente (migration
+    // non déployée) — sans cette distinction, une base non à jour ferait passer
+    // ce test pour la mauvaise raison.
+    expect((error as { code?: string } | null)?.code).not.toBe("PGRST205");
   });
 
   it("consume_ai_quota() refuse une fois la limite du plan atteinte", async () => {
     const period = new Date().toISOString().slice(0, 8) + "01";
-    await admin.from("ai_quota_usage").upsert({ user_id: idA, period_start: period, message_count: 25 });
+    const { error: seedError } = await admin
+      .from("ai_quota_usage")
+      .upsert({ user_id: idA, period_start: period, message_count: 25 });
+    expect(seedError).toBeNull();
 
     const { error } = await clientA.rpc("consume_ai_quota");
     expect(error).toBeTruthy();
+    // P0001 = exception métier (quota atteint) ; PGRST202 = RPC introuvable
+    // (migration non déployée) — même logique que ci-dessus.
+    expect((error as { code?: string } | null)?.code).not.toBe("PGRST202");
   });
 });
 
