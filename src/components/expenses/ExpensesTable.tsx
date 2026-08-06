@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { formatMontant } from "@/lib/formatters";
 import { markExpensePaid, deleteExpense, updateExpense } from "@/hooks/useExpenses";
+import { useProfile } from "@/hooks/useProfile";
+import { effectiveExpenseStatus } from "@/lib/expenseStatus";
 import type { Category, Expense } from "@/types/budget";
 
 interface ExpensesTableProps {
@@ -53,13 +55,23 @@ const fixedCol = (width: number) => ({ width: `${width}px`, flexShrink: 0 });
 const nomCol = { flex: `1 1 ${NOM_W}px`, minWidth: `${NOM_W}px` };
 
 export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: ExpensesTableProps) {
+  const { data: profile } = useProfile();
+  const devise = profile?.devise ?? "FCFA";
   const categoryById = new Map(categories.map((c) => [c.id, c]));
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState({ nom: "", montant: "", dateEcheance: "" });
 
-  const totalPaye = expenses.filter((e) => e.statut === "paye").reduce((s, e) => s + e.montant, 0);
-  const totalAVenir = expenses.filter((e) => e.statut === "a_venir").reduce((s, e) => s + e.montant, 0);
-  const totalEnRetard = expenses.filter((e) => e.statut === "en_retard").reduce((s, e) => s + e.montant, 0);
+  // P0.6 — statut effectif (échéance dépassée = en retard, même si la
+  // colonne stockée n'a pas encore été matérialisée côté serveur).
+  const totalPaye = expenses
+    .filter((e) => effectiveExpenseStatus(e) === "paye")
+    .reduce((s, e) => s + e.montant, 0);
+  const totalAVenir = expenses
+    .filter((e) => effectiveExpenseStatus(e) === "a_venir")
+    .reduce((s, e) => s + e.montant, 0);
+  const totalEnRetard = expenses
+    .filter((e) => effectiveExpenseStatus(e) === "en_retard")
+    .reduce((s, e) => s + e.montant, 0);
 
   const startEdit = (expense: Expense) => {
     setEditingId(expense.id);
@@ -128,7 +140,8 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
           <div className="divide-y" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
             {expenses.map((expense) => {
               const category = categoryById.get(expense.categoryId ?? "");
-              const checked = expense.statut === "paye";
+              const status = effectiveExpenseStatus(expense);
+              const checked = status === "paye";
               const isEditing = editingId === expense.id;
 
               return (
@@ -142,6 +155,12 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
                     aria-checked={checked}
                     tabIndex={0}
                     onClick={() => !checked && markExpensePaid(expense.id).then(onChanged)}
+                    onKeyDown={(e) => {
+                      if ((e.key === "Enter" || e.key === " ") && !checked) {
+                        e.preventDefault();
+                        markExpensePaid(expense.id).then(onChanged);
+                      }
+                    }}
                     className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 cursor-pointer"
                     style={{
                       background: checked ? "var(--color-primary)" : "rgba(0,0,0,0.1)",
@@ -211,11 +230,11 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
                           ...fixedCol(MONTANT_W),
                           textAlign: "right",
                           whiteSpace: "nowrap",
-                          color: expense.statut === "en_retard" ? "#EF4444" : "var(--color-ink)",
+                          color: status === "en_retard" ? "#EF4444" : "var(--color-ink)",
                         }}
                         className="font-semibold"
                       >
-                        -{formatMontant(expense.montant)}
+                        -{formatMontant(expense.montant, devise)}
                       </div>
                       <div style={{ ...fixedCol(ECHEANCE_W), whiteSpace: "nowrap" }} className="text-xs text-muted-foreground">
                         {dateFormatter.format(new Date(expense.dateEcheance))}
@@ -240,12 +259,12 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
                         <div
                           className="px-2 py-1 rounded text-xs font-medium text-center"
                           style={{
-                            background: `${statusColors[expense.statut]}20`,
-                            color: statusColors[expense.statut],
-                            border: `1px solid ${statusColors[expense.statut]}40`,
+                            background: `${statusColors[status]}20`,
+                            color: statusColors[status],
+                            border: `1px solid ${statusColors[status]}40`,
                           }}
                         >
-                          {statusLabels[expense.statut]}
+                          {statusLabels[status]}
                         </div>
                       </div>
                       <div style={fixedCol(ACTIONS_W)} className="flex items-center justify-end gap-1">
@@ -278,15 +297,15 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
       <div className="flex gap-4 mt-6">
         <div className="flex-1 p-4 rounded-lg" style={{ background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)" }}>
           <p className="text-xs text-muted-foreground">Total payé</p>
-          <p className="text-lg font-semibold text-primary mt-1">{formatMontant(totalPaye)}</p>
+          <p className="text-lg font-semibold text-primary mt-1">{formatMontant(totalPaye, devise)}</p>
         </div>
         <div className="flex-1 p-4 rounded-lg" style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)" }}>
           <p className="text-xs text-muted-foreground">À venir</p>
-          <p className="text-lg font-semibold" style={{ color: "#F59E0B" }}>{formatMontant(totalAVenir)}</p>
+          <p className="text-lg font-semibold" style={{ color: "#F59E0B" }}>{formatMontant(totalAVenir, devise)}</p>
         </div>
         <div className="flex-1 p-4 rounded-lg" style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)" }}>
           <p className="text-xs text-muted-foreground">En retard</p>
-          <p className="text-lg font-semibold text-danger">{formatMontant(totalEnRetard)}</p>
+          <p className="text-lg font-semibold text-danger">{formatMontant(totalEnRetard, devise)}</p>
         </div>
       </div>
     </div>

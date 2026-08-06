@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { isSameDay, isSameMonth, isSameYear } from "date-fns";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { formatMontant } from "@/lib/formatters";
+import { useProfile } from "@/hooks/useProfile";
 import type { Category, TrackedExpense } from "@/types/budget";
 
 interface TrackerSummaryProps {
@@ -10,6 +11,8 @@ interface TrackerSummaryProps {
 }
 
 export function TrackerSummary({ expenses, categories }: TrackerSummaryProps) {
+  const { data: profile } = useProfile();
+  const devise = profile?.devise ?? "FCFA";
   const categoryById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
   const now = useMemo(() => new Date(), []);
 
@@ -43,15 +46,15 @@ export function TrackerSummary({ expenses, categories }: TrackerSummaryProps) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <GlassCard className="p-4">
           <p className="text-xs text-muted-foreground">Aujourd&apos;hui</p>
-          <p className="text-xl font-semibold text-foreground font-headings mt-1">{formatMontant(totalAujourdhui)}</p>
+          <p className="text-xl font-semibold text-foreground font-headings mt-1">{formatMontant(totalAujourdhui, devise)}</p>
         </GlassCard>
         <GlassCard className="p-4">
           <p className="text-xs text-muted-foreground">Ce mois-ci</p>
-          <p className="text-xl font-semibold font-headings mt-1" style={{ color: "#F59E0B" }}>{formatMontant(totalMois)}</p>
+          <p className="text-xl font-semibold font-headings mt-1" style={{ color: "#F59E0B" }}>{formatMontant(totalMois, devise)}</p>
         </GlassCard>
         <GlassCard className="p-4">
           <p className="text-xs text-muted-foreground">Total général</p>
-          <p className="text-xl font-semibold font-headings mt-1 text-danger">{formatMontant(totalGeneral)}</p>
+          <p className="text-xl font-semibold font-headings mt-1 text-danger">{formatMontant(totalGeneral, devise)}</p>
         </GlassCard>
       </div>
 
@@ -66,7 +69,7 @@ export function TrackerSummary({ expenses, categories }: TrackerSummaryProps) {
                 style={{ background: "rgba(0,0,0,0.03)", border: "1px solid rgba(0,0,0,0.06)" }}
               >
                 <span className="text-sm text-foreground truncate">{c.nom}</span>
-                <span className="text-sm font-semibold text-foreground flex-shrink-0 ml-2">{formatMontant(c.total)}</span>
+                <span className="text-sm font-semibold text-foreground flex-shrink-0 ml-2">{formatMontant(c.total, devise)}</span>
               </div>
             ))}
           </div>

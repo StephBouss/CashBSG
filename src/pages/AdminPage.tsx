@@ -224,10 +224,10 @@ export default function AdminPage() {
                           <span className="text-xs font-medium text-muted-foreground">{u.devise}</span>
                         </div>
                         <div style={{ width: "120px", textAlign: "right" }}>
-                          <p className="text-sm font-semibold" style={{ color: "var(--color-primary)" }}>{formatMontant(u.revenusMois)}</p>
+                          <p className="text-sm font-semibold" style={{ color: "var(--color-primary)" }}>{formatMontant(u.revenusMois, u.devise)}</p>
                         </div>
                         <div style={{ width: "120px", textAlign: "right" }}>
-                          <p className="text-sm font-semibold" style={{ color: "#EF4444" }}>{formatMontant(u.depensesMois)}</p>
+                          <p className="text-sm font-semibold" style={{ color: "#EF4444" }}>{formatMontant(u.depensesMois, u.devise)}</p>
                         </div>
                         <div style={{ width: "90px", textAlign: "right" }}>
                           <p className="text-sm text-muted-foreground">{u.messagesIaMois}</p>

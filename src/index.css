@@ -36,7 +36,10 @@
   --color-secondary-dark: #1e40af;
   --color-secondary-foreground: #ffffff;
   --color-muted: rgba(var(--glass-r), var(--glass-g), var(--glass-b), 0.18);
-  --color-muted-foreground: rgba(30, 30, 60, 0.55);
+  /* Opacité 0.65 (et non 0.55) : sous ce seuil le texte secondaire tombe
+     sous 4,5:1 face aux cartes de verre les plus claires (C7.6 — mesuré
+     avec la formule de contraste WCAG, cf. NOTES-AUDIT.md). */
+  --color-muted-foreground: rgba(30, 30, 60, 0.65);
   --color-accent: #f59e0b;
   --color-danger: #ef4444;
   --color-glass: rgba(var(--glass-r), var(--glass-g), var(--glass-b), 0.55);
@@ -45,7 +48,7 @@
   --color-sidebar-bg: rgba(var(--glass-r), var(--glass-g), var(--glass-b), 0.6);
   --color-card-bg: rgba(var(--glass-r), var(--glass-g), var(--glass-b), 0.52);
   --color-surface: rgba(var(--glass-r), var(--glass-g), var(--glass-b), 0.72);
-  --color-text-secondary: rgba(30, 30, 60, 0.55);
+  --color-text-secondary: rgba(30, 30, 60, 0.65);
 }
 
 /* Vert nuit */

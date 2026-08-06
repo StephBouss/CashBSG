@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { SavingsAccount, SavingsAccountType, SavingsContributionMode } from "@/types/budget";
 import { useAuth } from "@/hooks/useAuth";
+import { LIVE_QUERY_OPTIONS } from "@/lib/queryConfig";
 
 export function useSavingsAccounts(type: SavingsAccountType) {
   const { user } = useAuth();
@@ -12,6 +13,7 @@ export function useSavingsAccounts(type: SavingsAccountType) {
   const query = useQuery({
     queryKey,
     enabled: !!user,
+    ...LIVE_QUERY_OPTIONS,
     queryFn: async (): Promise<SavingsAccount[]> => {
       const { data, error } = await supabase
         .from("savings_accounts")
@@ -96,7 +98,13 @@ export async function updateSavingsAccount(accountId: string, input: CreateSavin
   if (error) throw error;
 }
 
+/** P1.5 — suppression logique : un compte d'épargne/investissement peut
+ * regrouper des années de mouvements réels (savings_movements en cascade) ;
+ * un hard delete effacerait cet historique en un clic. */
 export async function deleteSavingsAccount(accountId: string) {
-  const { error } = await supabase.from("savings_accounts").delete().eq("id", accountId);
+  const { error } = await supabase
+    .from("savings_accounts")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", accountId);
   if (error) throw error;
 }

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface AdminDetailModalProps {
   icon: string;
@@ -11,11 +12,14 @@ interface AdminDetailModalProps {
 }
 
 export function AdminDetailModal({ icon, color, title, subtitle, onClose, children }: AdminDetailModalProps) {
+  useEscapeKey(onClose);
+
   return (
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- fond de fermeture au clic, équivalent clavier via Échap (useEscapeKey) et le bouton "Fermer" ci-dessous
     <div
       className="fixed inset-0 flex items-center justify-center z-50 p-4"
       style={{ background: "rgba(0, 0, 0, 0.45)" }}
-      onClick={onClose}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
         className="w-full max-w-4xl max-h-[85vh] rounded-lg relative flex flex-col"
@@ -25,7 +29,6 @@ export function AdminDetailModal({ icon, color, title, subtitle, onClose, childr
           border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.85)",
           boxShadow: "0 24px 64px rgba(120,120,180,0.25)",
         }}
-        onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between gap-4 px-6 py-5 flex-shrink-0" style={{ borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
           <div className="flex items-center gap-3 min-w-0">

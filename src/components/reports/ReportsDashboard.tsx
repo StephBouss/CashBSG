@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMonthlyTrend } from "@/hooks/useMonthlyTrend";
 import { useCategoryTotalsRange } from "@/hooks/useCategoryTotalsRange";
+import { useFinancialSummary, ZERO_FINANCIAL_SUMMARY } from "@/hooks/useFinancialSummary";
 import { useGoals } from "@/hooks/useGoals";
 import { useProfile } from "@/hooks/useProfile";
 import { Icon } from "@/components/ui/Icon";
@@ -15,6 +16,7 @@ const PERIODS = [
 
 export function ReportsDashboard() {
   const { data: profile } = useProfile();
+  const devise = profile?.devise ?? "FCFA";
   const hasFullHistory = profile ? canAccessFullHistory(profile.plan) : true;
   const [period, setPeriod] = useState<(typeof PERIODS)[number]["key"]>("trimestre");
   const effectivePeriod = !hasFullHistory ? "mois" : period;
@@ -23,10 +25,14 @@ export function ReportsDashboard() {
   const { data: trend = [] } = useMonthlyTrend(months);
   const { totals: categoryTotals } = useCategoryTotalsRange(months);
   const { data: goals = [] } = useGoals();
+  const { data: financials = ZERO_FINANCIAL_SUMMARY } = useFinancialSummary(new Date(), months);
 
-  const totalRevenus = trend.reduce((s, p) => s + p.totalRevenus, 0);
-  const totalDepenses = trend.reduce((s, p) => s + p.totalDepenses, 0);
-  const epargneNette = totalRevenus - totalDepenses;
+  // P0.4 — l'épargne nette vient des mouvements d'épargne réels
+  // (financial_summary, même source que le Dashboard), plus jamais d'un
+  // simple revenus - dépenses.
+  const totalRevenus = financials.revenusEncaisses;
+  const totalDepenses = financials.depensesPayees;
+  const epargneNette = financials.epargnePeriode;
   const tauxEpargne = totalRevenus > 0 ? Math.round((epargneNette / totalRevenus) * 100) : 0;
 
   const soldeDebut = trend[0]?.solde ?? 0;
@@ -38,12 +44,17 @@ export function ReportsDashboard() {
 
   const previousHalf = trend.slice(0, Math.floor(trend.length / 2));
   const recentHalf = trend.slice(Math.floor(trend.length / 2));
-  const previousAvgSolde =
-    previousHalf.length > 0 ? previousHalf.reduce((s, p) => s + p.solde, 0) / previousHalf.length : 0;
-  const recentAvgSolde =
-    recentHalf.length > 0 ? recentHalf.reduce((s, p) => s + p.solde, 0) / recentHalf.length : 0;
+  // P0.4 — l'évolution affichée sous "Tendance d'épargne" et dans les
+  // Insights doit porter sur l'épargne réelle (epargneNette), pas sur le
+  // solde revenus/dépenses du "Flux de trésorerie" (carte séparée).
+  const previousAvgEpargne =
+    previousHalf.length > 0 ? previousHalf.reduce((s, p) => s + p.epargneNette, 0) / previousHalf.length : 0;
+  const recentAvgEpargne =
+    recentHalf.length > 0 ? recentHalf.reduce((s, p) => s + p.epargneNette, 0) / recentHalf.length : 0;
   const soldeEvolutionPct =
-    previousAvgSolde !== 0 ? Math.round(((recentAvgSolde - previousAvgSolde) / Math.abs(previousAvgSolde)) * 100) : null;
+    previousAvgEpargne !== 0
+      ? Math.round(((recentAvgEpargne - previousAvgEpargne) / Math.abs(previousAvgEpargne)) * 100)
+      : null;
 
   const goalCandidate = [...goals]
     .filter((g) => g.contributionMensuelle > 0 && g.montantEpargne < g.montantCible)
@@ -69,7 +80,7 @@ export function ReportsDashboard() {
                 key={p.key}
                 onClick={() => !isLocked && setPeriod(p.key)}
                 disabled={isLocked}
-                title={isLocked ? "Historique complet réservé aux offres Essentiel et Pro" : undefined}
+                title={isLocked ? "Historique complet réservé aux offres payantes (Essentiel, Pro, Business)" : undefined}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium disabled:cursor-not-allowed"
                 style={
                   effectivePeriod === p.key
@@ -96,7 +107,7 @@ export function ReportsDashboard() {
           style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.18)", color: "#7C3AED" }}
         >
           <Icon i="lock" size={13} />
-          Vous consultez le mois en cours. L&apos;historique complet (trimestre, année) est réservé aux offres Iwadu Essentiel et Pro.
+          Vous consultez le mois en cours. L&apos;historique complet (trimestre, année) est réservé aux offres payantes (Iwadu Essentiel, Pro et Business).
         </div>
       )}
 
@@ -106,7 +117,7 @@ export function ReportsDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-muted-foreground">Revenus totaux</p>
-              <p className="text-lg font-semibold text-primary mt-2">{formatMontant(totalRevenus)}</p>
+              <p className="text-lg font-semibold text-primary mt-2">{formatMontant(totalRevenus, devise)}</p>
             </div>
             <Icon i="trending-up" size={24} style={{ color: "var(--color-primary)" }} />
           </div>
@@ -115,7 +126,7 @@ export function ReportsDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-muted-foreground">Dépenses totales</p>
-              <p className="text-lg font-semibold" style={{ color: "#EF4444" }}>{formatMontant(totalDepenses)}</p>
+              <p className="text-lg font-semibold" style={{ color: "#EF4444" }}>{formatMontant(totalDepenses, devise)}</p>
             </div>
             <Icon i="trending-down" size={24} style={{ color: "#EF4444" }} />
           </div>
@@ -124,7 +135,7 @@ export function ReportsDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-muted-foreground">Épargne nette</p>
-              <p className="text-lg font-semibold" style={{ color: "var(--color-secondary)" }}>{formatMontant(epargneNette)}</p>
+              <p className="text-lg font-semibold" style={{ color: "var(--color-secondary)" }}>{formatMontant(epargneNette, devise)}</p>
             </div>
             <Icon i="bar-chart-2" size={24} style={{ color: "var(--color-secondary)" }} />
           </div>
@@ -191,14 +202,14 @@ export function ReportsDashboard() {
           <h3 className="text-sm font-semibold text-foreground mb-4">Tendance d'épargne</h3>
           <div className="flex items-end justify-around gap-3" style={{ height: "240px", background: "rgba(0,0,0,0.04)", borderRadius: "8px", padding: "16px" }}>
             {trend.map((p) => {
-              const maxSolde = Math.max(1, ...trend.map((t) => Math.abs(t.solde)));
+              const maxEpargne = Math.max(1, ...trend.map((t) => Math.abs(t.epargneNette)));
               return (
                 <div key={p.monthStart} className="flex-1 flex flex-col items-center gap-1">
                   <div
                     style={{
                       width: "60%",
-                      height: `${Math.max(4, (Math.abs(p.solde) / maxSolde) * 190)}px`,
-                      background: p.solde >= 0 ? "linear-gradient(180deg, var(--color-secondary), var(--color-secondary-dark))" : "linear-gradient(180deg, #EF4444, #DC2626)",
+                      height: `${Math.max(4, (Math.abs(p.epargneNette) / maxEpargne) * 190)}px`,
+                      background: p.epargneNette >= 0 ? "linear-gradient(180deg, var(--color-secondary), var(--color-secondary-dark))" : "linear-gradient(180deg, #EF4444, #DC2626)",
                       borderRadius: "4px",
                     }}
                   />
@@ -252,20 +263,20 @@ export function ReportsDashboard() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-foreground">Solde début de période</span>
-              <span className="text-sm font-semibold text-foreground">{formatMontant(soldeDebut)}</span>
+              <span className="text-sm font-semibold text-foreground">{formatMontant(soldeDebut, devise)}</span>
             </div>
             <div style={{ padding: "2px", borderRadius: "4px", background: "linear-gradient(90deg, var(--color-primary), var(--color-secondary))" }}>
               <div style={{ padding: "8px", background: "white", borderRadius: "3px", textAlign: "center" }}>
                 <p className="text-xs font-medium text-primary">
                   {variation >= 0 ? "+" : ""}
-                  {formatMontant(variation)}
+                  {formatMontant(variation, devise)}
                 </p>
               </div>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-foreground">Solde fin de période</span>
               <span className="text-sm font-semibold" style={{ color: soldeFin >= 0 ? "var(--color-primary)" : "#EF4444" }}>
-                {formatMontant(soldeFin)}
+                {formatMontant(soldeFin, devise)}
               </span>
             </div>
           </div>
@@ -298,7 +309,7 @@ export function ReportsDashboard() {
               <div className="p-2.5 rounded" style={{ background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.2)" }}>
                 <p className="font-medium text-foreground">Dépense principale</p>
                 <p className="text-muted-foreground text-xs mt-1">
-                  {categoryTotals[0].nom} ({formatMontant(categoryTotals[0].montant)})
+                  {categoryTotals[0].nom} ({formatMontant(categoryTotals[0].montant, devise)})
                 </p>
               </div>
             )}

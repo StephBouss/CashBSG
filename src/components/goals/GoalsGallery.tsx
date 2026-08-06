@@ -1,5 +1,6 @@
 import { Icon } from "@/components/ui/Icon";
-import { addGoalContribution, deleteGoal } from "@/hooks/useGoals";
+import { contributeToGoal, deleteGoal } from "@/hooks/useGoals";
+import { goalProgressPct, isGoalAchieved } from "@/lib/goalsProgress";
 import type { Goal } from "@/types/budget";
 
 interface GoalsGalleryProps {
@@ -9,9 +10,6 @@ interface GoalsGalleryProps {
   onEditClick: (goal: Goal) => void;
 }
 
-function pct(saved: number, target: number) {
-  return target > 0 ? Math.round((saved / target) * 100) : 0;
-}
 
 const numberFormatter = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 });
 
@@ -29,7 +27,7 @@ export function GoalsGallery({ goals, onChanged, onAddClick, onEditClick }: Goal
   const totalTarget = goals.reduce((s, g) => s + g.montantCible, 0);
   const totalSaved = goals.reduce((s, g) => s + g.montantEpargne, 0);
   const avgCompletion = goals.length
-    ? Math.round(goals.reduce((s, g) => s + pct(g.montantEpargne, g.montantCible), 0) / goals.length)
+    ? Math.round(goals.reduce((s, g) => s + goalProgressPct(g.montantEpargne, g.montantCible), 0) / goals.length)
     : 0;
 
   return (
@@ -57,7 +55,7 @@ export function GoalsGallery({ goals, onChanged, onAddClick, onEditClick }: Goal
       ) : (
         <div className="grid grid-cols-1 gap-5" style={{ gridAutoRows: "max-content" }}>
           {goals.map((goal) => {
-            const p = pct(goal.montantEpargne, goal.montantCible);
+            const p = goalProgressPct(goal.montantEpargne, goal.montantCible);
             const remaining = daysLeft(goal.dateCible);
             return (
               <div
@@ -143,9 +141,9 @@ export function GoalsGallery({ goals, onChanged, onAddClick, onEditClick }: Goal
                       {fmt(goal.contributionMensuelle)} FCFA/mois
                     </p>
                   </div>
-                  {goal.contributionMensuelle > 0 && goal.montantEpargne < goal.montantCible && (
+                  {goal.contributionMensuelle > 0 && !isGoalAchieved(goal.montantEpargne, goal.montantCible) && (
                     <button
-                      onClick={() => addGoalContribution(goal, goal.contributionMensuelle).then(onChanged)}
+                      onClick={() => contributeToGoal(goal.id, goal.contributionMensuelle).then(onChanged)}
                       className="px-3 py-1.5 rounded-lg text-xs font-medium text-white"
                       style={{ background: goal.couleur, boxShadow: `0 2px 8px ${goal.couleur}40` }}
                     >

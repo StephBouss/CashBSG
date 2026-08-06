@@ -4,32 +4,60 @@ import { supabase } from "@/lib/supabase";
 import { monthRange } from "@/lib/month";
 import type { Expense } from "@/types/budget";
 import { useAuth } from "@/hooks/useAuth";
+import { LIVE_QUERY_OPTIONS } from "@/lib/queryConfig";
 
 export interface UseExpensesOptions {
   /** Désactivez pour les appels secondaires (ex: mois de comparaison) afin
    * d'éviter deux abonnements realtime simultanés sur le même canal. */
   realtime?: boolean;
+  /**
+   * P0.1 — `source` est une provenance de saisie (facture planifiée vs
+   * pointage Tracker), pas un critère d'inclusion dans les totaux : par
+   * défaut, on renvoie TOUTES les dépenses du mois, quelle que soit leur
+   * provenance (nécessaire pour que Dashboard/Rapports/IA partent de la
+   * même vérité financière). Seule la page Dépenses (échéances planifiées)
+   * a une raison fonctionnelle de restreindre explicitement à `"facture"`.
+   */
+  source?: "facture" | "tracker";
+  /**
+   * P0.6 — un filtre borné au mois courant fait disparaître une facture
+   * impayée d'un mois précédent dès que le calendrier tourne. Quand true,
+   * la requête inclut aussi tout impayé antérieur à `start` (backlog non
+   * soldé), en plus des échéances du mois — sans borne basse, comme
+   * financial_summary(). Pertinent seulement pour une vue "mois courant" ;
+   * ne l'activez pas pour un mois de comparaison passé.
+   */
+  includeBacklog?: boolean;
 }
 
 export function useExpenses(month: Date = new Date(), options: UseExpensesOptions = {}) {
-  const { realtime = true } = options;
+  const { realtime = true, source, includeBacklog = false } = options;
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { start, end } = monthRange(month);
-  const queryKey = ["expenses", user?.id, start];
+  const queryKey = ["expenses", user?.id, start, source ?? "all", includeBacklog];
 
   const query = useQuery({
     queryKey,
     enabled: !!user,
+    ...LIVE_QUERY_OPTIONS,
     queryFn: async (): Promise<Expense[]> => {
-      const { data, error } = await supabase
+      let request = supabase
         .from("expenses")
         .select(
           "id, user_id, category_id, nom, montant, date_echeance, priorite, statut, date_paiement"
         )
-        .gte("date_echeance", start)
-        .lte("date_echeance", end)
-        .order("date_echeance");
+        .lte("date_echeance", end);
+
+      request = includeBacklog
+        ? request.or(`date_echeance.gte.${start},statut.neq.paye`)
+        : request.gte("date_echeance", start);
+
+      if (source) {
+        request = request.eq("source", source);
+      }
+
+      const { data, error } = await request.order("date_echeance");
 
       if (error) throw error;
 
@@ -98,7 +126,10 @@ export async function createExpense(userId: string, input: CreateExpenseInput) {
 }
 
 export async function deleteExpense(expenseId: string) {
-  const { error } = await supabase.from("expenses").delete().eq("id", expenseId);
+  const { error } = await supabase
+    .from("expenses")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", expenseId);
   if (error) throw error;
 }
 

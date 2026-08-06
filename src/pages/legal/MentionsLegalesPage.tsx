@@ -2,15 +2,16 @@ import { LegalLayout, LegalSection } from "@/components/legal/LegalLayout";
 
 export default function MentionsLegalesPage() {
   return (
-    <LegalLayout title="Mentions légales" updatedAt="23 juillet 2026">
+    <LegalLayout title="Mentions légales" updatedAt="6 août 2026">
       <LegalSection title="Éditeur du site">
         <p>
-          Le site et l&apos;application Iwadu Cash sont édités par : <strong>[Raison sociale / nom de l&apos;éditeur à compléter]</strong>,
-          [forme juridique à compléter, ex : entreprise individuelle / société], immatriculée sous le numéro
-          [numéro d&apos;immatriculation à compléter], dont le siège est situé à [adresse à compléter].
+          Le site et l&apos;application Iwadu Cash sont édités par :{" "}
+          <strong>DÉCISION/INFORMATION À FOURNIR PAR LE PROPRIÉTAIRE DU PRODUIT</strong> (raison sociale, forme
+          juridique, numéro d&apos;immatriculation et siège social — identité légale de l&apos;éditeur non
+          déterminable depuis le code source, à compléter par le propriétaire du produit).
         </p>
-        <p>Responsable de la publication : [nom du responsable à compléter].</p>
-        <p>Contact : [email de contact à compléter].</p>
+        <p>Responsable de la publication : DÉCISION/INFORMATION À FOURNIR PAR LE PROPRIÉTAIRE DU PRODUIT.</p>
+        <p>Contact : stephboussougou@gmail.com.</p>
       </LegalSection>
 
       <LegalSection title="Hébergement">
@@ -38,7 +39,7 @@ export default function MentionsLegalesPage() {
       </LegalSection>
 
       <LegalSection title="Contact">
-        <p>Pour toute question relative à ces mentions légales : [email de contact à compléter].</p>
+        <p>Pour toute question relative à ces mentions légales : stephboussougou@gmail.com.</p>
       </LegalSection>
     </LegalLayout>
   );

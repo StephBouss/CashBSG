@@ -7,6 +7,7 @@ function toDisplay(value: number | undefined): string {
 }
 
 interface AmountInputProps {
+  id?: string;
   value: number | undefined;
   onChange: (value: number | undefined) => void;
   placeholder?: string;
@@ -15,7 +16,7 @@ interface AmountInputProps {
 
 /** Champ montant qui affiche des séparateurs de milliers pendant la saisie
  * (ex: 15 000 000) tout en exposant une valeur numérique brute au formulaire. */
-export function AmountInput({ value, onChange, placeholder, className }: AmountInputProps) {
+export function AmountInput({ id, value, onChange, placeholder, className }: AmountInputProps) {
   const [display, setDisplay] = useState(() => toDisplay(value));
 
   useEffect(() => {
@@ -38,6 +39,7 @@ export function AmountInput({ value, onChange, placeholder, className }: AmountI
 
   return (
     <input
+      id={id}
       type="text"
       inputMode="numeric"
       value={display}

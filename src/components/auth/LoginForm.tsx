@@ -8,7 +8,7 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { GoogleIcon } from "@/components/ui/GoogleIcon";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
-import logoFull from "@/assets/logo-full.png";
+import logoFull from "@/assets/logo-full.svg";
 
 const loginSchema = z.object({
   email: z.string().email("Email invalide"),

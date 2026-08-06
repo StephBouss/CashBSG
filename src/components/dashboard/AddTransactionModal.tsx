@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCategories } from "@/hooks/useCategories";
 import { createExpense } from "@/hooks/useExpenses";
 import { createIncome } from "@/hooks/useIncomes";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 const schema = z.object({
   nom: z.string().min(1, "La description est requise"),
@@ -30,6 +31,7 @@ export function AddTransactionModal({ onClose, onCreated, defaultType = "depense
   const { user } = useAuth();
   const { data: categories = [] } = useCategories();
   const filteredCategories = categories.filter((c) => c.type === type);
+  useEscapeKey(onClose);
 
   const {
     register,
@@ -68,10 +70,11 @@ export function AddTransactionModal({ onClose, onCreated, defaultType = "depense
   };
 
   return (
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- fond de fermeture au clic, équivalent clavier via Échap (useEscapeKey) et le bouton "x" ci-dessous
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
       style={{ background: "rgba(0, 0, 0, 0.40)" }}
-      onClick={onClose}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
         className="w-full max-w-md p-6 rounded-lg relative"
@@ -82,7 +85,6 @@ export function AddTransactionModal({ onClose, onCreated, defaultType = "depense
           border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.85)",
           boxShadow: "0 24px 64px rgba(120,120,180,0.20)",
         }}
-        onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
@@ -128,13 +130,14 @@ export function AddTransactionModal({ onClose, onCreated, defaultType = "depense
 
           <div className="flex flex-col gap-4 mb-6">
             <div>
-              <label className="text-xs font-semibold text-foreground block mb-1.5">Description</label>
+              <label htmlFor="tx-nom" className="text-xs font-semibold text-foreground block mb-1.5">Description</label>
               <div
                 className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm"
                 style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
               >
                 <Icon i="edit-2" size={14} />
                 <input
+                  id="tx-nom"
                   {...register("nom")}
                   placeholder="Ex: Salaire principal"
                   className="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground"
@@ -144,7 +147,7 @@ export function AddTransactionModal({ onClose, onCreated, defaultType = "depense
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-foreground block mb-1.5">Montant (FCFA)</label>
+              <label htmlFor="tx-montant" className="text-xs font-semibold text-foreground block mb-1.5">Montant (FCFA)</label>
               <div
                 className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm"
                 style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
@@ -154,6 +157,7 @@ export function AddTransactionModal({ onClose, onCreated, defaultType = "depense
                   name="montant"
                   render={({ field }) => (
                     <AmountInput
+                      id="tx-montant"
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="0"
@@ -167,12 +171,13 @@ export function AddTransactionModal({ onClose, onCreated, defaultType = "depense
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-foreground block mb-1.5">Catégorie</label>
+              <label htmlFor="tx-category" className="text-xs font-semibold text-foreground block mb-1.5">Catégorie</label>
               <div
                 className="flex items-center justify-between px-4 py-3 rounded-lg text-sm"
                 style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
               >
                 <select
+                  id="tx-category"
                   {...register("categoryId")}
                   className="flex-1 bg-transparent outline-none text-foreground"
                 >
@@ -188,13 +193,14 @@ export function AddTransactionModal({ onClose, onCreated, defaultType = "depense
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-foreground block mb-1.5">Date</label>
+              <label htmlFor="tx-date" className="text-xs font-semibold text-foreground block mb-1.5">Date</label>
               <div
                 className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm"
                 style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
               >
                 <Icon i="calendar" size={14} />
                 <input
+                  id="tx-date"
                   {...register("date")}
                   type="date"
                   className="flex-1 bg-transparent outline-none text-foreground"
@@ -205,12 +211,13 @@ export function AddTransactionModal({ onClose, onCreated, defaultType = "depense
 
             {type === "revenu" && (
               <div>
-                <label className="text-xs font-semibold text-foreground block mb-1.5">Fréquence</label>
+                <label htmlFor="tx-frequence" className="text-xs font-semibold text-foreground block mb-1.5">Fréquence</label>
                 <div
                   className="flex items-center justify-between px-4 py-3 rounded-lg text-sm"
                   style={{ background: "rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.7)", border: "1px solid rgba(0,0,0,0.08)" }}
                 >
                   <select
+                    id="tx-frequence"
                     {...register("frequence")}
                     className="flex-1 bg-transparent outline-none text-foreground"
                   >

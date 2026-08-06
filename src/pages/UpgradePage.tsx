@@ -1,25 +1,27 @@
 import { useProfile } from "@/hooks/useProfile";
 import { useCreateUpgradeRequest, usePendingUpgradeRequest } from "@/hooks/useUpgradeRequest";
+import { usePlanCatalog } from "@/hooks/usePlanCatalog";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Icon } from "@/components/ui/Icon";
-import { PLAN_LABELS, PLAN_PRICES, upgradeOptions } from "@/lib/plan";
-import type { Plan } from "@/types/budget";
-
-const PLAN_PERKS: Record<Plan, string[]> = {
-  free: ["Revenus, dépenses & échéances", "Épargne & investissement", "Rapports du mois en cours"],
-  essentiel: ["Tout Free", "Objectifs financiers illimités", "Historique complet & rapports détaillés"],
-  pro: ["Tout Essentiel", "Assistant IA personnalisé (conseils & analyses)"],
-  business: ["Tout Pro", "Accompagnement prioritaire", "Accès anticipé aux nouvelles fonctionnalités"],
-};
+import { PLAN_LABELS, PLAN_PRICES, PLAN_ORDER, planFeatureList, upgradeOptions } from "@/lib/plan";
 
 export default function UpgradePage() {
   const { data: profile } = useProfile();
   const { data: pendingRequest, isLoading: loadingPending } = usePendingUpgradeRequest();
+  const { data: catalog } = usePlanCatalog();
   const createRequest = useCreateUpgradeRequest();
 
   if (!profile) return null;
 
-  const options = upgradeOptions(profile.plan);
+  // P2.3 — une offre non commercialisable (ex. Business masqué tant que sa
+  // valeur n'est pas démontrée) reste dans le schéma/les données existantes,
+  // simplement absente des choix proposés ici. Rien à filtrer tant que le
+  // catalogue n'a pas encore chargé (évite un flash "aucune offre").
+  const commercialisablePlans = catalog ? new Set(catalog.filter((c) => c.commercialisable).map((c) => c.plan)) : null;
+  const options = upgradeOptions(profile.plan).filter((plan) => !commercialisablePlans || commercialisablePlans.has(plan));
+  const topPlan = commercialisablePlans
+    ? [...PLAN_ORDER].reverse().find((p) => commercialisablePlans.has(p)) ?? PLAN_ORDER[PLAN_ORDER.length - 1]
+    : PLAN_ORDER[PLAN_ORDER.length - 1];
 
   return (
     <div className="flex flex-col min-w-0 max-w-3xl">
@@ -54,7 +56,9 @@ export default function UpgradePage() {
       {options.length === 0 ? (
         <GlassCard className="p-8 text-center">
           <Icon i="check-circle" size={28} style={{ color: "#10B981" }} className="mx-auto mb-3" />
-          <p className="text-sm text-foreground">Vous êtes déjà sur l'offre la plus complète, Iwadu Pro.</p>
+          <p className="text-sm text-foreground">
+            Vous êtes déjà sur l'offre la plus complète actuellement proposée, {PLAN_LABELS[topPlan]}.
+          </p>
         </GlassCard>
       ) : (
         <div className="grid gap-5" style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}>
@@ -67,7 +71,7 @@ export default function UpgradePage() {
                 {PLAN_PRICES[plan]}
               </p>
               <ul className="flex flex-col gap-2 my-5 flex-1">
-                {PLAN_PERKS[plan].map((perk) => (
+                {planFeatureList(plan).map((perk) => (
                   <li key={perk} className="flex items-start gap-2 text-sm text-foreground">
                     <Icon i="check" size={14} style={{ color: "#10B981", marginTop: "3px", flexShrink: 0 }} />
                     <span>{perk}</span>

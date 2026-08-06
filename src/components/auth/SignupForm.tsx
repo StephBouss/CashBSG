@@ -8,7 +8,7 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { PasswordInput } from "@/components/auth/PasswordInput";
 import { Icon } from "@/components/ui/Icon";
 import { GoogleIcon } from "@/components/ui/GoogleIcon";
-import logoFull from "@/assets/logo-full.png";
+import logoFull from "@/assets/logo-full.svg";
 
 const signupSchema = z
   .object({

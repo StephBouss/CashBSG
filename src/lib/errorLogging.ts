@@ -1,5 +1,17 @@
 import { supabase } from "@/lib/supabase";
 
+/** P1.4 — window.location.href complet peut contenir un token OAuth/PKCE
+ * (#access_token=..., ?code=...) ou un lien de réinitialisation de mot de
+ * passe : on ne journalise jamais la query string ni le fragment. */
+export function cleanErrorUrl(href: string): string {
+  try {
+    const u = new URL(href);
+    return `${u.origin}${u.pathname}`;
+  } catch {
+    return href.split("?")[0].split("#")[0];
+  }
+}
+
 /** Envoie une erreur client à la table `client_errors` (Supabase). Best-effort :
  * ne doit jamais lever, sous peine de masquer l'erreur d'origine. */
 export async function logClientError(error: unknown, context?: string) {
@@ -14,7 +26,7 @@ export async function logClientError(error: unknown, context?: string) {
       user_id: user?.id ?? null,
       message: context ? `[${context}] ${message}` : message,
       stack,
-      url: typeof window !== "undefined" ? window.location.href : null,
+      url: typeof window !== "undefined" ? cleanErrorUrl(window.location.href) : null,
       user_agent: typeof navigator !== "undefined" ? navigator.userAgent : null,
     });
   } catch {

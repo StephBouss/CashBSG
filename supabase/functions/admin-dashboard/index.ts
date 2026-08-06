@@ -116,10 +116,18 @@ Deno.serve(async (req) => {
     const [{ data: profiles }, { data: incomes }, { data: expenses }, { data: aiMessages }, { data: goals }, { data: aiTokens }] =
       await Promise.all([
         admin.from("profiles").select("id, nom, devise, pays, plan, is_admin"),
-        admin.from("incomes").select("user_id, montant").gte("date", start).lte("date", end),
-        admin.from("expenses").select("user_id, montant").gte("date_echeance", start).lte("date_echeance", end),
+        admin.from("incomes").select("user_id, montant").is("deleted_at", null).gte("date", start).lte("date", end),
+        admin
+          .from("expenses")
+          .select("user_id, montant")
+          .is("deleted_at", null)
+          .gte("date_echeance", start)
+          .lte("date_echeance", end),
         admin.from("ai_messages").select("user_id").eq("role", "user").gte("created_at", start).lte("created_at", end),
-        admin.from("goals").select("id, user_id, label, icone, montant_cible, montant_epargne, date_cible"),
+        admin
+          .from("goals")
+          .select("id, user_id, label, icone, montant_cible, montant_epargne, date_cible")
+          .is("deleted_at", null),
         admin.from("ai_messages").select("user_id, tokens_used").eq("role", "assistant"),
       ]);
 

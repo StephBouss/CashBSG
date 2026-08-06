@@ -2,11 +2,13 @@ import { useMemo, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { TrendLineChart } from "@/components/ui/TrendLineChart";
 import { formatMontant } from "@/lib/formatters";
-import { useSavingsMovements, createSavingsMovement } from "@/hooks/useSavingsMovements";
+import { computeSuggestedContribution } from "@/lib/savingsContribution";
+import { useSavingsMovements, useSavingsAccountBalance, createSavingsMovement } from "@/hooks/useSavingsMovements";
 import { deleteSavingsAccount } from "@/hooks/useSavingsAccounts";
 import { useIncomes } from "@/hooks/useIncomes";
 import { useCategories } from "@/hooks/useCategories";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { AddMovementModal } from "@/components/finances/AddMovementModal";
 import { NewSavingsAccountModal } from "@/components/finances/NewSavingsAccountModal";
 import type { SavingsAccount } from "@/types/budget";
@@ -21,14 +23,15 @@ interface SavingsAccountCardProps {
 
 export function SavingsAccountCard({ account, color, onChanged }: SavingsAccountCardProps) {
   const { user } = useAuth();
+  const { data: profile } = useProfile();
+  const devise = profile?.devise ?? "FCFA";
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [addingSuggested, setAddingSuggested] = useState(false);
   const { data: movements = [], refetch } = useSavingsMovements(account.id);
+  const { data: balance = 0 } = useSavingsAccountBalance(account.id);
   const { data: incomes = [] } = useIncomes(undefined, { realtime: false });
   const { data: categories = [] } = useCategories();
-
-  const balance = useMemo(() => movements.reduce((s, m) => s + m.montant, 0), [movements]);
 
   const evolutionPoints = useMemo(() => {
     let running = 0;
@@ -42,19 +45,15 @@ export function SavingsAccountCard({ account, color, onChanged }: SavingsAccount
     ? categories.find((c) => c.id === account.categoryId)?.nom
     : null;
 
-  const suggestedAmount = useMemo(() => {
-    if (account.mode !== "pourcentage" || !account.pourcentage) return 0;
-    const base = account.categoryId
-      ? incomes.filter((i) => i.categoryId === account.categoryId)
-      : incomes;
-    const total = base.reduce((s, i) => s + i.montant, 0);
-    return Math.round(total * (account.pourcentage / 100));
-  }, [account.mode, account.pourcentage, account.categoryId, incomes]);
+  const suggestedAmount = useMemo(
+    () => computeSuggestedContribution(incomes, account),
+    [account, incomes]
+  );
 
   const ruleLabel =
     account.mode === "montant"
       ? account.montantFixe
-        ? `Objectif : ${formatMontant(account.montantFixe)}/mois`
+        ? `Objectif : ${formatMontant(account.montantFixe, devise)}/mois`
         : null
       : `${account.pourcentage}% de ${categoryNom ?? "tous les revenus"}`;
 
@@ -84,7 +83,7 @@ export function SavingsAccountCard({ account, color, onChanged }: SavingsAccount
         <div>
           <h3 className="text-sm font-semibold text-foreground">{account.nom}</h3>
           <p className="text-lg font-semibold mt-1" style={{ color }}>
-            {formatMontant(balance)}
+            {formatMontant(balance, devise)}
           </p>
           {ruleLabel && <p className="text-xs text-muted-foreground mt-0.5">{ruleLabel}</p>}
         </div>
@@ -126,7 +125,7 @@ export function SavingsAccountCard({ account, color, onChanged }: SavingsAccount
           className="w-full mt-4 py-2 rounded-lg text-xs font-medium text-white disabled:opacity-60"
           style={{ background: color, boxShadow: `0 2px 8px ${color}40` }}
         >
-          + Ajouter {formatMontant(suggestedAmount)} (suggéré ce mois-ci)
+          + Ajouter {formatMontant(suggestedAmount, devise)} (suggéré ce mois-ci)
         </button>
       )}
 

@@ -3,6 +3,7 @@ import { Icon } from "@/components/ui/Icon";
 import { AmountInput } from "@/components/ui/AmountInput";
 import { useAuth } from "@/hooks/useAuth";
 import { createSavingsMovement } from "@/hooks/useSavingsMovements";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 interface AddMovementModalProps {
   accountId: string;
@@ -18,6 +19,7 @@ export function AddMovementModal({ accountId, accountNom, onClose, onCreated }: 
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  useEscapeKey(onClose);
 
   const onSubmit = async () => {
     if (!user) return;
@@ -40,10 +42,11 @@ export function AddMovementModal({ accountId, accountNom, onClose, onCreated }: 
   };
 
   return (
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- fond de fermeture au clic, équivalent clavier via Échap (useEscapeKey) et le bouton "x" ci-dessous
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
       style={{ background: "rgba(0, 0, 0, 0.40)" }}
-      onClick={onClose}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
         className="w-full max-w-sm p-6 rounded-lg relative"
@@ -53,7 +56,6 @@ export function AddMovementModal({ accountId, accountNom, onClose, onCreated }: 
           border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.85)",
           boxShadow: "0 24px 64px rgba(120,120,180,0.20)",
         }}
-        onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
@@ -96,9 +98,10 @@ export function AddMovementModal({ accountId, accountNom, onClose, onCreated }: 
 
         <div className="flex flex-col gap-4 mb-6">
           <div>
-            <label className="text-xs font-semibold text-foreground block mb-1.5">Montant</label>
+            <label htmlFor="movement-montant" className="text-xs font-semibold text-foreground block mb-1.5">Montant</label>
             <div className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm bg-white/70 border border-black/10">
               <AmountInput
+                id="movement-montant"
                 value={montant}
                 onChange={setMontant}
                 placeholder="0"
@@ -108,8 +111,9 @@ export function AddMovementModal({ accountId, accountNom, onClose, onCreated }: 
             </div>
           </div>
           <div>
-            <label className="text-xs font-semibold text-foreground block mb-1.5">Date</label>
+            <label htmlFor="movement-date" className="text-xs font-semibold text-foreground block mb-1.5">Date</label>
             <input
+              id="movement-date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
               type="date"

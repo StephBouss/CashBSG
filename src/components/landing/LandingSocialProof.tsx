@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
 import { Reveal } from "@/components/landing/Reveal";
-import logoIcon from "@/assets/logo-icon.png";
+import logoIcon from "@/assets/logo-icon.svg";
 
 const testimonials = [
   { name: "Aminata Diallo", job: "Entrepreneur", text: "Grâce à Iwadu Cash, j'épargne chaque mois sans effort. En 3 mois j'ai atteint mon fonds d'urgence." },
@@ -22,7 +22,7 @@ const forWho = [
 ];
 
 const faqs = [
-  { q: "Puis-je gérer plusieurs comptes ?", a: "Oui, Iwadu Cash supporte plusieurs comptes d'épargne et d'investissement en simultané." },
+  { q: "Puis-je gérer plusieurs comptes ?", a: "Oui, Iwadu Cash supporte plusieurs comptes d'épargne et d'investissement — le nombre exact dépend de votre formule (limité en Free, illimité à partir de Pro)." },
   { q: "Mes données sont-elles sécurisées ?", a: "Vos données sont hébergées de façon sécurisée via Supabase et ne sont jamais revendues." },
   { q: "Existe-t-il une application mobile ?", a: "Iwadu Cash est disponible en version Web, accessible depuis n'importe quel navigateur mobile." },
   { q: "Puis-je exporter mes rapports ?", a: "L'export PDF et Excel de vos rapports est prévu dans une prochaine mise à jour." },
@@ -190,7 +190,7 @@ export function LandingSocialProof() {
                 <p className="text-sm font-semibold" style={{ color: "#10B981" }}>Avec Iwadu Cash ✨</p>
               </div>
               <div className="p-6 flex flex-col gap-3" style={{ background: "rgba(255,255,255,0.6)", backdropFilter: "blur(32px)", border: "1px solid rgba(16,185,129,0.18)", borderTop: "none", borderRadius: "0 0 16px 16px" }}>
-                {["Automatisation complète", "Calculs en temps réel", "Alertes intelligentes", "Tableau de bord clair", "Contrôle total"].map((v) => (
+                {["Rappels automatiques", "Calculs en temps réel", "Suggestions d'épargne", "Tableau de bord clair", "Contrôle total"].map((v) => (
                   <div key={v} className="flex items-center gap-3">
                     <Icon i="check" size={14} style={{ color: "#10B981" }} />
                     <p className="text-sm font-medium text-foreground">{v}</p>

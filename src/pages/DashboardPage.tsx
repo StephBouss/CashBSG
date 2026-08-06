@@ -4,7 +4,8 @@ import { useExpenses } from "@/hooks/useExpenses";
 import { useCategories } from "@/hooks/useCategories";
 import { useGoals } from "@/hooks/useGoals";
 import { useMonthlyTrend } from "@/hooks/useMonthlyTrend";
-import { computeMonthFinancials } from "@/lib/calculations";
+import { useFinancialSummary, ZERO_FINANCIAL_SUMMARY } from "@/hooks/useFinancialSummary";
+import { useProfile } from "@/hooks/useProfile";
 import { expensesByCategory } from "@/lib/expensesByCategory";
 import { subMonths } from "date-fns";
 
@@ -24,6 +25,8 @@ const monthTitleFormatter = new Intl.DateTimeFormat("fr-FR", { month: "long", ye
 
 export default function DashboardPage() {
   const [modalOpen, setModalOpen] = useState(false);
+  const { data: profile } = useProfile();
+  const devise = profile?.devise ?? "FCFA";
 
   const { data: incomes = [], refetch: refetchIncomes } = useIncomes();
   const { data: expenses = [], refetch: refetchExpenses } = useExpenses();
@@ -32,15 +35,9 @@ export default function DashboardPage() {
   const { data: trend = [] } = useMonthlyTrend(6);
 
   const previousMonth = subMonths(new Date(), 1);
-  const { data: prevIncomes = [] } = useIncomes(previousMonth, { realtime: false });
-  const { data: prevExpenses = [] } = useExpenses(previousMonth, { realtime: false });
 
-  const financials = useMemo(() => computeMonthFinancials(incomes, expenses), [incomes, expenses]);
-
-  const previousFinancials = useMemo(
-    () => computeMonthFinancials(prevIncomes, prevExpenses),
-    [prevIncomes, prevExpenses]
-  );
+  const { data: financials = ZERO_FINANCIAL_SUMMARY } = useFinancialSummary();
+  const { data: previousFinancials } = useFinancialSummary(previousMonth);
 
   const categoryTotals = useMemo(() => expensesByCategory(expenses, categories, 6), [expenses, categories]);
   const totalDepenses = useMemo(() => expenses.reduce((s, e) => s + e.montant, 0), [expenses]);
@@ -75,14 +72,14 @@ export default function DashboardPage() {
       <OnboardingChecklist />
 
       {/* KPI Cards */}
-      <SummaryCards financials={financials} previousFinancials={previousFinancials} />
+      <SummaryCards financials={financials} previousFinancials={previousFinancials} devise={devise} />
 
       {/* Charts row */}
       <div className="flex gap-5 mt-6">
         <GlassCard className="flex-1">
           <div className="flex gap-8">
             <div className="flex-shrink-0" style={{ width: "260px" }}>
-              <PieChart data={categoryTotals} total={totalDepenses} />
+              <PieChart data={categoryTotals} total={totalDepenses} devise={devise} />
             </div>
             <div className="flex-1 min-w-0">
               <LineChart points={trend} />

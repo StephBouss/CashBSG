@@ -4,6 +4,7 @@ import { AmountInput } from "@/components/ui/AmountInput";
 import { useAuth } from "@/hooks/useAuth";
 import { useCategories } from "@/hooks/useCategories";
 import { createSavingsAccount, updateSavingsAccount } from "@/hooks/useSavingsAccounts";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import type { SavingsAccount, SavingsAccountType, SavingsContributionMode } from "@/types/budget";
 
 interface NewSavingsAccountModalProps {
@@ -33,6 +34,7 @@ export function NewSavingsAccountModal({ type, account, onClose, onCreated }: Ne
   const [error, setError] = useState<string | null>(null);
   const { placeholder } = labels[type];
   const title = isEditing ? "Modifier l'entrée" : labels[type].title;
+  useEscapeKey(onClose);
 
   const onSubmit = async () => {
     if (!user) return;
@@ -74,10 +76,11 @@ export function NewSavingsAccountModal({ type, account, onClose, onCreated }: Ne
   };
 
   return (
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- fond de fermeture au clic, équivalent clavier via Échap (useEscapeKey) et le bouton "x" ci-dessous
     <div
       className="fixed inset-0 flex items-center justify-center z-50"
       style={{ background: "rgba(0, 0, 0, 0.40)" }}
-      onClick={onClose}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
         className="w-full max-w-sm p-6 rounded-lg relative max-h-[90vh] overflow-y-auto"
@@ -87,7 +90,6 @@ export function NewSavingsAccountModal({ type, account, onClose, onCreated }: Ne
           border: "1px solid rgba(var(--glass-r),var(--glass-g),var(--glass-b),0.85)",
           boxShadow: "0 24px 64px rgba(120,120,180,0.20)",
         }}
-        onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
@@ -102,8 +104,9 @@ export function NewSavingsAccountModal({ type, account, onClose, onCreated }: Ne
 
         <div className="flex flex-col gap-4">
           <div>
-            <label className="text-xs font-semibold text-foreground block mb-1.5">Nom</label>
+            <label htmlFor="savings-nom" className="text-xs font-semibold text-foreground block mb-1.5">Nom</label>
             <input
+              id="savings-nom"
               value={nom}
               onChange={(e) => setNom(e.target.value)}
               placeholder={placeholder}
@@ -112,9 +115,9 @@ export function NewSavingsAccountModal({ type, account, onClose, onCreated }: Ne
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-foreground block mb-1.5">
+            <p className="text-xs font-semibold text-foreground block mb-1.5">
               Comment alimenter ce compte ?
-            </label>
+            </p>
             <div className="flex gap-3">
               <button
                 type="button"
@@ -145,11 +148,12 @@ export function NewSavingsAccountModal({ type, account, onClose, onCreated }: Ne
 
           {mode === "montant" ? (
             <div>
-              <label className="text-xs font-semibold text-foreground block mb-1.5">
+              <label htmlFor="savings-montant-fixe" className="text-xs font-semibold text-foreground block mb-1.5">
                 Montant mensuel visé
               </label>
               <div className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm bg-white/70 border border-black/10">
                 <AmountInput
+                  id="savings-montant-fixe"
                   value={montantFixe}
                   onChange={setMontantFixe}
                   placeholder="0"
@@ -161,9 +165,10 @@ export function NewSavingsAccountModal({ type, account, onClose, onCreated }: Ne
           ) : (
             <>
               <div>
-                <label className="text-xs font-semibold text-foreground block mb-1.5">Pourcentage</label>
+                <label htmlFor="savings-pourcentage" className="text-xs font-semibold text-foreground block mb-1.5">Pourcentage</label>
                 <div className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm bg-white/70 border border-black/10">
                   <input
+                    id="savings-pourcentage"
                     value={pourcentage ?? ""}
                     onChange={(e) => setPourcentage(e.target.value ? Number(e.target.value) : undefined)}
                     type="number"
@@ -176,9 +181,10 @@ export function NewSavingsAccountModal({ type, account, onClose, onCreated }: Ne
                 </div>
               </div>
               <div>
-                <label className="text-xs font-semibold text-foreground block mb-1.5">Source du revenu</label>
+                <label htmlFor="savings-category" className="text-xs font-semibold text-foreground block mb-1.5">Source du revenu</label>
                 <div className="flex items-center justify-between px-4 py-3 rounded-lg text-sm bg-white/70 border border-black/10">
                   <select
+                    id="savings-category"
                     value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
                     className="flex-1 bg-transparent outline-none text-foreground"

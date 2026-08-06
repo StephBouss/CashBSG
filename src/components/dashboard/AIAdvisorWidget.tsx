@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Icon } from "@/components/ui/Icon";
+import { effectiveExpenseStatus } from "@/lib/expenseStatus";
 import type { CategoryTotal } from "@/lib/expensesByCategory";
 import type { Expense, Goal } from "@/types/budget";
 
@@ -29,7 +30,7 @@ function buildSuggestions(
 ): Suggestion[] {
   const suggestions: Suggestion[] = [];
 
-  const late = expenses.filter((e) => e.statut === "en_retard");
+  const late = expenses.filter((e) => effectiveExpenseStatus(e) === "en_retard");
   if (late.length > 0) {
     suggestions.push({
       icon: "alert-triangle",
@@ -51,7 +52,7 @@ function buildSuggestions(
   }
 
   const upcoming = expenses
-    .filter((e) => e.statut === "a_venir")
+    .filter((e) => effectiveExpenseStatus(e) === "a_venir")
     .sort((a, b) => (a.dateEcheance < b.dateEcheance ? -1 : 1))[0];
   if (upcoming) {
     const days = daysUntil(upcoming.dateEcheance);

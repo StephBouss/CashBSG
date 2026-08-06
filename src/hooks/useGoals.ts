@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import type { Goal } from "@/types/budget";
 import { useAuth } from "@/hooks/useAuth";
+import { LIVE_QUERY_OPTIONS } from "@/lib/queryConfig";
 
 export function useGoals() {
   const { user } = useAuth();
@@ -12,6 +13,7 @@ export function useGoals() {
   const query = useQuery({
     queryKey,
     enabled: !!user,
+    ...LIVE_QUERY_OPTIONS,
     queryFn: async (): Promise<Goal[]> => {
       const { data, error } = await supabase
         .from("goals")
@@ -61,26 +63,39 @@ export interface CreateGoalInput {
   icone: string;
   couleur: string;
   montantCible: number;
-  montantEpargne?: number;
   dateCible?: string | null;
   contributionMensuelle?: number;
 }
 
-export async function createGoal(userId: string, input: CreateGoalInput) {
-  const { error } = await supabase.from("goals").insert({
-    user_id: userId,
-    label: input.label,
-    icone: input.icone,
-    couleur: input.couleur,
-    montant_cible: input.montantCible,
-    montant_epargne: input.montantEpargne ?? 0,
-    date_cible: input.dateCible || null,
-    contribution_mensuelle: input.contributionMensuelle ?? 0,
-  });
+/**
+ * Crée l'objectif à montant_epargne = 0, puis enregistre le "déjà épargné"
+ * comme une contribution tracée (via contribute_to_goal) plutôt que comme
+ * une valeur d'insertion directe — montant_epargne doit toujours être
+ * dérivable de goal_contributions (P0.5).
+ */
+export async function createGoal(userId: string, input: CreateGoalInput, soldeDepart?: number) {
+  const { data, error } = await supabase
+    .from("goals")
+    .insert({
+      user_id: userId,
+      label: input.label,
+      icone: input.icone,
+      couleur: input.couleur,
+      montant_cible: input.montantCible,
+      date_cible: input.dateCible || null,
+      contribution_mensuelle: input.contributionMensuelle ?? 0,
+    })
+    .select("id")
+    .single();
 
   if (error) throw error;
+
+  if (soldeDepart && soldeDepart > 0) {
+    await contributeToGoal(data.id, soldeDepart, "Solde de départ");
+  }
 }
 
+/** montant_epargne n'est plus modifiable ici : voir contributeToGoal(). */
 export async function updateGoal(goalId: string, input: CreateGoalInput) {
   const { error } = await supabase
     .from("goals")
@@ -89,7 +104,6 @@ export async function updateGoal(goalId: string, input: CreateGoalInput) {
       icone: input.icone,
       couleur: input.couleur,
       montant_cible: input.montantCible,
-      montant_epargne: input.montantEpargne ?? 0,
       date_cible: input.dateCible || null,
       contribution_mensuelle: input.contributionMensuelle ?? 0,
     })
@@ -98,16 +112,24 @@ export async function updateGoal(goalId: string, input: CreateGoalInput) {
   if (error) throw error;
 }
 
+/** P1.5 — suppression logique : goal_contributions référence goals en
+ * cascade, un hard delete effacerait tout l'historique de contributions. */
 export async function deleteGoal(goalId: string) {
-  const { error } = await supabase.from("goals").delete().eq("id", goalId);
+  const { error } = await supabase
+    .from("goals")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", goalId);
   if (error) throw error;
 }
 
-export async function addGoalContribution(goal: Goal, amount: number) {
-  const { error } = await supabase
-    .from("goals")
-    .update({ montant_epargne: goal.montantEpargne + amount })
-    .eq("id", goal.id);
+/** Enregistre une contribution réelle et tracée (montant positif ou négatif
+ * pour un retrait/correction) via le ledger goal_contributions. */
+export async function contributeToGoal(goalId: string, amount: number, note?: string) {
+  const { error } = await supabase.rpc("contribute_to_goal", {
+    p_goal_id: goalId,
+    p_amount: amount,
+    p_note: note ?? null,
+  });
 
   if (error) throw error;
 }
