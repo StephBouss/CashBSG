@@ -43,10 +43,14 @@ export const AI_MESSAGE_QUOTA: Record<Plan, number> = {
   business: 3000,
 };
 
-/** Le plan réellement actif compte tenu de l'expiration — même règle que
- * has_paid_plan() côté serveur (supabase/migrations/20260803135011_...). */
+/** Le plan réellement actif compte tenu de l'expiration — même règle stricte
+ * que has_paid_plan()/effective_plan() côté serveur (P0.9,
+ * supabase/migrations/20260806101500_strict_plan_expiration.sql) : un plan
+ * payant sans date d'expiration n'est PAS considéré comme actif (une mise à
+ * niveau manuelle sans plan_expires_at ne doit jamais valoir un accès à
+ * vie). */
 export function effectivePlan(plan: Plan, planExpiresAt: string | null): Plan {
-  if (plan !== "free" && planExpiresAt && new Date(planExpiresAt) <= new Date()) {
+  if (plan !== "free" && (!planExpiresAt || new Date(planExpiresAt) <= new Date())) {
     return "free";
   }
   return plan;

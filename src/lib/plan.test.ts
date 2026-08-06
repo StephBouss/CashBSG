@@ -32,8 +32,8 @@ describe("PLAN_LABELS", () => {
 });
 
 describe("effectivePlan", () => {
-  it("keeps a paid plan without expiry date", () => {
-    expect(effectivePlan("pro", null)).toBe("pro");
+  it("downgrades a paid plan without expiry date (P0.9 — NULL n'est plus un accès à vie)", () => {
+    expect(effectivePlan("pro", null)).toBe("free");
   });
 
   it("keeps a paid plan that has not expired yet", () => {

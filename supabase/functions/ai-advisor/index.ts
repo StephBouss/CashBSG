@@ -50,14 +50,19 @@ const AI_MESSAGE_QUOTA: Record<string, number> = {
   business: 3000,
 };
 
-// Même règle que public.has_paid_plan() côté base : un plan payant expiré
-// redevient free.
+// Même règle stricte que public.has_paid_plan()/effective_plan() côté base
+// (P0.9) : un plan payant sans date d'expiration n'est pas actif — seul un
+// plan payant avec une plan_expires_at future compte comme premium.
 function effectivePlan(plan: string, planExpiresAt: string | null): string {
-  if (plan !== "free" && planExpiresAt && new Date(planExpiresAt) <= new Date()) {
+  if (plan !== "free" && (!planExpiresAt || new Date(planExpiresAt) <= new Date())) {
     return "free";
   }
   return plan;
 }
+
+// Longueur maximale d'un message envoyé au conseiller IA (coût DeepSeek +
+// stockage) — au-delà, rejeté avant tout appel réseau ou écriture en base.
+const MAX_MESSAGE_LENGTH = 4000;
 
 // deno-lint-ignore no-explicit-any
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -120,6 +125,12 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    if (message.length > MAX_MESSAGE_LENGTH) {
+      return new Response(
+        JSON.stringify({ error: `Message trop long (${MAX_MESSAGE_LENGTH} caractères maximum).` }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     const rateLimitNow = new Date();
     const fiveMinAgo = new Date(rateLimitNow.getTime() - 5 * 60 * 1000).toISOString();
@@ -154,10 +165,15 @@ Deno.serve(async (req) => {
 
     const devise = profile?.devise ?? "FCFA";
     const plan = effectivePlan(profile?.plan ?? "free", profile?.plan_expires_at ?? null);
-    const quotaLimit = AI_MESSAGE_QUOTA[plan] ?? AI_MESSAGE_QUOTA.free;
-    const usedThisMonth = await countUserMessagesSince(supabase, user.id, start);
 
-    if (usedThisMonth >= quotaLimit) {
+    // P0.7 — le quota mensuel n'est plus déduit d'un COUNT sur ai_messages
+    // (que le client pouvait vider par un DELETE direct) : consume_ai_quota()
+    // incrémente un ledger dédié (ai_quota_usage) de façon atomique
+    // (verrou de ligne côté base) et refuse au-delà de la limite du plan.
+    const { error: quotaError } = await supabase.rpc("consume_ai_quota");
+
+    if (quotaError) {
+      const quotaLimit = AI_MESSAGE_QUOTA[plan] ?? AI_MESSAGE_QUOTA.free;
       const upgradeHint =
         plan === "free" || plan === "essentiel" ? " Passez à un plan supérieur pour en obtenir davantage." : "";
       return new Response(

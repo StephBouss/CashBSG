@@ -140,6 +140,7 @@ export function AIAdvisorChat() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && onSend()}
             placeholder="Posez une question..."
+            maxLength={4000}
             disabled={sending || quotaReached}
             style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: "14px", color: "var(--color-ink)" }}
           />

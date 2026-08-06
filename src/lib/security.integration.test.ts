@@ -297,3 +297,97 @@ describe("C1.5 — admin-dashboard refuse un appelant non-admin", () => {
     }
   });
 });
+
+describe("P0.7 — quota IA non contournable", () => {
+  it("A ne peut pas supprimer son propre message (empêche de réinitialiser le quota)", async () => {
+    const id = fixtureIds.ai_messages;
+    if (!id) throw new Error("Fixture ai_messages manquante.");
+
+    await clientA.from("ai_messages").delete().eq("id", id);
+    const { data } = await admin.from("ai_messages").select("id").eq("id", id).maybeSingle();
+    expect(data).toBeTruthy();
+  });
+
+  it("A ne peut pas modifier le contenu de son propre message", async () => {
+    const id = fixtureIds.ai_messages;
+    if (!id) throw new Error("Fixture ai_messages manquante.");
+
+    await clientA.from("ai_messages").update({ content: "hacked" }).eq("id", id);
+    const { data } = await admin.from("ai_messages").select("content").eq("id", id).single();
+    expect(data?.content).not.toBe("hacked");
+  });
+
+  it("un compte authentifié ne peut pas écrire directement dans ai_quota_usage", async () => {
+    const period = new Date().toISOString().slice(0, 8) + "01";
+    const { error } = await clientA.from("ai_quota_usage").insert({ user_id: idA, period_start: period, message_count: 0 });
+    expect(error).toBeTruthy();
+  });
+
+  it("consume_ai_quota() refuse une fois la limite du plan atteinte", async () => {
+    const period = new Date().toISOString().slice(0, 8) + "01";
+    await admin.from("ai_quota_usage").upsert({ user_id: idA, period_start: period, message_count: 25 });
+
+    const { error } = await clientA.rpc("consume_ai_quota");
+    expect(error).toBeTruthy();
+  });
+});
+
+describe("P0.9 — expiration stricte des plans (NULL n'est plus un accès à vie)", () => {
+  it("has_paid_plan() renvoie false pour un plan payant sans plan_expires_at", async () => {
+    await admin.from("profiles").update({ plan: "pro", plan_expires_at: null }).eq("id", idA);
+
+    const { data } = await clientA.rpc("has_paid_plan");
+    expect(data).toBe(false);
+  });
+
+  it("effective_plan() renvoie 'free' pour un plan payant sans plan_expires_at", async () => {
+    const { data } = await clientA.rpc("effective_plan");
+    expect(data).toBe("free");
+  });
+
+  afterAll(async () => {
+    await admin.from("profiles").update({ plan: "free", plan_expires_at: null }).eq("id", idA);
+  });
+});
+
+describe("P0.8 — vraie suppression de compte", () => {
+  it("delete-account supprime réellement le compte et journalise l'action (service_role)", async () => {
+    const stampC = Date.now();
+    const userC = { email: `test-security-c-${stampC}@iwaducash-test.invalid`, password: `TestSecurity!C${stampC}` };
+
+    const { data: createdC, error: errC } = await admin.auth.admin.createUser({
+      email: userC.email,
+      password: userC.password,
+      email_confirm: true,
+    });
+    if (errC || !createdC.user) throw new Error(`Création userC: ${errC?.message}`);
+    const idC = createdC.user.id;
+
+    const clientC = createClient(url, anonKey);
+    const { error: signInErr } = await clientC.auth.signInWithPassword(userC);
+    if (signInErr) throw new Error(`Connexion userC: ${signInErr.message}`);
+
+    const { error: wrongConfirmError } = await clientC.functions.invoke("delete-account", {
+      body: { confirmEmail: "mauvais@email.invalid" },
+    });
+    expect(wrongConfirmError).toBeTruthy();
+
+    const { data: stillExists } = await admin.auth.admin.getUserById(idC);
+    expect(stillExists?.user).toBeTruthy();
+
+    const { error: deleteError } = await clientC.functions.invoke("delete-account", {
+      body: { confirmEmail: userC.email },
+    });
+    expect(deleteError).toBeNull();
+
+    const { data: afterDelete, error: afterDeleteError } = await admin.auth.admin.getUserById(idC);
+    expect(Boolean(afterDeleteError) || afterDelete?.user == null).toBe(true);
+
+    const { data: auditRow } = await admin
+      .from("account_deletions")
+      .select("id, email")
+      .eq("user_id", idC)
+      .maybeSingle();
+    expect(auditRow?.email).toBe(userC.email);
+  }, 30_000);
+});
