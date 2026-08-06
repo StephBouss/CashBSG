@@ -474,3 +474,105 @@ describe("P1.1 — le catalogue serveur (plan_catalog) reste synchronisé avec s
     expect((data ?? []).length).toBe(4);
   });
 });
+
+describe("P1.6 — génération réelle des revenus récurrents", () => {
+  it("génère l'occurrence due, ne la double pas sur une deuxième exécution, et respecte l'arrêt de récurrence", async () => {
+    const start = new Date();
+    start.setMonth(start.getMonth() - 2); // il y a 2 mois : une occurrence "mensuel" est due
+
+    const { data: root, error: rootError } = await admin
+      .from("incomes")
+      .insert({
+        user_id: idA,
+        nom: "Salaire test récurrent",
+        montant: 300000,
+        frequence: "mensuel",
+        date: start.toISOString().slice(0, 10),
+      })
+      .select("id")
+      .single();
+    if (rootError || !root) throw new Error(`Setup revenu récurrent: ${rootError?.message}`);
+
+    const { error: genError } = await admin.rpc("generate_recurring_income_occurrences");
+    expect(genError).toBeNull();
+
+    const { data: afterFirstRun } = await admin
+      .from("incomes")
+      .select("id, date")
+      .eq("recurrence_source_id", root.id);
+    expect((afterFirstRun ?? []).length).toBeGreaterThanOrEqual(1);
+    const countAfterFirstRun = (afterFirstRun ?? []).length;
+
+    // Double exécution du job : ne doit produire aucun doublon (test obligatoire P1.6).
+    const { error: genError2 } = await admin.rpc("generate_recurring_income_occurrences");
+    expect(genError2).toBeNull();
+    const { data: afterSecondRun } = await admin
+      .from("incomes")
+      .select("id")
+      .eq("recurrence_source_id", root.id);
+    expect((afterSecondRun ?? []).length).toBe(countAfterFirstRun);
+
+    // Arrêt de la récurrence : plus aucune nouvelle occurrence générée.
+    await admin.from("incomes").update({ recurrence_active: false }).eq("id", root.id);
+    const olderStart = new Date();
+    olderStart.setMonth(olderStart.getMonth() - 6);
+    await admin.from("incomes").update({ date: olderStart.toISOString().slice(0, 10) }).eq("id", root.id);
+
+    const { error: genError3 } = await admin.rpc("generate_recurring_income_occurrences");
+    expect(genError3).toBeNull();
+    const { data: afterStop } = await admin.from("incomes").select("id").eq("recurrence_source_id", root.id);
+    expect((afterStop ?? []).length).toBe(countAfterFirstRun);
+  });
+});
+
+describe("P1.7 — vrais rappels de factures (échéance proche / dépassée)", () => {
+  it("génère une notification à J-3 et une à J+1 de retard, sans doublon sur double exécution", async () => {
+    const in3Days = new Date();
+    in3Days.setDate(in3Days.getDate() + 3);
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const { data: upcoming, error: upcomingError } = await admin
+      .from("expenses")
+      .insert({
+        user_id: idA,
+        nom: "Facture test à venir",
+        montant: 15000,
+        date_echeance: in3Days.toISOString().slice(0, 10),
+        statut: "a_venir",
+      })
+      .select("id")
+      .single();
+    if (upcomingError || !upcoming) throw new Error(`Setup facture à venir: ${upcomingError?.message}`);
+
+    const { data: overdue, error: overdueError } = await admin
+      .from("expenses")
+      .insert({
+        user_id: idA,
+        nom: "Facture test en retard",
+        montant: 8000,
+        date_echeance: yesterday.toISOString().slice(0, 10),
+        statut: "a_venir",
+      })
+      .select("id")
+      .single();
+    if (overdueError || !overdue) throw new Error(`Setup facture en retard: ${overdueError?.message}`);
+
+    const { error: genError } = await admin.rpc("generate_bill_reminders");
+    expect(genError).toBeNull();
+    const { error: genError2 } = await admin.rpc("generate_bill_reminders");
+    expect(genError2).toBeNull();
+
+    const { data: upcomingNotif } = await admin
+      .from("notifications")
+      .select("id")
+      .eq("dedupe_key", `bill_upcoming_${upcoming.id}`);
+    expect(upcomingNotif ?? []).toHaveLength(1);
+
+    const { data: overdueNotif } = await admin
+      .from("notifications")
+      .select("id")
+      .eq("dedupe_key", `bill_overdue_${overdue.id}`);
+    expect(overdueNotif ?? []).toHaveLength(1);
+  });
+});

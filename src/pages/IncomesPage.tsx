@@ -22,7 +22,17 @@ export default function IncomesPage() {
         {incomes.map((income) => (
           <GlassCard key={income.id} className="flex items-center justify-between py-4">
             <div>
-              <div className="font-medium text-foreground">{income.nom}</div>
+              <div className="font-medium text-foreground flex items-center gap-2">
+                {income.nom}
+                {income.frequence && (
+                  <span
+                    className="text-xs font-medium px-2 py-0.5 rounded-full"
+                    style={{ background: "rgba(16,185,129,0.12)", color: "var(--color-primary)" }}
+                  >
+                    Récurrent · {income.frequence}
+                  </span>
+                )}
+              </div>
               <div className="text-sm text-muted-foreground">{formatDate(income.date)}</div>
             </div>
             <div className="font-semibold text-primary">{formatMontant(income.montant, devise)}</div>

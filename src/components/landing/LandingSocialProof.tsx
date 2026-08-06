@@ -190,7 +190,7 @@ export function LandingSocialProof() {
                 <p className="text-sm font-semibold" style={{ color: "#10B981" }}>Avec Iwadu Cash ✨</p>
               </div>
               <div className="p-6 flex flex-col gap-3" style={{ background: "rgba(255,255,255,0.6)", backdropFilter: "blur(32px)", border: "1px solid rgba(16,185,129,0.18)", borderTop: "none", borderRadius: "0 0 16px 16px" }}>
-                {["Automatisation complète", "Calculs en temps réel", "Alertes intelligentes", "Tableau de bord clair", "Contrôle total"].map((v) => (
+                {["Rappels automatiques", "Calculs en temps réel", "Suggestions d'épargne", "Tableau de bord clair", "Contrôle total"].map((v) => (
                   <div key={v} className="flex items-center gap-3">
                     <Icon i="check" size={14} style={{ color: "#10B981" }} />
                     <p className="text-sm font-medium text-foreground">{v}</p>

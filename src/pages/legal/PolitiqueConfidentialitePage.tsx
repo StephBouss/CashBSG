@@ -2,7 +2,7 @@ import { LegalLayout, LegalSection } from "@/components/legal/LegalLayout";
 
 export default function PolitiqueConfidentialitePage() {
   return (
-    <LegalLayout title="Politique de confidentialité" updatedAt="23 juillet 2026">
+    <LegalLayout title="Politique de confidentialité" updatedAt="6 août 2026">
       <LegalSection title="1. Données collectées">
         <p>Iwadu Cash collecte les données suivantes :</p>
         <ul className="list-disc list-inside flex flex-col gap-1">
@@ -23,10 +23,12 @@ export default function PolitiqueConfidentialitePage() {
 
       <LegalSection title="3. Assistant IA et sous-traitants">
         <p>
-          Lorsque l&apos;utilisateur sollicite l&apos;assistant IA, un résumé de sa situation financière (revenus,
-          dépenses, objectifs du mois en cours) et le message saisi sont transmis à l&apos;API du prestataire
+          Lorsque l&apos;utilisateur sollicite l&apos;assistant IA (« Iwadu »), un résumé de sa situation financière
+          (revenus et dépenses agrégés par catégorie et par statut, objectifs d&apos;épargne, message saisi et les 10
+          derniers échanges de la conversation en cours) est transmis à l&apos;API de DeepSeek, le prestataire
           d&apos;intelligence artificielle utilisé par Iwadu Cash, aux seules fins de générer une réponse. Aucune
-          donnée d&apos;identification directe (nom, email) n&apos;est transmise à ce prestataire.
+          donnée d&apos;identification directe (nom, email, identifiant de compte) ni aucun libellé brut de
+          transaction n&apos;est transmis à ce prestataire.
         </p>
         <p>
           L&apos;hébergement des données et l&apos;exécution des fonctions serveur sont assurés par Supabase Inc.
@@ -53,8 +55,11 @@ export default function PolitiqueConfidentialitePage() {
         <p>
           Conformément à la réglementation applicable en matière de protection des données personnelles,
           l&apos;utilisateur dispose d&apos;un droit d&apos;accès, de rectification, de suppression et de
-          portabilité de ses données. Ces droits peuvent être exercés directement depuis la page « Paramètres » de
-          l&apos;application, ou en écrivant à [email de contact à compléter].
+          portabilité de ses données. Le droit de rectification (modifier ses informations) et le droit de
+          suppression (supprimer définitivement son compte) peuvent être exercés directement depuis la page «
+          Paramètres » de l&apos;application. L&apos;export/la portabilité des données n&apos;est pas encore
+          disponible en libre-service dans l&apos;application : pour l&apos;exercer, ou pour toute autre demande,
+          écrire à stephboussougou@gmail.com.
         </p>
       </LegalSection>
 
@@ -68,8 +73,8 @@ export default function PolitiqueConfidentialitePage() {
 
       <LegalSection title="8. Contact">
         <p>
-          Pour toute question relative à cette politique de confidentialité ou pour exercer vos droits : [email de
-          contact à compléter].
+          Pour toute question relative à cette politique de confidentialité ou pour exercer vos droits :
+          stephboussougou@gmail.com.
         </p>
       </LegalSection>
     </LegalLayout>

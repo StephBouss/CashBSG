@@ -13,7 +13,7 @@ const steps = [
 const highlights = [
   { icon: "trending-up", label: "Revenus centralisés" },
   { icon: "credit-card", label: "Dépenses maîtrisées" },
-  { icon: "piggy-bank", label: "Épargne automatisée" },
+  { icon: "piggy-bank", label: "Épargne guidée" },
   { icon: "target", label: "Objectifs atteints" },
 ];
 

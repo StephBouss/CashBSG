@@ -5,7 +5,7 @@ const benefits = [
   "Maîtrisez votre budget.",
   "Réduisez les dépenses inutiles.",
   "Payez toujours à temps.",
-  "Épargnez automatiquement.",
+  "Épargnez en un clic.",
   "Investissez intelligemment.",
   "Suivez vos objectifs.",
   "Diminuez votre stress financier.",
