@@ -576,3 +576,28 @@ describe("P1.7 — vrais rappels de factures (échéance proche / dépassée)", 
     expect(overdueNotif ?? []).toHaveLength(1);
   });
 });
+
+describe("P2.3 — une offre non commercialisable ne peut pas être demandée via l'API", () => {
+  it("upgrade_requests refuse un requested_plan retiré de la vente (commercialisable = false)", async () => {
+    await admin.from("upgrade_requests").delete().eq("user_id", idB);
+    await admin.from("plan_catalog").update({ commercialisable: false }).eq("plan", "business");
+
+    try {
+      const { error } = await clientB
+        .from("upgrade_requests")
+        .insert({ user_id: idB, current_plan: "free", requested_plan: "business" });
+      expect(error).toBeTruthy();
+    } finally {
+      await admin.from("plan_catalog").update({ commercialisable: true }).eq("plan", "business");
+    }
+  });
+
+  it("upgrade_requests accepte un requested_plan commercialisable", async () => {
+    await admin.from("upgrade_requests").delete().eq("user_id", idB);
+
+    const { error } = await clientB
+      .from("upgrade_requests")
+      .insert({ user_id: idB, current_plan: "free", requested_plan: "essentiel" });
+    expect(error).toBeNull();
+  });
+});

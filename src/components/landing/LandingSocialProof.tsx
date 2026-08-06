@@ -22,7 +22,7 @@ const forWho = [
 ];
 
 const faqs = [
-  { q: "Puis-je gérer plusieurs comptes ?", a: "Oui, Iwadu Cash supporte plusieurs comptes d'épargne et d'investissement en simultané." },
+  { q: "Puis-je gérer plusieurs comptes ?", a: "Oui, Iwadu Cash supporte plusieurs comptes d'épargne et d'investissement — le nombre exact dépend de votre formule (limité en Free, illimité à partir de Pro)." },
   { q: "Mes données sont-elles sécurisées ?", a: "Vos données sont hébergées de façon sécurisée via Supabase et ne sont jamais revendues." },
   { q: "Existe-t-il une application mobile ?", a: "Iwadu Cash est disponible en version Web, accessible depuis n'importe quel navigateur mobile." },
   { q: "Puis-je exporter mes rapports ?", a: "L'export PDF et Excel de vos rapports est prévu dans une prochaine mise à jour." },
