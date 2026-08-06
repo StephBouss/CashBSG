@@ -74,3 +74,25 @@ export const SAVINGS_ACCOUNT_LIMIT: Record<Plan, Record<SavingsAccountType, numb
   pro: { epargne: null, investissement: null },
   business: { epargne: null, investissement: null },
 };
+
+/** P1.1 — description des entitlements d'un plan dérivée des constantes
+ * ci-dessus (source unique), pour que l'écran de mise à niveau n'aie pas sa
+ * propre liste de perks indépendante et potentiellement divergente. Ces
+ * valeurs doivent rester synchronisées avec le catalogue serveur
+ * (supabase/migrations/20260806120000_plan_catalog.sql) — vérifié par un
+ * test d'intégration dédié. */
+export function planFeatureList(plan: Plan): string[] {
+  const trackerLimit = TRACKER_ENTRY_LIMIT[plan];
+  const savings = SAVINGS_ACCOUNT_LIMIT[plan];
+  const features = [
+    trackerLimit === null ? "Tracker de dépenses illimité" : `Tracker de dépenses : ${trackerLimit} entrées`,
+    savings.epargne === null && savings.investissement === null
+      ? "Comptes épargne & investissement illimités"
+      : `Comptes épargne (${savings.epargne ?? "illimité"}) et investissement (${savings.investissement ?? "illimité"})`,
+  ];
+  if (canAccessFullHistory(plan)) {
+    features.push("Historique complet & rapports détaillés");
+  }
+  features.push(`Conseiller IA « Iwadu » : ${AI_MESSAGE_QUOTA[plan]} questions/mois`);
+  return features;
+}

@@ -21,11 +21,11 @@ export default function CGUPage() {
 
       <LegalSection title="3. Offres et tarifs">
         <p>
-          Iwadu Cash propose une offre gratuite (Iwadu Free) et des offres payantes (Iwadu Essentiel, Iwadu Pro)
-          donnant accès à des fonctionnalités additionnelles (objectifs financiers illimités, historique complet des
-          rapports, assistant IA). Le détail des offres et de leurs tarifs est disponible sur la page
-          d&apos;accueil, section « Tarifs ». Les modalités de paiement seront précisées lors de la mise en place de
-          la facturation.
+          Iwadu Cash propose une offre gratuite (Iwadu Free) et des offres payantes (Iwadu Essentiel, Iwadu Pro,
+          Iwadu Business) donnant accès à des fonctionnalités additionnelles (historique complet des rapports,
+          quota mensuel plus élevé pour l&apos;assistant IA, plafonds de saisie plus généreux). Le détail des offres
+          et de leurs tarifs est disponible dans l&apos;application, page « Mettre à niveau votre offre ». Les
+          modalités de paiement seront précisées lors de la mise en place de la facturation.
         </p>
       </LegalSection>
 

@@ -40,16 +40,6 @@ function endOfMonthISO(d: Date) {
 const BURST_LIMIT = 8; // messages max sur 5 minutes
 const DAILY_LIMIT = 60; // messages max sur 24h
 
-// C3.1 — Quota mensuel par plan (indépendant du burst/daily ci-dessus, qui
-// ne fait qu'anti-spam) : borne le coût DeepSeek par offre commerciale.
-// Pro/Business sont plafonnés "raisonnablement" plutôt qu'illimités.
-const AI_MESSAGE_QUOTA: Record<string, number> = {
-  free: 25,
-  essentiel: 100,
-  pro: 1000,
-  business: 3000,
-};
-
 // Même règle stricte que public.has_paid_plan()/effective_plan() côté base
 // (P0.9) : un plan payant sans date d'expiration n'est pas actif — seul un
 // plan payant avec une plan_expires_at future compte comme premium.
@@ -173,7 +163,10 @@ Deno.serve(async (req) => {
     const { error: quotaError } = await supabase.rpc("consume_ai_quota");
 
     if (quotaError) {
-      const quotaLimit = AI_MESSAGE_QUOTA[plan] ?? AI_MESSAGE_QUOTA.free;
+      // P1.1 — le plafond affiché dans le message d'erreur vient du même
+      // catalogue canonique (plan_catalog) que la vérification côté
+      // consume_ai_quota(), pas d'une table dupliquée côté Deno.
+      const { data: quotaLimit } = await supabase.rpc("effective_ai_quota");
       const upgradeHint =
         plan === "free" || plan === "essentiel" ? " Passez à un plan supérieur pour en obtenir davantage." : "";
       return new Response(

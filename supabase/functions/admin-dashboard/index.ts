@@ -124,7 +124,10 @@ Deno.serve(async (req) => {
           .gte("date_echeance", start)
           .lte("date_echeance", end),
         admin.from("ai_messages").select("user_id").eq("role", "user").gte("created_at", start).lte("created_at", end),
-        admin.from("goals").select("id, user_id, label, icone, montant_cible, montant_epargne, date_cible"),
+        admin
+          .from("goals")
+          .select("id, user_id, label, icone, montant_cible, montant_epargne, date_cible")
+          .is("deleted_at", null),
         admin.from("ai_messages").select("user_id, tokens_used").eq("role", "assistant"),
       ]);
 

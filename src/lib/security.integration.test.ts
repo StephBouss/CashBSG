@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { AI_MESSAGE_QUOTA, TRACKER_ENTRY_LIMIT, SAVINGS_ACCOUNT_LIMIT, PLAN_ORDER } from "@/lib/plan";
 
 /**
  * Test d'isolation et d'escalade de privilèges (CORRECTIONS-IWADU-CASH.md,
@@ -35,6 +36,7 @@ let categoryAId: string;
 let savingsAccountAId: string;
 
 const ISOLATION_TABLES = [
+  "profiles",
   "incomes",
   "expenses",
   "expense_tracker",
@@ -88,6 +90,10 @@ beforeAll(async () => {
 
   // S'assurer que A est bien en plan "free" (défaut du trigger handle_new_user).
   await admin.from("profiles").update({ plan: "free", plan_expires_at: null, is_admin: false }).eq("id", idA);
+  // profiles n'est pas inséré via insertAsA (la ligne existe déjà via le
+  // trigger de signup) : on référence directement l'id du compte pour le
+  // test d'isolation générique ci-dessous.
+  fixtureIds.profiles = idA;
 
   categoryAId = await insertAsA("categories", { user_id: idA, nom: "Test sécurité", type: "depense" });
   await insertAsA("incomes", { user_id: idA, nom: "Revenu test", montant: 100000, date: new Date().toISOString().slice(0, 10) });
@@ -141,6 +147,12 @@ afterAll(async () => {
 }, 30_000);
 
 describe("Isolation entre comptes (B ne doit jamais accéder aux données de A)", () => {
+  // P1.3 — vérifier qu'une ligne "existe encore" après une attaque ne prouve
+  // pas qu'elle n'a pas été altérée : on capture un instantané complet avant
+  // l'attaque et on vérifie une égalité stricte après, pas seulement une
+  // présence. Une UPDATE qui réussirait partiellement (une seule colonne
+  // modifiée par exemple) serait ainsi détectée, contrairement à un simple
+  // `toBeTruthy()`.
   it.each(ISOLATION_TABLES)("B ne peut ni lire, ni modifier, ni supprimer la ligne de A dans %s", async (table) => {
       const id = fixtureIds[table];
       if (!id) throw new Error(`Fixture manquante pour ${table} (beforeAll a dû échouer).`);
@@ -148,13 +160,16 @@ describe("Isolation entre comptes (B ne doit jamais accéder aux données de A)"
       const { data: selectData } = await clientB.from(table).select("id").eq("id", id);
       expect(selectData ?? []).toHaveLength(0);
 
+      const { data: beforeRow } = await admin.from(table).select("*").eq("id", id).single();
+      expect(beforeRow).toBeTruthy();
+
       await clientB.from(table).update({ nom: "hacked", label: "hacked", title: "hacked" }).eq("id", id);
       const { data: afterUpdate } = await admin.from(table).select("*").eq("id", id).single();
-      expect(afterUpdate).toBeTruthy();
+      expect(afterUpdate).toEqual(beforeRow);
 
       await clientB.from(table).delete().eq("id", id);
-      const { data: afterDelete } = await admin.from(table).select("id").eq("id", id).maybeSingle();
-      expect(afterDelete).toBeTruthy();
+      const { data: afterDelete } = await admin.from(table).select("*").eq("id", id).maybeSingle();
+      expect(afterDelete).toEqual(beforeRow);
     }
   );
 });
@@ -176,13 +191,35 @@ describe("C1.1 — A ne peut pas s'auto-promouvoir via profiles", () => {
     expect(profile?.plan_expires_at).toBeNull();
   });
 
-  it("le propriétaire peut toujours modifier ses champs non privilégiés", async () => {
-    const { error } = await clientA.from("profiles").update({ nom: "Test A", devise: "EUR" }).eq("id", idA);
+  it("le propriétaire peut toujours modifier son nom (champ non privilégié)", async () => {
+    const { error } = await clientA.from("profiles").update({ nom: "Test A" }).eq("id", idA);
     expect(error).toBeNull();
 
-    const { data: profile } = await admin.from("profiles").select("nom, devise").eq("id", idA).single();
+    const { data: profile } = await admin.from("profiles").select("nom").eq("id", idA).single();
     expect(profile?.nom).toBe("Test A");
+  });
+});
+
+// P1.2 — ce test contredisait 20260805093939_lock_devise_when_transactions_exist.sql
+// (le trigger le plus récent bloque explicitement tout changement de devise
+// dès qu'un revenu/dépense/mouvement d'épargne existe, pour éviter de
+// réinterpréter silencieusement un historique de montants dans une autre
+// devise). idA a des transactions depuis beforeAll ; idB n'en a aucune.
+describe("C2.3 — la devise ne peut plus être changée une fois des transactions saisies", () => {
+  it("B (aucune transaction) peut changer sa devise", async () => {
+    const { error } = await clientB.from("profiles").update({ devise: "EUR" }).eq("id", idB);
+    expect(error).toBeNull();
+
+    const { data: profile } = await admin.from("profiles").select("devise").eq("id", idB).single();
     expect(profile?.devise).toBe("EUR");
+  });
+
+  it("A (transactions existantes) ne peut pas changer sa devise", async () => {
+    const { error } = await clientA.from("profiles").update({ devise: "EUR" }).eq("id", idA);
+    expect(error).toBeTruthy();
+
+    const { data: profile } = await admin.from("profiles").select("devise").eq("id", idA).single();
+    expect(profile?.devise).not.toBe("EUR");
   });
 });
 
@@ -390,4 +427,50 @@ describe("P0.8 — vraie suppression de compte", () => {
       .maybeSingle();
     expect(auditRow?.email).toBe(userC.email);
   }, 30_000);
+});
+
+describe("P1.3 — isolation cross-user sur les objectifs (goal_contributions)", () => {
+  it("B ne peut pas contribuer à un objectif de A (IDOR sur contribute_to_goal)", async () => {
+    const goalId = fixtureIds.goals;
+    if (!goalId) throw new Error("Fixture goals manquante.");
+
+    const { error } = await clientB.rpc("contribute_to_goal", { p_goal_id: goalId, p_amount: 1000, p_note: null });
+    expect(error).toBeTruthy();
+
+    const { data: goal } = await admin.from("goals").select("montant_epargne").eq("id", goalId).single();
+    expect(Number(goal?.montant_epargne ?? 0)).toBe(0);
+  });
+
+  it("B ne peut pas lire les contributions de A", async () => {
+    const goalId = fixtureIds.goals;
+    if (!goalId) throw new Error("Fixture goals manquante.");
+
+    await admin.from("goal_contributions").insert({ goal_id: goalId, user_id: idA, montant: 500, note: "seed" });
+
+    const { data } = await clientB.from("goal_contributions").select("id").eq("goal_id", goalId);
+    expect(data ?? []).toHaveLength(0);
+  });
+});
+
+describe("P1.1 — le catalogue serveur (plan_catalog) reste synchronisé avec src/lib/plan.ts", () => {
+  it("AI_MESSAGE_QUOTA/TRACKER_ENTRY_LIMIT/SAVINGS_ACCOUNT_LIMIT correspondent au catalogue", async () => {
+    const { data: catalog, error } = await admin.from("plan_catalog").select("*");
+    expect(error).toBeNull();
+    expect(catalog?.length).toBe(4);
+
+    for (const row of catalog ?? []) {
+      const plan = row.plan as (typeof PLAN_ORDER)[number];
+      expect(PLAN_ORDER).toContain(plan);
+      expect(row.ai_quota).toBe(AI_MESSAGE_QUOTA[plan]);
+      expect(row.tracker_limit).toBe(TRACKER_ENTRY_LIMIT[plan]);
+      expect(row.savings_epargne_limit).toBe(SAVINGS_ACCOUNT_LIMIT[plan].epargne);
+      expect(row.savings_investissement_limit).toBe(SAVINGS_ACCOUNT_LIMIT[plan].investissement);
+    }
+  });
+
+  it("get_plan_catalog() est lisible par un utilisateur authentifié normal", async () => {
+    const { data, error } = await clientA.rpc("get_plan_catalog");
+    expect(error).toBeNull();
+    expect((data ?? []).length).toBe(4);
+  });
 });

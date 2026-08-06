@@ -80,7 +80,7 @@ export function ReportsDashboard() {
                 key={p.key}
                 onClick={() => !isLocked && setPeriod(p.key)}
                 disabled={isLocked}
-                title={isLocked ? "Historique complet réservé aux offres Essentiel et Pro" : undefined}
+                title={isLocked ? "Historique complet réservé aux offres payantes (Essentiel, Pro, Business)" : undefined}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium disabled:cursor-not-allowed"
                 style={
                   effectivePeriod === p.key
@@ -107,7 +107,7 @@ export function ReportsDashboard() {
           style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.18)", color: "#7C3AED" }}
         >
           <Icon i="lock" size={13} />
-          Vous consultez le mois en cours. L&apos;historique complet (trimestre, année) est réservé aux offres Iwadu Essentiel et Pro.
+          Vous consultez le mois en cours. L&apos;historique complet (trimestre, année) est réservé aux offres payantes (Iwadu Essentiel, Pro et Business).
         </div>
       )}
 

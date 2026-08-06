@@ -112,8 +112,13 @@ export async function updateGoal(goalId: string, input: CreateGoalInput) {
   if (error) throw error;
 }
 
+/** P1.5 — suppression logique : goal_contributions référence goals en
+ * cascade, un hard delete effacerait tout l'historique de contributions. */
 export async function deleteGoal(goalId: string) {
-  const { error } = await supabase.from("goals").delete().eq("id", goalId);
+  const { error } = await supabase
+    .from("goals")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", goalId);
   if (error) throw error;
 }
 
