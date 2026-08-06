@@ -6,7 +6,10 @@ import { AddTransactionModal } from "@/components/dashboard/AddTransactionModal"
 
 export default function ExpensesPage() {
   const [modalOpen, setModalOpen] = useState(false);
-  const { data: expenses = [], refetch } = useExpenses();
+  const { data: expenses = [], refetch } = useExpenses(undefined, {
+    source: "facture",
+    includeBacklog: true,
+  });
   const { data: categories = [] } = useCategories();
 
   return (

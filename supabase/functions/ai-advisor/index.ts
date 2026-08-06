@@ -168,7 +168,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const [{ data: incomes }, { data: expenses }, { data: categories }, { data: goals }, { data: history }] =
+    const [{ data: incomes }, { data: expenses }, { data: categories }, { data: goals }, { data: history }, { data: summaryRows }] =
       await Promise.all([
         supabase.from("incomes").select("category_id, montant, date").gte("date", start).lte("date", end),
         supabase
@@ -179,7 +179,21 @@ Deno.serve(async (req) => {
         supabase.from("categories").select("id, nom"),
         supabase.from("goals").select("label, montant_cible, montant_epargne, contribution_mensuelle"),
         supabase.from("ai_messages").select("role, content").order("created_at", { ascending: false }).limit(10),
+        // P0.1 — mêmes totaux canoniques que le Dashboard/les Rapports
+        // (financial_summary, migration 20260806090000), pas un recalcul
+        // maison qui pourrait diverger.
+        supabase.rpc("financial_summary", { p_start: start, p_end: end }),
       ]);
+
+    const summary = summaryRows?.[0] as
+      | {
+          revenus_encaisses: number;
+          depenses_payees: number;
+          charges_restantes: number;
+          reste_a_vivre_previsionnel: number;
+          epargne_periode: number;
+        }
+      | undefined;
 
     // C3.2 — Données transmises au prestataire d'IA (DeepSeek), strictement
     // minimisées : ni nom, ni email, ni identifiant utilisateur, ni libellé
@@ -206,15 +220,15 @@ Deno.serve(async (req) => {
       return [...totals.entries()].map(([statut, total]) => `${statut} : ${total} ${devise}`).join(", ") || "aucune";
     }
 
-    const totalRevenus = (incomes ?? []).reduce((s, i) => s + Number(i.montant), 0);
-    const totalDepenses = (expenses ?? []).reduce((s, e) => s + Number(e.montant), 0);
-
     const contextSummary = `Contexte financier du mois en cours (devise: ${devise}) :
-- Revenus totaux : ${totalRevenus} ${devise}
+- Revenus encaissés : ${summary?.revenus_encaisses ?? 0} ${devise}
 - Revenus par catégorie : ${aggregateByCategory(incomes ?? [])}
-- Dépenses totales : ${totalDepenses} ${devise}
+- Dépenses payées : ${summary?.depenses_payees ?? 0} ${devise}
 - Dépenses par catégorie : ${aggregateByCategory(expenses ?? [])}
 - Dépenses par statut : ${aggregateByStatut(expenses ?? [])}
+- Charges restantes (à venir + en retard) : ${summary?.charges_restantes ?? 0} ${devise}
+- Épargne de la période (dépôts − retraits) : ${summary?.epargne_periode ?? 0} ${devise}
+- Reste à vivre prévisionnel : ${summary?.reste_a_vivre_previsionnel ?? 0} ${devise}
 - Objectifs d'épargne : ${
       (goals ?? [])
         .map(

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMonthlyTrend } from "@/hooks/useMonthlyTrend";
 import { useCategoryTotalsRange } from "@/hooks/useCategoryTotalsRange";
+import { useFinancialSummary, ZERO_FINANCIAL_SUMMARY } from "@/hooks/useFinancialSummary";
 import { useGoals } from "@/hooks/useGoals";
 import { useProfile } from "@/hooks/useProfile";
 import { Icon } from "@/components/ui/Icon";
@@ -24,10 +25,14 @@ export function ReportsDashboard() {
   const { data: trend = [] } = useMonthlyTrend(months);
   const { totals: categoryTotals } = useCategoryTotalsRange(months);
   const { data: goals = [] } = useGoals();
+  const { data: financials = ZERO_FINANCIAL_SUMMARY } = useFinancialSummary(new Date(), months);
 
-  const totalRevenus = trend.reduce((s, p) => s + p.totalRevenus, 0);
-  const totalDepenses = trend.reduce((s, p) => s + p.totalDepenses, 0);
-  const epargneNette = totalRevenus - totalDepenses;
+  // P0.4 — l'épargne nette vient des mouvements d'épargne réels
+  // (financial_summary, même source que le Dashboard), plus jamais d'un
+  // simple revenus - dépenses.
+  const totalRevenus = financials.revenusEncaisses;
+  const totalDepenses = financials.depensesPayees;
+  const epargneNette = financials.epargnePeriode;
   const tauxEpargne = totalRevenus > 0 ? Math.round((epargneNette / totalRevenus) * 100) : 0;
 
   const soldeDebut = trend[0]?.solde ?? 0;
@@ -39,12 +44,17 @@ export function ReportsDashboard() {
 
   const previousHalf = trend.slice(0, Math.floor(trend.length / 2));
   const recentHalf = trend.slice(Math.floor(trend.length / 2));
-  const previousAvgSolde =
-    previousHalf.length > 0 ? previousHalf.reduce((s, p) => s + p.solde, 0) / previousHalf.length : 0;
-  const recentAvgSolde =
-    recentHalf.length > 0 ? recentHalf.reduce((s, p) => s + p.solde, 0) / recentHalf.length : 0;
+  // P0.4 — l'évolution affichée sous "Tendance d'épargne" et dans les
+  // Insights doit porter sur l'épargne réelle (epargneNette), pas sur le
+  // solde revenus/dépenses du "Flux de trésorerie" (carte séparée).
+  const previousAvgEpargne =
+    previousHalf.length > 0 ? previousHalf.reduce((s, p) => s + p.epargneNette, 0) / previousHalf.length : 0;
+  const recentAvgEpargne =
+    recentHalf.length > 0 ? recentHalf.reduce((s, p) => s + p.epargneNette, 0) / recentHalf.length : 0;
   const soldeEvolutionPct =
-    previousAvgSolde !== 0 ? Math.round(((recentAvgSolde - previousAvgSolde) / Math.abs(previousAvgSolde)) * 100) : null;
+    previousAvgEpargne !== 0
+      ? Math.round(((recentAvgEpargne - previousAvgEpargne) / Math.abs(previousAvgEpargne)) * 100)
+      : null;
 
   const goalCandidate = [...goals]
     .filter((g) => g.contributionMensuelle > 0 && g.montantEpargne < g.montantCible)
@@ -192,14 +202,14 @@ export function ReportsDashboard() {
           <h3 className="text-sm font-semibold text-foreground mb-4">Tendance d'épargne</h3>
           <div className="flex items-end justify-around gap-3" style={{ height: "240px", background: "rgba(0,0,0,0.04)", borderRadius: "8px", padding: "16px" }}>
             {trend.map((p) => {
-              const maxSolde = Math.max(1, ...trend.map((t) => Math.abs(t.solde)));
+              const maxEpargne = Math.max(1, ...trend.map((t) => Math.abs(t.epargneNette)));
               return (
                 <div key={p.monthStart} className="flex-1 flex flex-col items-center gap-1">
                   <div
                     style={{
                       width: "60%",
-                      height: `${Math.max(4, (Math.abs(p.solde) / maxSolde) * 190)}px`,
-                      background: p.solde >= 0 ? "linear-gradient(180deg, var(--color-secondary), var(--color-secondary-dark))" : "linear-gradient(180deg, #EF4444, #DC2626)",
+                      height: `${Math.max(4, (Math.abs(p.epargneNette) / maxEpargne) * 190)}px`,
+                      background: p.epargneNette >= 0 ? "linear-gradient(180deg, var(--color-secondary), var(--color-secondary-dark))" : "linear-gradient(180deg, #EF4444, #DC2626)",
                       borderRadius: "4px",
                     }}
                   />

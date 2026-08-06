@@ -3,6 +3,7 @@ import { Icon } from "@/components/ui/Icon";
 import { formatMontant } from "@/lib/formatters";
 import { markExpensePaid, deleteExpense, updateExpense } from "@/hooks/useExpenses";
 import { useProfile } from "@/hooks/useProfile";
+import { effectiveExpenseStatus } from "@/lib/expenseStatus";
 import type { Category, Expense } from "@/types/budget";
 
 interface ExpensesTableProps {
@@ -60,9 +61,17 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState({ nom: "", montant: "", dateEcheance: "" });
 
-  const totalPaye = expenses.filter((e) => e.statut === "paye").reduce((s, e) => s + e.montant, 0);
-  const totalAVenir = expenses.filter((e) => e.statut === "a_venir").reduce((s, e) => s + e.montant, 0);
-  const totalEnRetard = expenses.filter((e) => e.statut === "en_retard").reduce((s, e) => s + e.montant, 0);
+  // P0.6 — statut effectif (échéance dépassée = en retard, même si la
+  // colonne stockée n'a pas encore été matérialisée côté serveur).
+  const totalPaye = expenses
+    .filter((e) => effectiveExpenseStatus(e) === "paye")
+    .reduce((s, e) => s + e.montant, 0);
+  const totalAVenir = expenses
+    .filter((e) => effectiveExpenseStatus(e) === "a_venir")
+    .reduce((s, e) => s + e.montant, 0);
+  const totalEnRetard = expenses
+    .filter((e) => effectiveExpenseStatus(e) === "en_retard")
+    .reduce((s, e) => s + e.montant, 0);
 
   const startEdit = (expense: Expense) => {
     setEditingId(expense.id);
@@ -131,7 +140,8 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
           <div className="divide-y" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
             {expenses.map((expense) => {
               const category = categoryById.get(expense.categoryId ?? "");
-              const checked = expense.statut === "paye";
+              const status = effectiveExpenseStatus(expense);
+              const checked = status === "paye";
               const isEditing = editingId === expense.id;
 
               return (
@@ -220,7 +230,7 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
                           ...fixedCol(MONTANT_W),
                           textAlign: "right",
                           whiteSpace: "nowrap",
-                          color: expense.statut === "en_retard" ? "#EF4444" : "var(--color-ink)",
+                          color: status === "en_retard" ? "#EF4444" : "var(--color-ink)",
                         }}
                         className="font-semibold"
                       >
@@ -249,12 +259,12 @@ export function ExpensesTable({ expenses, categories, onChanged, onAddClick }: E
                         <div
                           className="px-2 py-1 rounded text-xs font-medium text-center"
                           style={{
-                            background: `${statusColors[expense.statut]}20`,
-                            color: statusColors[expense.statut],
-                            border: `1px solid ${statusColors[expense.statut]}40`,
+                            background: `${statusColors[status]}20`,
+                            color: statusColors[status],
+                            border: `1px solid ${statusColors[status]}40`,
                           }}
                         >
-                          {statusLabels[expense.statut]}
+                          {statusLabels[status]}
                         </div>
                       </div>
                       <div style={fixedCol(ACTIONS_W)} className="flex items-center justify-end gap-1">

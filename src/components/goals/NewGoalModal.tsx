@@ -60,14 +60,13 @@ export function NewGoalModal({ goal, onClose, onCreated }: NewGoalModalProps) {
       icone: selectedIcone,
       couleur: selectedCouleur,
       montantCible: values.montantCible,
-      montantEpargne: values.montantEpargne ?? 0,
       contributionMensuelle: values.contributionMensuelle ?? 0,
       dateCible: values.dateCible || null,
     };
     if (isEditing) {
       await updateGoal(goal.id, input);
     } else {
-      await createGoal(user.id, input);
+      await createGoal(user.id, input, values.montantEpargne ?? 0);
     }
     onCreated();
     onClose();
@@ -177,25 +176,37 @@ export function NewGoalModal({ goal, onClose, onCreated }: NewGoalModalProps) {
               </div>
               {errors.montantCible && <p className="text-xs text-danger mt-1">{errors.montantCible.message}</p>}
             </div>
-            <div>
-              <label htmlFor="goal-montant-epargne" className="text-xs font-semibold text-foreground block mb-1.5">Déjà épargné</label>
-              <div className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm bg-white/70 border border-black/10">
-                <Controller
-                  control={control}
-                  name="montantEpargne"
-                  render={({ field }) => (
-                    <AmountInput
-                      id="goal-montant-epargne"
-                      value={field.value}
-                      onChange={field.onChange}
-                      placeholder="0"
-                      className="flex-1 min-w-0 bg-transparent outline-none text-foreground"
-                    />
-                  )}
-                />
-                <span className="text-xs font-semibold text-muted-foreground">FCFA</span>
+            {goal ? (
+              <div>
+                <p className="text-xs font-semibold text-foreground block mb-1.5">Déjà épargné</p>
+                <div className="flex items-center px-4 py-3 rounded-lg text-sm bg-black/[0.03] border border-black/10 text-muted-foreground">
+                  {goal.montantEpargne.toLocaleString("fr-FR")} FCFA
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Mis à jour via les contributions, pas modifiable ici.
+                </p>
               </div>
-            </div>
+            ) : (
+              <div>
+                <label htmlFor="goal-montant-epargne" className="text-xs font-semibold text-foreground block mb-1.5">Déjà épargné</label>
+                <div className="flex items-center gap-2 px-4 py-3 rounded-lg text-sm bg-white/70 border border-black/10">
+                  <Controller
+                    control={control}
+                    name="montantEpargne"
+                    render={({ field }) => (
+                      <AmountInput
+                        id="goal-montant-epargne"
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="0"
+                        className="flex-1 min-w-0 bg-transparent outline-none text-foreground"
+                      />
+                    )}
+                  />
+                  <span className="text-xs font-semibold text-muted-foreground">FCFA</span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3">

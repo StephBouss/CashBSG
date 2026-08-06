@@ -1,22 +1,22 @@
-import type { MonthFinancials } from "@/lib/calculations";
+import type { FinancialSummary } from "@/hooks/useFinancialSummary";
 
 interface HealthScoreProps {
-  financials: MonthFinancials;
+  financials: FinancialSummary;
 }
 
 function clamp(v: number, min = 0, max = 100) {
   return Math.max(min, Math.min(max, v));
 }
 
-function computeScore(financials: MonthFinancials) {
-  const { totalRevenus, solde, totalDepensesPayees, totalDepensesAVenir, totalDepensesEnRetard } =
+function computeScore(financials: FinancialSummary) {
+  const { revenusEncaisses, soldeLiquide, depensesPayees, chargesEnRetard, chargesRestantes, epargnePeriode } =
     financials;
-  const totalDepenses = totalDepensesPayees + totalDepensesAVenir + totalDepensesEnRetard;
+  const totalDepenses = depensesPayees + chargesRestantes;
 
-  const tauxEpargne = totalRevenus > 0 ? clamp((solde / totalRevenus) * 100) : 0;
+  const tauxEpargne = revenusEncaisses > 0 ? clamp((epargnePeriode / revenusEncaisses) * 100) : 0;
   const depensesATemps =
-    totalDepenses > 0 ? clamp(100 - (totalDepensesEnRetard / totalDepenses) * 100) : 100;
-  const couverture = totalDepenses > 0 ? clamp((solde / totalDepenses) * 100) : 100;
+    totalDepenses > 0 ? clamp(100 - (chargesEnRetard / totalDepenses) * 100) : 100;
+  const couverture = totalDepenses > 0 ? clamp((soldeLiquide / totalDepenses) * 100) : 100;
 
   const score = Math.round((tauxEpargne + depensesATemps + couverture) / 3);
 

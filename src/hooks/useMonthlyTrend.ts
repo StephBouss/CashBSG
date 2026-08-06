@@ -11,6 +11,9 @@ export interface MonthlyTrendPoint {
   totalRevenus: number;
   totalDepenses: number;
   solde: number;
+  /** Dépôts − retraits d'épargne réels du mois (P0.4) — à ne pas confondre
+   * avec `solde`, qui reste une différence revenus/dépenses payées. */
+  epargneNette: number;
 }
 
 const monthLabelFormatter = new Intl.DateTimeFormat("fr-FR", { month: "short" });
@@ -30,22 +33,23 @@ export function useMonthlyTrend(months = 6) {
     enabled: !!user,
     ...VOLATILE_QUERY_OPTIONS,
     queryFn: async (): Promise<MonthlyTrendPoint[]> => {
-      const [{ data: incomes, error: incomesError }, { data: expenses, error: expensesError }] =
-        await Promise.all([
-          supabase
-            .from("incomes")
-            .select("montant, date")
-            .gte("date", rangeStart)
-            .lte("date", rangeEnd),
-          supabase
-            .from("expenses")
-            .select("montant, date_echeance, statut")
-            .gte("date_echeance", rangeStart)
-            .lte("date_echeance", rangeEnd),
-        ]);
+      const [
+        { data: incomes, error: incomesError },
+        { data: expenses, error: expensesError },
+        { data: movements, error: movementsError },
+      ] = await Promise.all([
+        supabase.from("incomes").select("montant, date").gte("date", rangeStart).lte("date", rangeEnd),
+        supabase
+          .from("expenses")
+          .select("montant, date_echeance, statut")
+          .gte("date_echeance", rangeStart)
+          .lte("date_echeance", rangeEnd),
+        supabase.from("savings_movements").select("montant, date").gte("date", rangeStart).lte("date", rangeEnd),
+      ]);
 
       if (incomesError) throw incomesError;
       if (expensesError) throw expensesError;
+      if (movementsError) throw movementsError;
 
       const points: MonthlyTrendPoint[] = [];
       for (let i = months - 1; i >= 0; i--) {
@@ -62,12 +66,17 @@ export function useMonthlyTrend(months = 6) {
           )
           .reduce((sum, row) => sum + Number(row.montant), 0);
 
+        const monthEpargneNette = (movements ?? [])
+          .filter((row) => row.date >= start && row.date <= end)
+          .reduce((sum, row) => sum + Number(row.montant), 0);
+
         points.push({
           label: monthLabelFormatter.format(reference),
           monthStart: start,
           totalRevenus: monthRevenus,
           totalDepenses: monthDepenses,
           solde: monthRevenus - monthDepenses,
+          epargneNette: monthEpargneNette,
         });
       }
 

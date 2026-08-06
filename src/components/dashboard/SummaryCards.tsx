@@ -1,10 +1,10 @@
 import { Icon } from "@/components/ui/Icon";
 import { formatMontant } from "@/lib/formatters";
-import type { MonthFinancials } from "@/lib/calculations";
+import type { FinancialSummary } from "@/hooks/useFinancialSummary";
 
 interface SummaryCardsProps {
-  financials: MonthFinancials;
-  previousFinancials?: MonthFinancials;
+  financials: FinancialSummary;
+  previousFinancials?: FinancialSummary;
   devise?: string;
 }
 
@@ -27,31 +27,38 @@ export function SummaryCards({ financials, previousFinancials, devise = "FCFA" }
   const cards: CardDef[] = [
     {
       icon: "💰",
-      label: "Revenus du mois",
-      value: financials.totalRevenus,
-      trend: trendPct(financials.totalRevenus, previousFinancials?.totalRevenus),
+      label: "Revenus encaissés",
+      value: financials.revenusEncaisses,
+      trend: trendPct(financials.revenusEncaisses, previousFinancials?.revenusEncaisses),
       accent: "var(--color-primary)",
     },
     {
       icon: "💳",
       label: "Dépenses payées",
-      value: financials.totalDepensesPayees,
-      trend: trendPct(financials.totalDepensesPayees, previousFinancials?.totalDepensesPayees),
+      value: financials.depensesPayees,
+      trend: trendPct(financials.depensesPayees, previousFinancials?.depensesPayees),
       accent: "var(--color-secondary)",
     },
     {
       icon: "⏳",
-      label: "Dépenses restantes",
-      value: financials.totalDepensesAVenir + financials.totalDepensesEnRetard,
+      label: "Charges restantes",
+      value: financials.chargesRestantes,
       sub: "À venir ou en retard",
       accent: "#EC4899",
     },
     {
+      icon: "🏦",
+      label: "Épargne de la période",
+      value: financials.epargnePeriode,
+      sub: "Dépôts − retraits",
+      accent: "#6366F1",
+    },
+    {
       icon: "💎",
-      label: "Solde disponible",
-      value: financials.solde,
-      sub: "Après toutes charges",
-      accent: financials.solde >= 0 ? "var(--color-primary)" : "#EF4444",
+      label: "Reste à vivre prévisionnel",
+      value: financials.resteAVivrePrevisionnel,
+      sub: "Solde liquide − charges restantes",
+      accent: financials.resteAVivrePrevisionnel >= 0 ? "var(--color-primary)" : "#EF4444",
       featured: true,
     },
   ];

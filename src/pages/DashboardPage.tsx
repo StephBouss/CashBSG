@@ -4,8 +4,8 @@ import { useExpenses } from "@/hooks/useExpenses";
 import { useCategories } from "@/hooks/useCategories";
 import { useGoals } from "@/hooks/useGoals";
 import { useMonthlyTrend } from "@/hooks/useMonthlyTrend";
+import { useFinancialSummary, ZERO_FINANCIAL_SUMMARY } from "@/hooks/useFinancialSummary";
 import { useProfile } from "@/hooks/useProfile";
-import { computeMonthFinancials } from "@/lib/calculations";
 import { expensesByCategory } from "@/lib/expensesByCategory";
 import { subMonths } from "date-fns";
 
@@ -35,15 +35,9 @@ export default function DashboardPage() {
   const { data: trend = [] } = useMonthlyTrend(6);
 
   const previousMonth = subMonths(new Date(), 1);
-  const { data: prevIncomes = [] } = useIncomes(previousMonth, { realtime: false });
-  const { data: prevExpenses = [] } = useExpenses(previousMonth, { realtime: false });
 
-  const financials = useMemo(() => computeMonthFinancials(incomes, expenses), [incomes, expenses]);
-
-  const previousFinancials = useMemo(
-    () => computeMonthFinancials(prevIncomes, prevExpenses),
-    [prevIncomes, prevExpenses]
-  );
+  const { data: financials = ZERO_FINANCIAL_SUMMARY } = useFinancialSummary();
+  const { data: previousFinancials } = useFinancialSummary(previousMonth);
 
   const categoryTotals = useMemo(() => expensesByCategory(expenses, categories, 6), [expenses, categories]);
   const totalDepenses = useMemo(() => expenses.reduce((s, e) => s + e.montant, 0), [expenses]);

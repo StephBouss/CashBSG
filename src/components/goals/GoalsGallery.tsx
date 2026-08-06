@@ -1,5 +1,5 @@
 import { Icon } from "@/components/ui/Icon";
-import { addGoalContribution, deleteGoal } from "@/hooks/useGoals";
+import { contributeToGoal, deleteGoal } from "@/hooks/useGoals";
 import { goalProgressPct, isGoalAchieved } from "@/lib/goalsProgress";
 import type { Goal } from "@/types/budget";
 
@@ -143,7 +143,7 @@ export function GoalsGallery({ goals, onChanged, onAddClick, onEditClick }: Goal
                   </div>
                   {goal.contributionMensuelle > 0 && !isGoalAchieved(goal.montantEpargne, goal.montantCible) && (
                     <button
-                      onClick={() => addGoalContribution(goal, goal.contributionMensuelle).then(onChanged)}
+                      onClick={() => contributeToGoal(goal.id, goal.contributionMensuelle).then(onChanged)}
                       className="px-3 py-1.5 rounded-lg text-xs font-medium text-white"
                       style={{ background: goal.couleur, boxShadow: `0 2px 8px ${goal.couleur}40` }}
                     >
